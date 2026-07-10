@@ -1153,21 +1153,29 @@
                 }
 
                 // הכנת תוצאות
+                // ההנחות הן על ערך צבור ו/או חופשי יומי, לא על נסיעה בודדת
                 const multiplier = DISCOUNT_MULTIPLIERS[passenger];
-                let finalPrice, monthlyPrice, monthlyDiscountText;
+                let finalPrice = baseFare; // נסיעה בודדת - תמיד מחיר מלא
+                let monthlyPrice, monthlyDiscountText;
                 
                 if (multiplier === 0) {
-                    finalPrice = 0;
                     monthlyPrice = 0;
                     monthlyDiscountText = '<span class="free-badge">חינם!</span>';
                 } else {
-                    finalPrice = Math.round(baseFare * multiplier * 100) / 100;
-                    
-                    // חישוב מחיר חופשי חודשי
-                    // סטודנט מורחב: 50% הנחה על חופשי חודשי, 33% על נסיעה בודדת
-                    if (passenger === 'student_plus') {
+                    // סטודנט מורחב: 50% הנחה על ערך צבור וחופשי יומי
+                    // סטודנט רגיל: 33% הנחה על ערך צבור בלבד
+                    if (passenger === 'student') {
+                        monthlyPrice = null; // אין הנחה על חופשי חודשי לסטודנט רגיל
+                        monthlyDiscountText = '33% הנחה על ערך צבור בלבד';
+                    } else if (passenger === 'student_plus') {
+                        monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה על חופשי חודשי
+                        monthlyDiscountText = '50% הנחה על ערך צבור וחופשי יומי';
+                    } else if (passenger === 'young_monthly') {
+                        monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה על חופשי חודשי
+                        monthlyDiscountText = '50% הנחה על חופשי חודשי';
+                    } else if (passenger === 'senior') {
                         monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה
-                        monthlyDiscountText = '50% הנחה (סטודנט מורחב)';
+                        monthlyDiscountText = '50% הנחה על ערך צבור';
                     } else {
                         monthlyPrice = Math.round(315.00 * multiplier * 100) / 100;
                         monthlyDiscountText = `${Math.round((1 - multiplier) * 100)}% הנחה`;
@@ -1195,7 +1203,9 @@
                 } else if (multiplier === 1) {
                     document.getElementById('breakdown-discount').textContent = 'ללא הנחה';
                 } else if (passenger === 'student_plus') {
-                    document.getElementById('breakdown-discount').textContent = '33% הנחה על נסיעה בודדת (50% על חופשי חודשי)';
+                    document.getElementById('breakdown-discount').textContent = '50% הנחה על ערך צבור וחופשי יומי';
+                } else if (passenger === 'student') {
+                    document.getElementById('breakdown-discount').textContent = '33% הנחה על ערך צבור בלבד';
                 } else {
                     const discountPercent = Math.round((1 - multiplier) * 100);
                     document.getElementById('breakdown-discount').textContent = `${discountPercent}% הנחה (${PROFILE_NAMES[passenger]})`;
@@ -1204,13 +1214,17 @@
                 document.getElementById('breakdown-final').textContent = `${finalPrice.toFixed(2)} ₪`;
                 
                 // עדכון מחיר חופשי חודשי
+                const monthlyCard = document.querySelector('.monthly-card');
                 const monthlyEl = document.getElementById('monthly-price');
                 const monthlyNoteEl = document.getElementById('monthly-note');
-                if (monthlyEl) {
-                    monthlyEl.textContent = `${monthlyPrice.toFixed(2)} ₪`;
-                }
-                if (monthlyNoteEl) {
-                    monthlyNoteEl.innerHTML = monthlyDiscountText;
+                if (monthlyCard) {
+                    if (monthlyPrice === null || passenger === 'student') {
+                        monthlyCard.style.display = 'none'; // סטודנט רגיל: אין הנחה על חופשי חודשי
+                    } else {
+                        monthlyCard.style.display = 'block';
+                        monthlyEl.textContent = `${monthlyPrice.toFixed(2)} ₪`;
+                        monthlyNoteEl.innerHTML = monthlyDiscountText;
+                    }
                 }
 
                 // הודעת Fallback
