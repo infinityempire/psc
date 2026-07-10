@@ -181,23 +181,42 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
+        .result-card.monthly-card {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .result-card.monthly-card .label {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-card.monthly-card .price {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .result-card.monthly-card .currency {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
         .result-card .label {
             font-size: 1.1em;
             opacity: 0.9;
             margin-bottom: 10px;
         }
-        
+
         .result-card .price {
             font-size: 3em;
             font-weight: bold;
         }
-        
+
         .result-card .currency {
             font-size: 1.2em;
             opacity: 0.9;
         }
-        
         .fare-breakdown {
             background: #f8f9fa;
             border-radius: 15px;
@@ -421,6 +440,12 @@
                 <div class="label">מחיר הנסיעה עבורך:</div>
                 <div class="price"><span id="final-price">0.00</span></div>
                 <div class="currency">₪ שקלים חדשים</div>
+            </div>
+
+            <div class="result-card monthly-card">
+                <div class="label">חופשי חודשי (לכל הארץ):</div>
+                <div class="price"><span id="monthly-price">315.00</span></div>
+                <div class="currency"><span id="monthly-note">ללא הנחה</span></div>
             </div>
             
             <div class="fare-breakdown">
@@ -1129,12 +1154,24 @@
 
                 // הכנת תוצאות
                 const multiplier = DISCOUNT_MULTIPLIERS[passenger];
-                let finalPrice;
+                let finalPrice, monthlyPrice, monthlyDiscountText;
                 
                 if (multiplier === 0) {
                     finalPrice = 0;
+                    monthlyPrice = 0;
+                    monthlyDiscountText = '<span class="free-badge">חינם!</span>';
                 } else {
                     finalPrice = Math.round(baseFare * multiplier * 100) / 100;
+                    
+                    // חישוב מחיר חופשי חודשי
+                    // סטודנט מורחב: 50% הנחה על חופשי חודשי, 33% על נסיעה בודדת
+                    if (passenger === 'student_plus') {
+                        monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה
+                        monthlyDiscountText = '50% הנחה (סטודנט מורחב)';
+                    } else {
+                        monthlyPrice = Math.round(315.00 * multiplier * 100) / 100;
+                        monthlyDiscountText = `${Math.round((1 - multiplier) * 100)}% הנחה`;
+                    }
                 }
 
                 // עדכון התצוגה
@@ -1157,12 +1194,24 @@
                     document.getElementById('breakdown-discount').innerHTML = '<span class="free-badge">חינם!</span>';
                 } else if (multiplier === 1) {
                     document.getElementById('breakdown-discount').textContent = 'ללא הנחה';
+                } else if (passenger === 'student_plus') {
+                    document.getElementById('breakdown-discount').textContent = '33% הנחה על נסיעה בודדת (50% על חופשי חודשי)';
                 } else {
                     const discountPercent = Math.round((1 - multiplier) * 100);
                     document.getElementById('breakdown-discount').textContent = `${discountPercent}% הנחה (${PROFILE_NAMES[passenger]})`;
                 }
                 
                 document.getElementById('breakdown-final').textContent = `${finalPrice.toFixed(2)} ₪`;
+                
+                // עדכון מחיר חופשי חודשי
+                const monthlyEl = document.getElementById('monthly-price');
+                const monthlyNoteEl = document.getElementById('monthly-note');
+                if (monthlyEl) {
+                    monthlyEl.textContent = `${monthlyPrice.toFixed(2)} ₪`;
+                }
+                if (monthlyNoteEl) {
+                    monthlyNoteEl.innerHTML = monthlyDiscountText;
+                }
 
                 // הודעת Fallback
                 if (fallbackReason) {
