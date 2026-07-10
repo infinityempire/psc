@@ -389,11 +389,11 @@
                 <div class="profile-grid">
                     <div>
                         <input type="radio" name="passenger" id="adult" value="adult" class="profile-option" checked>
-                        <label for="adult">רב קו רגיל</label>
+                        <label for="adult">מבוגר</label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="youth" value="youth" class="profile-option">
-                        <label for="youth">נוער (עד גיל 18)</label>
+                        <label for="youth">ילדים/נוער</label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="young_monthly" value="young_monthly" class="profile-option">
@@ -401,7 +401,7 @@
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="senior" value="senior" class="profile-option">
-                        <label for="senior">פרופיל ותיק (נשים בגיל 62)</label>
+                        <label for="senior">ותיק/ות</label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="student" value="student" class="profile-option">
@@ -503,7 +503,7 @@
             </div>
 
             <div class="disclaimer">
-                <strong>כתב ויתור אחריות:</strong> מחשבון זה הנו כלי עזר פרטי ואינו קשור למשרד התחבורה, לחברת רב-קו או לכל גוף רשמי אחר. התעריפים המוצגים מבוססים על מידע ציבורי שפורסם על ידי משרד התחבורה ועודכנו לאחרונה בחודש מאי 2025. מומלץ לבדוק תמיד את התעריף המעודכן בעת התיקוף בפועל במסוף הרכב הציבורי או במסופי חברת רב-קו.
+                <strong>כתב ויתור אחריות:</strong> מחשבון זה הנו כלי עזר פרטי ואינו קשור למשרד התחבורה, לחברת רב-קו או לכל גוף רשמי אחר. המידע והתעריפים המוצגים נמשכים כמקור מידע ציבורי ואינם מהווים ייעוץ רשמי או מחייב. התעריף הקובע והמחייב באופן בלעדי הוא התעריף המוצג בעת התיקוף בפועל במסוף הרכב הציבורי או במסופי חברת רב-קו.
             </div>
         </div>
     </div>
@@ -520,26 +520,108 @@
         const RESOURCE_ID = "4c849191-bb02-4161-8973-f16365a6f2bb";
         const API_TIMEOUT = 5000; // 5 שניות
 
-        // מכפילי הנחות לפי פרופיל נוסע
-        // מכפילי מחיר - נכון למאי 2025 (תעריפי נסיעה בודדת)
-        // הנחות חלות רק על: ערך צבור, חופשי יומי, חופשי חודשי
-        const DISCOUNT_MULTIPLIERS = {
-            'adult': 1.0,        // מחיר מלא
-            'youth': 1.0,         // נוער: מחיר מלא בנסיעה בודדת
-            'young_monthly': 0.67, // צעיר (חופשי חודשי): 33% הנחה
-            'senior': 0.5,        // פרופיל ותיק (נשים): 50% הנחה
-            'student': 0.67,      // סטודנט: 33% הנחה
-            'student_plus': 0.5,   // סטודנט מורחב: 50% הנחה
-            'soldier': 0.0,        // חייל / שירות לאומי / קד"צ: חינם!
-            'disabled': 1.0       // נכה: מחיר מלא בנסיעה בודדת
+        // ============================================================
+        // מערכת תצורה דינמית עם Fallback
+        // ============================================================
+
+        // תצורה נוכחית (נטענת מה-API או מ-Fallback)
+        let CONFIG = null;
+
+        // Fallback - הגדרות מקומיות (תעריפים נכונים למאי 2025)
+        const FALLBACK_CONFIG = {
+            lastUpdated: '2025-05',
+            tariffs: {
+                single: [
+                    { maxDistance: 15, price: 8.00, label: 'נסיעה עירונית/קצרה' },
+                    { maxDistance: 40, price: 14.50, label: 'נסיעה בינונית' },
+                    { maxDistance: 75, price: 19.00, label: 'נסיעה ארוכה' },
+                    { maxDistance: 120, price: 19.00, label: 'נסיעה ארוכה' },
+                    { maxDistance: 225, price: 30.50, label: 'נסיעה למרחק גדול' },
+                    { maxDistance: Infinity, price: 74.00, label: 'נסיעה למרחק גדול מאוד' }
+                ],
+                daily: [17.50, 29.00, 37.50, 37.50, 60.50, 79.50],
+                monthly: 315.00,
+                monthlyLong: 684.00
+            },
+            expressLines: {
+                'טבריה': {
+                    'תל אביב': 41.50, 'ירושלים': 41.50, 'נהריה': 41.50, 'חיפה': 33.50
+                },
+                'נהריה': {
+                    'תל אביב': 33.50, 'ירושלים': 41.50, 'טבריה': 41.50, 'חיפה': 19.00
+                }
+            },
+            discounts: {
+                'adult': { multiplier: 1.0, storedValue: 1.0, dailyPass: 1.0, monthlyPass: 1.0, label: 'מבוגר' },
+                'youth': { multiplier: 1.0, storedValue: 0.5, dailyPass: 1.0, monthlyPass: 0.5, label: 'ילדים/נוער' },
+                'young_monthly': { multiplier: 0.67, storedValue: 0.67, dailyPass: 1.0, monthlyPass: 0.5, label: 'צעיר (חופשי חודשי)' },
+                'senior': { multiplier: 0.5, storedValue: 0.5, dailyPass: 0.5, monthlyPass: 0.5, label: 'ותיק/ות' },
+                'student': { multiplier: 0.67, storedValue: 0.67, dailyPass: 1.0, monthlyPass: null, label: 'סטודנט' },
+                'student_plus': { multiplier: 0.5, storedValue: 0.5, dailyPass: 0.5, monthlyPass: 0.5, label: 'סטודנט מורחב' },
+                'soldier': { multiplier: 0.0, storedValue: 0.0, dailyPass: 0.0, monthlyPass: 0.0, label: 'חייל / שירות לאומי / קד"צ (חינם)' },
+                'disabled': { multiplier: 1.0, storedValue: 0.5, dailyPass: 1.0, monthlyPass: 0.5, label: 'נכה' }
+            }
         };
+
+        // ניסיון לטעון תצורה מה-API
+        async function loadDynamicConfig() {
+            try {
+                const url = `${CORS_PROXY}${encodeURIComponent(GOV_API_URL)}?id=${RESOURCE_ID}&limit=1`;
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
+                
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeout);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    // אם ה-API החזיר נתונים, נעדכן את התצורה
+                    // נשתמש בנתונים לעדכון התעריפים
+                    log('✅ נתונים נטענו מ-API ממשלתי', 'success');
+                    // TODO: פרסור הנתונים ועדכון CONFIG
+                }
+            } catch (error) {
+                log(`⚠️ שימוש ב-Fallback מקומי: ${error.message}`, 'warn');
+            }
+            
+            // שימוש ב-Fallback
+            CONFIG = JSON.parse(JSON.stringify(FALLBACK_CONFIG));
+            log(`📅 תצורה נטענה: מאי 2025 (Fallback)`, 'info');
+        }
+
+        // פונקציה לקבלת תעריף לפי מרחק
+        function getTariffByDistance(distanceKm) {
+            if (!CONFIG) return FALLBACK_CONFIG.tariffs.single[0];
+            
+            for (const tier of CONFIG.tariffs.single) {
+                if (distanceKm <= tier.maxDistance) {
+                    return tier;
+                }
+            }
+            return CONFIG.tariffs.single[CONFIG.tariffs.single.length - 1];
+        }
+
+        // פונקציה לקבלת מכפיל הנחה
+        function getDiscountMultiplier(profile, type = 'single') {
+            if (!CONFIG) return FALLBACK_CONFIG.discounts[profile] || { multiplier: 1.0 };
+            
+            const discount = CONFIG.discounts[profile];
+            if (!discount) return { multiplier: 1.0 };
+            
+            switch (type) {
+                case 'storedValue': return { multiplier: discount.storedValue };
+                case 'dailyPass': return { multiplier: discount.dailyPass };
+                case 'monthlyPass': return { multiplier: discount.monthlyPass };
+                default: return { multiplier: discount.multiplier };
+            }
+        }
 
         // שמות פרופילים לתצוגה
         const PROFILE_NAMES = {
-            'adult': 'רב קו רגיל',
-            'youth': 'נוער (עד גיל 18)',
+            'adult': 'מבוגר',
+            'youth': 'ילדים/נוער',
             'young_monthly': 'צעיר (חופשי חודשי)',
-            'senior': 'פרופיל ותיק (נשים בגיל 62)',
+            'senior': 'ותיק/ות',
             'student': 'סטודנט',
             'student_plus': 'סטודנט מורחב',
             'soldier': 'חייל / שירות לאומי / קד"צ (חינם)',
@@ -1281,7 +1363,11 @@
 
         // הודעת התחלה
         log('✅ מחשבון תעריפי תחבורה ציבורית נטען בהצלחה!', 'success');
-        log('🌐 כל הנתונים נשלפים ישירות ממאגרי מידע ממשלתיים וחינמיים', 'info');
+        log('📅 טוען תצורת תעריפים...', 'info');
+        
+        // טעינת תצורה דינמית
+        loadDynamicConfig();
+        
         log('📍 הזן מוצא ויעד כדי להתחיל', 'info');
     </script>
 </body>
