@@ -567,27 +567,32 @@
         // ניסיון לטעון תצורה מה-API
         async function loadDynamicConfig() {
             try {
-                const url = `${CORS_PROXY}${encodeURIComponent(GOV_API_URL)}?id=${RESOURCE_ID}&limit=1`;
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
-                
-                const response = await fetch(url, { signal: controller.signal });
-                clearTimeout(timeout);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    // אם ה-API החזיר נתונים, נעדכן את התצורה
-                    // נשתמש בנתונים לעדכון התעריפים
-                    log('✅ נתונים נטענו מ-API ממשלתי', 'success');
-                    // TODO: פרסור הנתונים ועדכון CONFIG
+                try {
+                    const url = `${CORS_PROXY}${encodeURIComponent(GOV_API_URL)}?id=${RESOURCE_ID}&limit=1`;
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
+                    
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeout);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        // אם ה-API החזיר נתונים, נעדכן את התצורה
+                        // נשתמש בנתונים לעדכון התעריפים
+                        log('✅ נתונים נטענו מ-API ממשלתי', 'success');
+                        // TODO: פרסור הנתונים ועדכון CONFIG
+                    }
+                } catch (error) {
+                    log(`⚠️ שימוש ב-Fallback מקומי: ${error.message}`, 'warn');
                 }
-            } catch (error) {
-                log(`⚠️ שימוש ב-Fallback מקומי: ${error.message}`, 'warn');
+                
+                // שימוש ב-Fallback
+                CONFIG = JSON.parse(JSON.stringify(FALLBACK_CONFIG));
+                log(`📅 תצורה נטענה: מאי 2025 (Fallback)`, 'info');
+            } catch (e) {
+                log(`⚠️ שגיאה בטעינת תצורה, שימוש ב-CONFIG מקומי ישיר: ${e.message}`, 'error');
+                CONFIG = FALLBACK_CONFIG;
             }
-            
-            // שימוש ב-Fallback
-            CONFIG = JSON.parse(JSON.stringify(FALLBACK_CONFIG));
-            log(`📅 תצורה נטענה: מאי 2025 (Fallback)`, 'info');
         }
 
         // פונקציה לקבלת תעריף לפי מרחק
@@ -1255,7 +1260,7 @@
 
                 // הכנת תוצאות
                 // ההנחות הן על ערך צבור ו/או חופשי יומי, לא על נסיעה בודדת
-                const multiplier = DISCOUNT_MULTIPLIERS[passenger];
+                const multiplier = getDiscountMultiplier(passenger).multiplier;
                 let finalPrice = baseFare; // נסיעה בודדת - תמיד מחיר מלא
                 let monthlyPrice, monthlyDiscountText;
                 
@@ -1345,9 +1350,114 @@
                 showResults();
 
             } catch (error) {
-                log(`❌ שגיאה חמורה: ${error.message}`, 'error');
-                setLoading(false);
-                showError('אירעה שגיאה בחישוב המסלול. אנא נסה שוב.');
+                log(`⚠️ שגיאה בחישוב המסלול: ${error.message}. מעבר אוטומטי ל-Fallback.`, 'warn');
+                
+                // הגדרת ערכי Fallback חלק במקרה של שגיאה או כשל של API/Config
+                baseFare = 8.00;
+                fallbackReason = 'שגיאה בחישוב המסלול - מעבר אוטומטי לתעריף בסיס (8.00 ₪)';
+                
+                try {
+                    const multiplier = (typeof getDiscountMultiplier === 'function') 
+                        ? getDiscountMultiplier(passenger).multiplier 
+                        : 1.0;
+                    
+                    let finalPrice = baseFare; // נסיעה בודדת - תמיד מחיר מלא
+                    let monthlyPrice = null;
+                    let monthlyDiscountText = '';
+                    
+                    if (multiplier === 0) {
+                        monthlyPrice = 0;
+                        monthlyDiscountText = '<span class="free-badge">חינם!</span>';
+                    } else {
+                        if (passenger === 'student') {
+                            monthlyPrice = null;
+                            monthlyDiscountText = '33% הנחה על ערך צבור בלבד';
+                        } else if (passenger === 'student_plus') {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                            monthlyDiscountText = '50% הנחה על ערך צבור וחופשי יומי';
+                        } else if (passenger === 'young_monthly') {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                            monthlyDiscountText = '50% הנחה על חופשי חודשי';
+                        } else if (passenger === 'senior') {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                            monthlyDiscountText = '50% הנחה על ערך צבור';
+                        } else {
+                            monthlyPrice = Math.round(315.00 * multiplier * 100) / 100;
+                            monthlyDiscountText = `${Math.round((1 - multiplier) * 100)}% הנחה`;
+                        }
+                    }
+
+                    // עדכון התצוגה
+                    const finalPriceEl = document.getElementById('final-price');
+                    if (finalPriceEl) finalPriceEl.textContent = finalPrice.toFixed(2);
+                    
+                    const breakdownOriginEl = document.getElementById('breakdown-origin');
+                    if (breakdownOriginEl) breakdownOriginEl.textContent = origin || 'לא ידוע';
+                    
+                    const breakdownDestEl = document.getElementById('breakdown-dest');
+                    if (breakdownDestEl) breakdownDestEl.textContent = dest || 'לא ידוע';
+                    
+                    const breakdownDistanceEl = document.getElementById('breakdown-distance');
+                    if (breakdownDistanceEl) breakdownDistanceEl.textContent = 'שגיאה בחישוב';
+                    
+                    const breakdownBaseEl = document.getElementById('breakdown-base');
+                    if (breakdownBaseEl) breakdownBaseEl.textContent = `${baseFare.toFixed(2)} ₪`;
+                    
+                    const breakdownDiscountEl = document.getElementById('breakdown-discount');
+                    if (breakdownDiscountEl) {
+                        if (multiplier === 0) {
+                            breakdownDiscountEl.innerHTML = '<span class="free-badge">חינם!</span>';
+                        } else if (multiplier === 1) {
+                            breakdownDiscountEl.textContent = 'ללא הנחה';
+                        } else if (passenger === 'student_plus') {
+                            breakdownDiscountEl.textContent = '50% הנחה על ערך צבור וחופשי יומי';
+                        } else if (passenger === 'student') {
+                            breakdownDiscountEl.textContent = '33% הנחה על ערך צבור בלבד';
+                        } else {
+                            const discountPercent = Math.round((1 - multiplier) * 100);
+                            const profileName = (typeof PROFILE_NAMES !== 'undefined' && PROFILE_NAMES[passenger]) ? PROFILE_NAMES[passenger] : passenger;
+                            breakdownDiscountEl.textContent = `${discountPercent}% הנחה (${profileName})`;
+                        }
+                    }
+                    
+                    const breakdownFinalEl = document.getElementById('breakdown-final');
+                    if (breakdownFinalEl) breakdownFinalEl.textContent = `${finalPrice.toFixed(2)} ₪`;
+                    
+                    const monthlyCard = document.querySelector('.monthly-card');
+                    const monthlyEl = document.getElementById('monthly-price');
+                    const monthlyNoteEl = document.getElementById('monthly-note');
+                    if (monthlyCard) {
+                        if (monthlyPrice === null || passenger === 'student') {
+                            monthlyCard.style.display = 'none';
+                        } else {
+                            monthlyCard.style.display = 'block';
+                            if (monthlyEl) monthlyEl.textContent = `${monthlyPrice.toFixed(2)} ₪`;
+                            if (monthlyNoteEl) monthlyNoteEl.innerHTML = monthlyDiscountText;
+                        }
+                    }
+
+                    const fallbackReasonEl = document.getElementById('fallback-reason');
+                    const fallbackNoticeEl = document.getElementById('fallback-notice');
+                    if (fallbackReasonEl && fallbackNoticeEl) {
+                        fallbackReasonEl.textContent = fallbackReason;
+                        fallbackNoticeEl.style.display = 'block';
+                    }
+
+                    setLoading(false);
+                    showResults();
+                } catch (fallbackError) {
+                    log(`❌ שגיאה משנית ב-Fallback: ${fallbackError.message}`, 'error');
+                    setLoading(false);
+                    try {
+                        const finalPriceEl = document.getElementById('final-price');
+                        if (finalPriceEl) finalPriceEl.textContent = "8.00";
+                        const breakdownFinalEl = document.getElementById('breakdown-final');
+                        if (breakdownFinalEl) breakdownFinalEl.textContent = "8.00 ₪";
+                        showResults();
+                    } catch (e) {
+                        log(`❌ שגיאה חמורה ביותר: ${e.message}`, 'error');
+                    }
+                }
             }
         }
 
