@@ -519,7 +519,7 @@
         const GOV_API_URL = "https://data.gov.il/api/3/action/datastore_search";
         const CORS_PROXY = "https://api.allorigins.win/get?url=";
         const RESOURCE_ID = "4c849191-bb02-4161-8973-f16365a6f2bb";
-        const API_TIMEOUT = 5000; // 5 שניות
+        const API_TIMEOUT = 1200; // 1.2 שניות (1200 אלפיות השנייה)
 
         // ============================================================
         // מערכת תצורה דינמית עם Fallback
@@ -910,13 +910,30 @@
 
         // שליפת קואורדינטות מ-Nominatim (OpenStreetMap - חינם!)
         async function getCoords(address) {
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                log(`📡 מכשיר לא מקוון. דילוג על חיפוש גיאוגרפי עבור "${address}"`, 'warn');
+                return null;
+            }
+            
             log(`🔍 מחפש קואורדינטות עבור: "${address}"`, 'info');
             const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ', ישראל')}&countrycodes=il&limit=1`;
             
+            let controller;
+            let timeoutId;
+            let signal;
+            
+            if (typeof AbortController !== 'undefined') {
+                controller = new AbortController();
+                timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+                signal = controller.signal;
+            }
+            
             try {
                 const response = await fetch(url, {
-                    headers: { 'Accept-Language': 'he, he-IL' }
+                    headers: { 'Accept-Language': 'he, he-IL' },
+                    signal: signal
                 });
+                if (timeoutId) clearTimeout(timeoutId);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const data = await response.json();
@@ -932,6 +949,7 @@
                 log(`⚠️ לא נמצאו תוצאות עבור "${address}"`, 'warn');
                 return null;
             } catch (error) {
+                if (timeoutId) clearTimeout(timeoutId);
                 log(`❌ שגיאה בשליפת קואורדינטות: ${error.message}`, 'error');
                 return null;
             }
@@ -1229,9 +1247,9 @@
                             fallbackReason = `חישוב לפי מרחק (~${distanceKm} ק"מ כביש) - ${distanceResult.label}`;
                         }
                     } else {
-                        // אם לא ניתן לחשב מרחק, השתמש בערך ברירת מחדל
-                        baseFare = 15.00;
-                        fallbackReason = 'לא ניתן לחשב מרחק - שימוש בתעריף ממוצע';
+                        // אם לא ניתן לחשב מרחק, השתמש בערך ברירת מחדל של ה-Fallback (8.00 ₪)
+                        baseFare = 8.00;
+                        fallbackReason = 'לא ניתן לחשב מרחק - שימוש בתעריף בסיס (Fallback)';
                     }
                 }
 
