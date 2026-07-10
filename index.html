@@ -355,7 +355,7 @@
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="senior" value="senior" class="profile-option">
-                        <label for="senior">כרטיס זהב (חינם!)</label>
+                        <label for="senior">ותיק נשים מגיל 62</label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="student" value="student" class="profile-option">
@@ -428,8 +428,8 @@
             <div class="legend">
                 <h5>📝 הערות חשובות</h5>
                 <div class="legend-item">
-                    <span>כרטיס זהב:</span>
-                    <span>חינם!</span>
+                    <span>ותיק נשים (62+):</span>
+                    <span>50% הנחה</span>
                 </div>
                 <div class="legend-item">
                     <span>סטודנט:</span>
@@ -461,7 +461,7 @@
         const DISCOUNT_MULTIPLIERS = {
             'adult': 1.0,      // מחיר מלא
             'youth': 1.0,       // נוער: מחיר מלא בנסיעה בודדת (50% הנחה רק בערך צבור ומנויים)
-            'senior': 0.0,      // כרטיס זהב: חינם! (נשים וגברים מגיל 67)
+            'senior': 0.5,      // ותיק נשים: 50% הנחה
             'student': 0.67,    // סטודנט: 33% הנחה
             'disabled': 1.0     // נכה: מחיר מלא בנסיעה בודדת (50% הנחה רק בערך צבור ומנויים)
         };
@@ -470,7 +470,7 @@
         const PROFILE_NAMES = {
             'adult': 'רב קו רגיל',
             'youth': 'נוער (עד גיל 18)',
-            'senior': 'כרטיס זהב (חינם!)',
+            'senior': 'ותיק נשים מגיל 62',
             'student': 'סטודנט',
             'disabled': 'נכה'
         };
