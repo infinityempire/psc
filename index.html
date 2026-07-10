@@ -351,11 +351,11 @@
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="youth" value="youth" class="profile-option">
-                        <label for="youth">ילד/נוער<br><small>(עד גיל 18)</small></label>
+                        <label for="youth">נוער<br><small>(עד גיל 18)</small></label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="senior" value="senior" class="profile-option">
-                        <label for="senior">אזרח ותיק<br><small>(62+ נשים, 65+ גברים)</small></label>
+                        <label for="senior">כרטיס זהב<br><small>(67+ חינם!)</small></label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="student" value="student" class="profile-option">
@@ -429,7 +429,7 @@
                 <h5>📝 הערות חשובות</h5>
                 <div class="legend-item">
                     <span>כרטיס זהב:</span>
-                    <span>חינם! (נשים 62+, גברים 65+)</span>
+                    <span>חינם! (נשים וגברים מגיל 67)</span>
                 </div>
                 <div class="legend-item">
                     <span>סטודנט:</span>
@@ -437,7 +437,7 @@
                 </div>
                 <div class="legend-item">
                     <span>נוער/נכים:</span>
-                    <span>50% הנחה רק בערך צבור ומנויים</span>
+                    <span>מחיר מלא בנסיעה בודדת</span>
                 </div>
             </div>
         </div>
@@ -461,7 +461,7 @@
         const DISCOUNT_MULTIPLIERS = {
             'adult': 1.0,      // מחיר מלא
             'youth': 1.0,       // נוער: מחיר מלא בנסיעה בודדת (50% הנחה רק בערך צבור ומנויים)
-            'senior': 0.0,      // כרטיס זהב: חינם! (נשים 62+, גברים 65+)
+            'senior': 0.0,      // כרטיס זהב: חינם! (נשים וגברים מגיל 67)
             'student': 0.67,    // סטודנט: 33% הנחה
             'disabled': 1.0     // נכה: מחיר מלא בנסיעה בודדת (50% הנחה רק בערך צבור ומנויים)
         };
@@ -469,7 +469,7 @@
         // שמות פרופילים לתצוגה
         const PROFILE_NAMES = {
             'adult': 'רב קו רגיל',
-            'youth': 'ילד/נוער',
+            'youth': 'נוער (עד גיל 18)',
             'senior': 'כרטיס זהב (חינם!)',
             'student': 'סטודנט',
             'disabled': 'נכה'
