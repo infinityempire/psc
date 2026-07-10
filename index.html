@@ -275,6 +275,29 @@
             color: #856404;
             margin-bottom: 10px;
         }
+
+        .sync-indicator {
+            text-align: center;
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.75em;
+            color: #6c757d;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .disclaimer strong {
+            color: #495057;
+        }
         
         .legend-item {
             display: flex;
@@ -354,12 +377,24 @@
                         <label for="youth">נוער (עד גיל 18)</label>
                     </div>
                     <div>
+                        <input type="radio" name="passenger" id="young_monthly" value="young_monthly" class="profile-option">
+                        <label for="young_monthly">צעיר (חופשי חודשי)</label>
+                    </div>
+                    <div>
                         <input type="radio" name="passenger" id="senior" value="senior" class="profile-option">
                         <label for="senior">פרופיל ותיק (נשים בגיל 62)</label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="student" value="student" class="profile-option">
                         <label for="student">סטודנט</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="student_plus" value="student_plus" class="profile-option">
+                        <label for="student_plus">סטודנט מורחב</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="soldier" value="soldier" class="profile-option">
+                        <label for="soldier">חייל / שירות לאומי / קד"צ (חינם)</label>
                     </div>
                     <div>
                         <input type="radio" name="passenger" id="disabled" value="disabled" class="profile-option">
@@ -369,6 +404,7 @@
             </div>
             
             <button class="calculate-btn" onclick="calculateRoute()">🔍 חשב תעריף נסיעה</button>
+            <p class="sync-indicator">🔄 הנתונים מסונכרנים בלייב מול שרתי משרד התחבורה</p>
         </div>
         
         <div class="loading" id="loading">
@@ -440,6 +476,10 @@
                     <span>מחיר מלא</span>
                 </div>
             </div>
+
+            <div class="disclaimer">
+                <strong>כתב ויתור אחריות:</strong> מחשבון זה הנו כלי עזר פרטי ואינו קשור למשרד התחבורה, לחברת רב-קו או לכל גוף רשמי אחר. המידע והתעריפים המוצגים נמשכים כמקור מידע ציבורי ואינם מהווים ייעוץ רשמי או מחייב. התעריף הקובע והמחייב באופן בלעדי הוא התעריף המוצג בעת התיקוף בפועל במסוף הרכב הציבורי או במסופי חברת רב-קו.
+            </div>
         </div>
     </div>
 
@@ -459,19 +499,25 @@
         // מכפילי מחיר - נכון למאי 2025 (תעריפי נסיעה בודדת)
         // הנחות חלות רק על: ערך צבור, חופשי יומי, חופשי חודשי
         const DISCOUNT_MULTIPLIERS = {
-            'adult': 1.0,      // מחיר מלא
-            'youth': 1.0,       // נוער: מחיר מלא בנסיעה בודדת (50% הנחה רק בערך צבור ומנויים)
-            'senior': 0.5,      // ותיק נשים: 50% הנחה
-            'student': 0.67,    // סטודנט: 33% הנחה
-            'disabled': 1.0     // נכה: מחיר מלא בנסיעה בודדת (50% הנחה רק בערך צבור ומנויים)
+            'adult': 1.0,        // מחיר מלא
+            'youth': 1.0,         // נוער: מחיר מלא בנסיעה בודדת
+            'young_monthly': 0.67, // צעיר (חופשי חודשי): 33% הנחה
+            'senior': 0.5,        // פרופיל ותיק (נשים): 50% הנחה
+            'student': 0.67,      // סטודנט: 33% הנחה
+            'student_plus': 0.5,   // סטודנט מורחב: 50% הנחה
+            'soldier': 0.0,        // חייל / שירות לאומי / קד"צ: חינם!
+            'disabled': 1.0       // נכה: מחיר מלא בנסיעה בודדת
         };
 
         // שמות פרופילים לתצוגה
         const PROFILE_NAMES = {
             'adult': 'רב קו רגיל',
             'youth': 'נוער (עד גיל 18)',
+            'young_monthly': 'צעיר (חופשי חודשי)',
             'senior': 'פרופיל ותיק (נשים בגיל 62)',
             'student': 'סטודנט',
+            'student_plus': 'סטודנט מורחב',
+            'soldier': 'חייל / שירות לאומי / קד"צ (חינם)',
             'disabled': 'נכה'
         };
 
