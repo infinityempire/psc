@@ -164,6 +164,7 @@
                     var oc=coords(o);
                     var dc=coords(d);
                     var discount=getDiscount(p);
+                    var passengerType=p;
                     
                     // Base prices for all three ticket types
                     var basePrices={
@@ -183,11 +184,12 @@
                     // Single ride: apply discount
                     prices.single=Math.round(basePrices.single*(1-discount)*100)/100;
                     
-                    // Daily Pass: ONLY free (0) for 100% discount profiles, otherwise full price
-                    if(discount===1){
-                        prices.daily=0;
+                    // Daily Pass: HARD FIX - explicitly check passenger type
+                    // Only FREE profiles get 0₪, ALL others pay full price
+                    if (passengerType === 'soldier' || passengerType === 'national_service' || passengerType === 'pre_military' || passengerType === 'blind' || passengerType === 'senior_75') {
+                        prices.daily = 0.00;
                     } else {
-                        prices.daily=basePrices.daily;
+                        prices.daily = basePrices.daily; // Force 100% full price (18.00 ₪)
                     }
                     
                     // Monthly pass: apply discount
