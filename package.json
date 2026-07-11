@@ -1,0 +1,11 @@
+{
+  "name": "psc",
+  "version": "1.0.0",
+  "description": "Public Transportation Fare Calculator",
+  "scripts": {
+    "sync-fares": "node sync-fares.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0"
+  }
+}
