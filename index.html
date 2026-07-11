@@ -161,44 +161,103 @@
         // ============================================================
         // FARE RULES - Distance-based tiers for Single & Daily
         // ============================================================
+        // ============================================================
+        // OFFICIAL FARE RULES - Ministry of Transport Israel (July 2025)
+        // Source: https://bus.gov.il/FaresDistance
+        // ============================================================
         var FARE_RULES = {
-            local: {       // 0-15 km
+            yellow: {       // 0-15 km
+                minDistance: 0,
                 maxDistance: 15,
                 single: 8.00,
-                daily: 13.00,
-                label: 'עירוני/מטרופוליטני'
+                singleTrain: 11.50,
+                daily: 17.50,
+                dailyTrain: 23.00,
+                monthlyNational: 315.00,
+                monthlyTrain: 323.00,
+                label: 'צהוב (0-15 ק"מ)'
             },
-            suburban: {     // 15-40 km
+            green: {        // 15-40 km
+                minDistance: 15,
                 maxDistance: 40,
-                single: 15.00,
-                daily: 24.00,
-                label: 'פרברי/אזורי'
+                single: 14.50,
+                singleTrain: 21.00,
+                daily: 29.00,
+                dailyTrain: 32.50,
+                monthlyNational: 315.00,
+                monthlyTrain: 323.00,
+                label: 'ירוק (15-40 ק"מ)'
             },
-            intercity: {   // 40+ km
-                maxDistance: Infinity,
-                single: 49.50,
+            lightBlue: {    // 40-75 km
+                minDistance: 40,
+                maxDistance: 75,
+                single: 19.00,
+                singleTrain: 27.00,
                 daily: 37.50,
-                label: 'בינעירוני'
+                dailyTrain: 42.00,
+                monthlyNational: 315.00,
+                monthlyTrain: 464.00,
+                label: 'תכלת (40-75 ק"מ)'
+            },
+            blue: {         // 75-120 km
+                minDistance: 75,
+                maxDistance: 120,
+                single: 19.00,
+                singleTrain: 30.50,
+                daily: 37.50,
+                dailyTrain: 47.00,
+                monthlyNational: 315.00,
+                monthlyTrain: 684.00,
+                label: 'כחול (75-120 ק"מ)'
+            },
+            purple: {       // 120-225 km
+                minDistance: 120,
+                maxDistance: 225,
+                single: 30.50,
+                singleTrain: 52.50,
+                daily: 60.50,
+                dailyTrain: 80.50,
+                monthlyNational: 315.00,
+                monthlyTrain: 684.00,
+                label: 'סגול (120-225 ק"מ)'
+            },
+            gray: {         // 225+ km
+                minDistance: 225,
+                maxDistance: Infinity,
+                single: 74.00,
+                singleTrain: 74.00,  // No train service for these routes
+                daily: 79.50,
+                dailyTrain: 79.50,
+                monthlyNational: 684.00,  // Bus only
+                monthlyTrain: 684.00,
+                label: 'אפור (225+ ק"מ)'
             }
         };
 
         // ============================================================
         // MONTHLY CONTRACTS (Official Reform Passes)
         // ============================================================
+        // ============================================================
+        // MONTHLY CONTRACTS - Official MOT prices (July 2025)
+        // Source: https://bus.gov.il/FaresDistance
+        // ============================================================
         var MONTHLY_CONTRACTS = {
             national: {
                 name: 'חופשי חודשי ארצי',
-                base: 315.00,
-                label: 'בינעירוני ארצי'
+                // Base price for bus-only national pass (zone-based)
+                label: 'בינעירוני ארצי',
+                useZonePrice: true  // Will use fareZone.data.monthlyNational
             },
             nationalTrain: {
                 name: 'חופשי ארצי משולב רכבת',
-                base: 410.00,
+                // Zone-based pricing for combined train pass
                 label: 'משולב רכבת',
-                condition: 'intercity' // Only for distance > 40km
+                useZonePrice: true,  // Will use fareZone.data.monthlyTrain
+                condition: 'requiresTrain' // Only valid if train service available
             },
             periphery: {
                 name: 'חופשי חודשי פריפריה',
+                // Peripheral areas - cheaper for residents
                 base: 133.00,
                 label: 'פריפריה',
                 invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
@@ -206,6 +265,7 @@
             },
             eilat: {
                 name: 'חופשי חודשי אילת',
+                // Eilat special pass
                 base: 114.50,
                 label: 'אילת',
                 requiredCity: 'אילת'
@@ -261,20 +321,34 @@
         // ============================================================
         // FARE RULE ENGINE
         // ============================================================
+        // Determine fare zone based on distance
+        // Official MOT distance bands: https://bus.gov.il/FaresDistance
+        // ============================================================
         
         function determineFareZone(distance) {
-            if (distance <= FARE_RULES.local.maxDistance) {
-                return { zone: 'local', data: FARE_RULES.local, distance: distance };
-            } else if (distance <= FARE_RULES.suburban.maxDistance) {
-                return { zone: 'suburban', data: FARE_RULES.suburban, distance: distance };
+            // Handle invalid distances (null, undefined, or negative)
+            if (distance === null || distance === undefined || distance < 0) {
+                // Fallback for unknown distance - use gray (intercity) zone
+                return { zone: 'gray', data: FARE_RULES.gray, distance: distance };
+            }
+            
+            if (distance <= FARE_RULES.yellow.maxDistance) {
+                return { zone: 'yellow', data: FARE_RULES.yellow, distance: distance };
+            } else if (distance <= FARE_RULES.green.maxDistance) {
+                return { zone: 'green', data: FARE_RULES.green, distance: distance };
+            } else if (distance <= FARE_RULES.lightBlue.maxDistance) {
+                return { zone: 'lightBlue', data: FARE_RULES.lightBlue, distance: distance };
+            } else if (distance <= FARE_RULES.blue.maxDistance) {
+                return { zone: 'blue', data: FARE_RULES.blue, distance: distance };
+            } else if (distance <= FARE_RULES.purple.maxDistance) {
+                return { zone: 'purple', data: FARE_RULES.purple, distance: distance };
             } else {
-                return { zone: 'intercity', data: FARE_RULES.intercity, distance: distance };
+                return { zone: 'gray', data: FARE_RULES.gray, distance: distance };
             }
         }
 
         function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
             var result = { valid: true, price: null, message: '' };
-            var basePrice = contract.base;
             var originLower = origin.trim().toLowerCase();
             var destLower = dest.trim().toLowerCase();
 
@@ -306,11 +380,27 @@
                 }
             }
 
+            // Determine base price - use zone-based or fixed price
+            var basePrice;
+            if (contract.useZonePrice && fareZone && fareZone.data) {
+                // Zone-based pricing for national/nationalTrain
+                if (contract === MONTHLY_CONTRACTS.national) {
+                    basePrice = fareZone.data.monthlyNational;
+                } else if (contract === MONTHLY_CONTRACTS.nationalTrain) {
+                    basePrice = fareZone.data.monthlyTrain;
+                }
+            } else {
+                basePrice = contract.base;
+            }
+
             // Check intercity condition for National+Train
-            if (contract.condition === 'intercity' && fareZone.zone !== 'intercity') {
-                result.valid = false;
-                result.message = 'לא רלוונטי למסלול';
-                return result;
+            if (contract.condition === 'requiresTrain') {
+                // Gray zone (225+ km) may not have train service
+                if (fareZone.zone === 'gray') {
+                    result.valid = false;
+                    result.message = 'אין שירות רכבת';
+                    return result;
+                }
             }
 
             // Calculate price with discount
@@ -329,9 +419,9 @@
                 distance = calculateDistance(oc[0], oc[1], dc[0], dc[1]);
                 fareZone = determineFareZone(distance);
             } else {
-                // Fallback: assume intercity if cities not found
+                // Fallback: assume gray (intercity) if cities not found
                 distance = null;
-                fareZone = { zone: 'intercity', data: FARE_RULES.intercity, distance: null };
+                fareZone = determineFareZone(null);
             }
 
             var freeProfile = isFreeProfile(passengerType);
@@ -460,28 +550,28 @@
                     if (result.isFallback) {
                         fallbackEl.style.display = 'block';
                         fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' +
-                            FARE_RULES.intercity.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
+                            FARE_RULES.gray.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
                     } else {
                         fallbackEl.style.display = 'none';
                     }
 
                 } catch (e) {
-                    // Error fallback: use intercity prices
+                    // Error fallback: use gray (intercity) prices
                     document.getElementById('price-single').textContent = 
-                        FARE_RULES.intercity.single.toFixed(2);
+                        FARE_RULES.gray.single.toFixed(2);
                     document.getElementById('price-daily').textContent = 
-                        FARE_RULES.intercity.daily.toFixed(2);
+                        FARE_RULES.gray.daily.toFixed(2);
                     document.getElementById('price-monthly-national').textContent = 
-                        MONTHLY_CONTRACTS.national.base.toFixed(2);
+                        FARE_RULES.gray.monthlyNational.toFixed(2);
                     document.getElementById('price-monthly-train').textContent = 
-                        MONTHLY_CONTRACTS.nationalTrain.base.toFixed(2);
+                        FARE_RULES.gray.monthlyTrain.toFixed(2);
                     document.getElementById('price-monthly-periphery').textContent = 'שגיאה';
                     document.getElementById('price-monthly-eilat').textContent = 'שגיאה';
                     document.getElementById('r-final').textContent = 
-                        FARE_RULES.intercity.single.toFixed(2) + ' ₪';
+                        FARE_RULES.gray.single.toFixed(2) + ' ₪';
                     document.getElementById('fallback').style.display = 'block';
                     document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
-                        FARE_RULES.intercity.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
+                        FARE_RULES.gray.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
                 }
 
                 btn.disabled = false;
