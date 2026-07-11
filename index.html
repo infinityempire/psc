@@ -31,9 +31,11 @@
         #calculate-btn:disabled{background:#999;cursor:not-allowed}
         .results-section{padding:35px;display:none}
         .results-section.active{display:block}
-        .result-card{background:linear-gradient(#667eea,#764ba2);color:#fff;border-radius:20px;padding:30px;text-align:center;margin-bottom:20px}
-        .result-card .label{font-size:1.1em;margin-bottom:10px}
-        .result-card .price{font-size:3em;font-weight:bold}
+        .result-card{background:#ffffff;color:#2c3e50;border-radius:20px;padding:25px;text-align:center;margin-bottom:15px;box-shadow:0 4px 15px rgba(0,0,0,0.1);border:2px solid #e0e0e0}
+        .result-card .label{font-size:1.1em;margin-bottom:8px;color:#666}
+        .result-card .ticket-type{font-size:1.2em;font-weight:bold;margin-bottom:5px;color:#2c3e50}
+        .result-card .price{font-size:2.5em;font-weight:bold;color:#27ae60}
+        .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
         .fare-breakdown{background:#f8f9fa;border-radius:15px;padding:20px;margin-top:20px}
         .breakdown-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e0e0e0}
         .breakdown-item:last-child{font-weight:bold;color:#27ae60}
@@ -77,14 +79,27 @@
             <button id="calculate-btn">🔍 חשב תעריף</button>
         </div>
         <div class="results-section" id="results">
-            <div class="result-card">
-                <div class="label">מחיר:</div>
-                <div class="price"><span id="final-price">0.00</span> ₪</div>
+            <div class="results-grid" id="results-grid">
+                <div class="result-card" id="result-single">
+                    <div class="ticket-type">נסיעה בודדת</div>
+                    <div class="label">מחיר:</div>
+                    <div class="price"><span id="price-single">0.00</span> ₪</div>
+                </div>
+                <div class="result-card" id="result-daily">
+                    <div class="ticket-type">חופשי יומי</div>
+                    <div class="label">מחיר:</div>
+                    <div class="price"><span id="price-daily">0.00</span> ₪</div>
+                </div>
+                <div class="result-card" id="result-monthly">
+                    <div class="ticket-type">חופשי חודשי</div>
+                    <div class="label">מחיר:</div>
+                    <div class="price"><span id="price-monthly">0.00</span> ₪</div>
+                </div>
             </div>
             <div class="fare-breakdown">
                 <div class="breakdown-item"><span>מוצא:</span><span id="r-origin">-</span></div>
                 <div class="breakdown-item"><span>יעד:</span><span id="r-dest">-</span></div>
-                <div class="breakdown-item"><span>סוג:</span><span id="r-type">-</span></div>
+                <div class="breakdown-item"><span>סוג נבחר:</span><span id="r-type">-</span></div>
                 <div class="breakdown-item"><span>סופי:</span><span id="r-final">0.00 ₪</span></div>
             </div>
             <div class="fallback-notice" id="fallback" style="display:none;">
@@ -148,36 +163,41 @@
                 try{
                     var oc=coords(o);
                     var dc=coords(d);
-                    var price=8;
-                    var type='נסיעה בודדת';
+                    var discount=getDiscount(p);
                     
-                    if(oc&&dc){
-                        var km=dist(oc[0],oc[1],dc[0],dc[1]);
-                        if(t==='single'){
-                            price=8;
-                            type='נסיעה בודדת';
-                        } else if(t==='daily'){
-                            price=18;
-                            type='חופשי יומי';
-                        } else {
-                            price=315;
-                            type='חופשי חודשי';
-                        }
+                    // Calculate prices for all three ticket types
+                    var prices={
+                        single:8,
+                        daily:18,
+                        monthly:315
+                    };
+                    var typeLabels={
+                        single:'נסיעה בודדת',
+                        daily:'חופשי יומי',
+                        monthly:'חופשי חודשי'
+                    };
+                    
+                    // Apply discount to all prices
+                    for(var key in prices){
+                        prices[key]=Math.round(prices[key]*(1-discount)*100)/100;
                     }
                     
-                    var discount=getDiscount(p);
-                    price=price*(1-discount);
-                    price=Math.round(price*100)/100;
+                    // Display all three ticket type prices
+                    document.getElementById('price-single').textContent=prices.single.toFixed(2);
+                    document.getElementById('price-daily').textContent=prices.daily.toFixed(2);
+                    document.getElementById('price-monthly').textContent=prices.monthly.toFixed(2);
                     
+                    // Update breakdown with selected ticket type
                     document.getElementById('r-origin').textContent=o;
                     document.getElementById('r-dest').textContent=d;
-                    document.getElementById('r-type').textContent=type;
-                    document.getElementById('r-final').textContent=price.toFixed(2)+' ₪';
-                    document.getElementById('final-price').textContent=price.toFixed(2);
+                    document.getElementById('r-type').textContent=typeLabels[t];
+                    document.getElementById('r-final').textContent=prices[t].toFixed(2)+' ₪';
                     document.getElementById('fallback').style.display=(oc&&dc)?'none':'block';
                     
                 } catch(e){
-                    document.getElementById('final-price').textContent='8.00';
+                    document.getElementById('price-single').textContent='8.00';
+                    document.getElementById('price-daily').textContent='18.00';
+                    document.getElementById('price-monthly').textContent='315.00';
                     document.getElementById('r-final').textContent='8.00 ₪';
                     document.getElementById('fallback').style.display='block';
                 }
