@@ -58,18 +58,20 @@
             <div class="ticket-type-section">
                 <h3>🎫 סוג כרטיס:</h3>
                 <div class="ticket-type-grid">
-                    <label><input type="radio" name="ticketType" value="single" checked> נסיעה בודדת</label>
-                    <label><input type="radio" name="ticketType" value="daily"> חופשי יומי</label>
-                    <label><input type="radio" name="ticketType" value="monthly"> חופשי חודשי</label>
+                    <div><input type="radio" name="ticketType" id="t-single" value="single" class="ticket-type-option" checked><label for="t-single"> נסיעה בודדת</label></div>
+                    <div><input type="radio" name="ticketType" id="t-daily" value="daily" class="ticket-type-option"><label for="t-daily"> חופשי יומי</label></div>
+                    <div><input type="radio" name="ticketType" id="t-monthly" value="monthly" class="ticket-type-option"><label for="t-monthly"> חופשי חודשי</label></div>
                 </div>
             </div>
             <div class="passenger-profiles">
                 <h3>👤 פרופיל:</h3>
                 <div class="profile-grid">
-                    <label><input type="radio" name="passenger" value="adult" checked> מבוגר</label>
-                    <label><input type="radio" name="passenger" value="senior"> ותיק/ות</label>
-                    <label><input type="radio" name="passenger" value="student"> סטודנט</label>
-                    <label><input type="radio" name="passenger" value="soldier"> חייל (חינם)</label>
+                    <div><input type="radio" name="passenger" id="p-adult" value="adult" class="profile-option" checked><label for="p-adult"> מבוגר</label></div>
+                    <div><input type="radio" name="passenger" id="p-youth" value="youth" class="profile-option"><label for="p-youth"> נוער (50%)</label></div>
+                    <div><input type="radio" name="passenger" id="p-senior" value="senior" class="profile-option"><label for="p-senior"> ותיק/ות</label></div>
+                    <div><input type="radio" name="passenger" id="p-student" value="student" class="profile-option"><label for="p-student"> סטודנט</label></div>
+                    <div><input type="radio" name="passenger" id="p-disabled" value="disabled" class="profile-option"><label for="p-disabled"> נכה</label></div>
+                    <div><input type="radio" name="passenger" id="p-soldier" value="soldier" class="profile-option"><label for="p-soldier"> חייל (חינם)</label></div>
                 </div>
             </div>
             <button id="calculate-btn">🔍 חשב תעריף</button>
@@ -86,48 +88,105 @@
                 <div class="breakdown-item"><span>סופי:</span><span id="r-final">0.00 ₪</span></div>
             </div>
             <div class="fallback-notice" id="fallback" style="display:none;">
-                <strong>⚠️ מנגנון מקומי פעיל</strong>
+                <strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס 8.00 ₪</strong>
             </div>
             <div class="disclaimer">⚠️ שימוש להמחשה בלבד</div>
         </div>
     </div>
     <script>
-        var CITIES={'תל אביב':[32.0853,34.7818],'ירושלים':[31.7683,35.2137],'חיפה':[32.794,34.9896],'באר שבע':[31.253,34.7915],'נתניה':[32.329,34.856]};
-        function dist(a,b,c,d){var e=6371*Math.PI/180;var f=(c-a)*e;var g=(d-b)*e;var h=Math.sin(f/2)*Math.sin(f/2)+Math.cos(a*e)*Math.cos(c*e)*Math.sin(g/2)*Math.sin(g/2);return 2*6371*Math.atan2(Math.sqrt(h),Math.sqrt(1-h))}
-        function coords(n){n=n.trim().toLowerCase();for(var k in CITIES)if(k.trim().toLowerCase()===n)return CITIES[k];return null}
-        function disc(p){return{adult:0,senior:0.5,student:0.33,soldier:1}[p]||0}
-        document.getElementById('calculate-btn').onclick=function(){console.log('CLICKED');
+        var CITIES={
+            'תל אביב':[32.0853,34.7818],
+            'ירושלים':[31.7683,35.2137],
+            'חיפה':[32.794,34.9896],
+            'באר שבע':[31.253,34.7915],
+            'נתניה':[32.329,34.856],
+            'אשדוד':[31.804,34.655],
+            'רמת גן':[32.07,34.824],
+            'פתח תקווה':[32.084,34.888],
+            'ראשון לציון':[31.971,34.789],
+            'חולון':[32.016,34.779]
+        };
+        
+        function dist(a,b,c,d){
+            var R=6371*Math.PI/180;
+            var f=(c-a)*R;
+            var g=(d-b)*R;
+            var h=Math.sin(f/2)*Math.sin(f/2)+Math.cos(a*R)*Math.cos(c*R)*Math.sin(g/2)*Math.sin(g/2);
+            return 2*6371*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+        }
+        
+        function coords(n){
+            n=n.trim().toLowerCase();
+            for(var k in CITIES){
+                if(k.trim().toLowerCase()===n)return CITIES[k];
+            }
+            return null;
+        }
+        
+        function getDiscount(p){
+            var d={adult:0,youth:0.5,senior:0.5,student:0.33,disabled:0.5,soldier:1};
+            return d[p]||0;
+        }
+        
+        var btn=document.getElementById('calculate-btn');
+        btn.onclick=function(){
+            console.log('CLICK!');
             var o=document.getElementById('origin').value;
             var d=document.getElementById('dest').value;
             var t=document.querySelector('[name="ticketType"]:checked').value;
             var p=document.querySelector('[name="passenger"]:checked').value;
-            if(!o||!d){alert('יש להזין מוצא ויעד');return}
-            var btn=this;btn.disabled=true;btn.textContent='...';
+            
+            if(!o||!d){
+                alert('יש להזין מוצא ויעד');
+                return;
+            }
+            
+            btn.disabled=true;
+            btn.textContent='...';
+            
             setTimeout(function(){
                 try{
-                    var oc=coords(o);var dc=coords(d);
+                    var oc=coords(o);
+                    var dc=coords(d);
                     var price=8;
                     var type='נסיעה בודדת';
+                    
                     if(oc&&dc){
                         var km=dist(oc[0],oc[1],dc[0],dc[1]);
-                        price=t==='single'?8:t==='daily'?18:315;
+                        if(t==='single'){
+                            price=8;
+                            type='נסיעה בודדת';
+                        } else if(t==='daily'){
+                            price=18;
+                            type='חופשי יומי';
+                        } else {
+                            price=315;
+                            type='חופשי חודשי';
+                        }
                     }
-                    price=price*(1-disc(p));
+                    
+                    var discount=getDiscount(p);
+                    price=price*(1-discount);
                     price=Math.round(price*100)/100;
+                    
                     document.getElementById('r-origin').textContent=o;
                     document.getElementById('r-dest').textContent=d;
                     document.getElementById('r-type').textContent=type;
                     document.getElementById('r-final').textContent=price.toFixed(2)+' ₪';
                     document.getElementById('final-price').textContent=price.toFixed(2);
-                    document.getElementById('fallback').style.display=oc&&dc?'none':'block';
-                }catch(e){
+                    document.getElementById('fallback').style.display=(oc&&dc)?'none':'block';
+                    
+                } catch(e){
                     document.getElementById('final-price').textContent='8.00';
                     document.getElementById('r-final').textContent='8.00 ₪';
                     document.getElementById('fallback').style.display='block';
                 }
-                btn.disabled=false;btn.textContent='🔍 חשב תעריף';
+                
+                btn.disabled=false;
+                btn.textContent='🔍 חשב תעריף';
                 document.getElementById('results').classList.add('active');
-            },50)};
+            },50);
+        };
     </script>
 </body>
 </html>
