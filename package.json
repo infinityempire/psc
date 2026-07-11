@@ -1,11 +1,29 @@
 {
   "name": "psc",
   "version": "1.0.0",
-  "description": "Public Transportation Fare Calculator",
+  "description": "Public Transportation Fare Calculator - Aligned with Israeli MOT (Ministry of Transport)",
+  "main": "index.html",
   "scripts": {
+    "test": "node fare.test.js",
     "sync-fares": "node sync-fares.js"
   },
   "dependencies": {
     "puppeteer": "^21.0.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/infinityempire/psc.git"
+  },
+  "keywords": [
+    "israel",
+    "bus",
+    "transport",
+    "fare",
+    "calculator",
+    "mot",
+    "public-transport"
+  ],
+  "author": "Infinity Empire",
+  "license": "MIT"
 }
