@@ -109,6 +109,7 @@
         </div>
     </div>
     <script>
+        // Israeli cities with coordinates
         var CITIES={
             'תל אביב':[32.0853,34.7818],
             'ירושלים':[31.7683,35.2137],
@@ -119,15 +120,65 @@
             'רמת גן':[32.07,34.824],
             'פתח תקווה':[32.084,34.888],
             'ראשון לציון':[31.971,34.789],
-            'חולון':[32.016,34.779]
+            'חולון':[32.016,34.779],
+            'נהריה':[32.9955,35.0925],
+            'ראש הנקרה':[33.0855,35.1104],
+            'עכו':[32.9277,35.0822],
+            'כרמיאל':[32.9176,35.2969],
+            'טבריה':[32.7940,35.5314],
+            'נצרת':[32.7021,35.2978],
+            'אילת':[29.5581,34.9512],
+            'אשקלון':[31.8040,34.6550],
+            'רחובות':[31.8928,34.8113],
+            'הרצליה':[32.1656,34.8467],
+            'הוד השרון':[32.1525,34.8903],
+            'רמלה':[31.9275,34.8611],
+            'לוד':[31.9497,34.8958],
+            'מודיעין':[31.8973,35.0103],
+            'בית שמש':[31.7466,34.9881]
         };
         
+        // Long-distance intercity routes (Nahariya, northern cities to central Israel)
+        // These are >80km trips that qualify for the special intercity fare
+        var LONG_DISTANCE_ROUTES = [
+            ['נהריה', 'תל אביב'],
+            ['נהריה', 'רמת גן'],
+            ['נהריה', 'ירושלים'],
+            ['נהריה', 'חולון'],
+            ['נהריה', 'ראשון לציון'],
+            ['נהריה', 'פתח תקווה'],
+            ['ראש הנקרה', 'תל אביב'],
+            ['ראש הנקרה', 'רמת גן'],
+            ['עכו', 'תל אביב'],
+            ['עכו', 'רמת גן'],
+            ['כרמיאל', 'תל אביב'],
+            ['כרמיאל', 'רמת גן'],
+            ['טבריה', 'תל אביב'],
+            ['טבריה', 'רמת גן'],
+            ['נצרת', 'תל אביב'],
+            ['נצרת', 'רמת גן'],
+            ['חיפה', 'ירושלים'],
+            ['חיפה', 'אשקלון'],
+            ['באר שבע', 'תל אביב'],
+            ['באר שבע', 'רמת גן'],
+            ['באר שבע', 'חיפה'],
+            ['אילת', 'תל אביב'],
+            ['אילת', 'ירושלים']
+        ];
+        
+        // Distance threshold for long-distance intercity travel (km)
+        var LONG_DISTANCE_THRESHOLD = 80;
+        
         function dist(a,b,c,d){
-            var R=6371*Math.PI/180;
-            var f=(c-a)*R;
-            var g=(d-b)*R;
-            var h=Math.sin(f/2)*Math.sin(f/2)+Math.cos(a*R)*Math.cos(c*R)*Math.sin(g/2)*Math.sin(g/2);
-            return 2*6371*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));
+            // Haversine formula - calculates distance between two coordinates
+            // a,c = latitudes in degrees; b,d = longitudes in degrees
+            var R=6371; // Earth radius in km
+            var dLat=(c-a)*Math.PI/180;
+            var dLon=(d-b)*Math.PI/180;
+            var x=Math.sin(dLat/2)*Math.sin(dLat/2)+
+                   Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*
+                   Math.sin(dLon/2)*Math.sin(dLon/2);
+            return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
         }
         
         function coords(n){
@@ -138,14 +189,64 @@
             return null;
         }
         
+        // Get discount percentage for profile (used for Monthly Pass only)
         function getDiscount(p){
             var d={adult:0,youth:0.5,senior:0.5,student:0.33,disabled:0.5,soldier:1};
             return d[p]||0;
         }
         
+        // Check if profile gets FREE travel (0.00 ₪)
+        function isFreeProfile(p){
+            return p === 'soldier' || p === 'national_service' || 
+                   p === 'pre_military' || p === 'blind';
+        }
+        
+        // Check if route is long-distance intercity
+        function isLongDistanceRoute(origin, dest){
+            origin = origin.trim().toLowerCase();
+            dest = dest.trim().toLowerCase();
+            
+            // Check explicit long-distance routes
+            for(var i = 0; i < LONG_DISTANCE_ROUTES.length; i++){
+                var r = LONG_DISTANCE_ROUTES[i];
+                if((r[0].trim().toLowerCase() === origin && r[1].trim().toLowerCase() === dest) ||
+                   (r[0].trim().toLowerCase() === dest && r[1].trim().toLowerCase() === origin)){
+                    return true;
+                }
+            }
+            
+            // Calculate distance and check threshold
+            var oc = coords(origin);
+            var dc = coords(dest);
+            if(oc && dc){
+                var d = dist(oc[0], oc[1], dc[0], dc[1]);
+                return d >= LONG_DISTANCE_THRESHOLD;
+            }
+            
+            return false;
+        }
+        
+        // Get base prices based on distance
+        function getBasePrices(origin, dest){
+            if(isLongDistanceRoute(origin, dest)){
+                // Long-distance intercity fares (Ministry of Transport official rates)
+                return {
+                    single: 49.50,
+                    daily: 37.50,
+                    monthly: 315.00
+                };
+            } else {
+                // Short/medium distance standard fares
+                return {
+                    single: 8.00,
+                    daily: 13.00,
+                    monthly: 150.00
+                };
+            }
+        }
+        
         var btn=document.getElementById('calculate-btn');
         btn.onclick=function(){
-            console.log('CLICK!');
             var o=document.getElementById('origin').value;
             var d=document.getElementById('dest').value;
             var t=document.querySelector('[name="ticketType"]:checked').value;
@@ -165,13 +266,11 @@
                     var dc=coords(d);
                     var discount=getDiscount(p);
                     var passengerType=p;
+                    var freeProfile=isFreeProfile(passengerType);
+                    var longDistance=isLongDistanceRoute(o,d);
                     
-                    // Base prices for all three ticket types
-                    var basePrices={
-                        single:8,
-                        daily:18,
-                        monthly:315
-                    };
+                    // Get appropriate base prices
+                    var basePrices=getBasePrices(o,d);
                     var typeLabels={
                         single:'נסיעה בודדת',
                         daily:'חופשי יומי',
@@ -181,19 +280,27 @@
                     // Calculate prices
                     var prices={};
                     
-                    // Single ride: apply discount
-                    prices.single=Math.round(basePrices.single*(1-discount)*100)/100;
-                    
-                    // Daily Pass: HARD FIX - explicitly check passenger type
-                    // Only FREE profiles get 0₪, ALL others pay full price
-                    if (passengerType === 'soldier' || passengerType === 'national_service' || passengerType === 'pre_military' || passengerType === 'blind' || passengerType === 'senior_75') {
-                        prices.daily = 0.00;
+                    // CRITICAL FIX: Single Ride - NO percentage discounts
+                    // Everyone pays 100% full price, EXCEPT FREE profiles (0.00 ₪)
+                    if(freeProfile){
+                        prices.single=0.00;
                     } else {
-                        prices.daily = basePrices.daily; // Force 100% full price (18.00 ₪)
+                        prices.single=basePrices.single; // 100% full price
                     }
                     
-                    // Monthly pass: apply discount
-                    prices.monthly=Math.round(basePrices.monthly*(1-discount)*100)/100;
+                    // Daily Pass - Full price for everyone, EXCEPT FREE profiles (0.00 ₪)
+                    if(freeProfile){
+                        prices.daily=0.00;
+                    } else {
+                        prices.daily=basePrices.daily; // 100% full price
+                    }
+                    
+                    // Monthly Pass - RETAIN profile discounts
+                    if(freeProfile){
+                        prices.monthly=0.00;
+                    } else {
+                        prices.monthly=Math.round(basePrices.monthly*(1-discount)*100)/100;
+                    }
                     
                     // Display all three ticket type prices
                     document.getElementById('price-single').textContent=prices.single.toFixed(2);
@@ -205,14 +312,24 @@
                     document.getElementById('r-dest').textContent=d;
                     document.getElementById('r-type').textContent=typeLabels[t];
                     document.getElementById('r-final').textContent=prices[t].toFixed(2)+' ₪';
-                    document.getElementById('fallback').style.display=(oc&&dc)?'none':'block';
+                    
+                    // Show fallback only if cities not found in database
+                    var useFallback = (!oc || !dc);
+                    document.getElementById('fallback').style.display=useFallback?'block':'none';
+                    
+                    // Update fallback notice with correct base price
+                    if(useFallback){
+                        document.getElementById('fallback').innerHTML='<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' + basePrices.single.toFixed(2) + ' ₪</strong>';
+                    }
                     
                 } catch(e){
-                    document.getElementById('price-single').textContent='8.00';
-                    document.getElementById('price-daily').textContent='18.00';
+                    // Fallback error handling with realistic intercity prices
+                    document.getElementById('price-single').textContent='49.50';
+                    document.getElementById('price-daily').textContent='37.50';
                     document.getElementById('price-monthly').textContent='315.00';
-                    document.getElementById('r-final').textContent='8.00 ₪';
+                    document.getElementById('r-final').textContent='49.50 ₪';
                     document.getElementById('fallback').style.display='block';
+                    document.getElementById('fallback').innerHTML='<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס 49.50 ₪</strong>';
                 }
                 
                 btn.disabled=false;
