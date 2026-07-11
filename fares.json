@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "source": "Ministry of Transport (מסלולן) - https://route.bus.gov.il",
+    "lastUpdated": "2025-07-11",
+    "currency": "ILS"
+  },
+  "fareRules": {
+    "local": {
+      "maxDistance": 15,
+      "single": 8.00,
+      "daily": 13.00,
+      "label": "עירוני/מטרופוליטני (0-15 ק״מ)"
+    },
+    "suburban": {
+      "maxDistance": 40,
+      "single": 15.00,
+      "daily": 24.00,
+      "label": "פרברי/אזורי (15-40 ק״מ)"
+    },
+    "intercity": {
+      "maxDistance": 225,
+      "single": 49.50,
+      "daily": 37.50,
+      "label": "בינעירוני (40+ ק״מ)"
+    }
+  },
+  "monthlyContracts": {
+    "national": {
+      "name": "חופשי חודשי ארצי",
+      "base": 315.00,
+      "label": "בינעירוני ארצי"
+    },
+    "nationalTrain": {
+      "name": "חופשי ארצי משולב רכבת",
+      "base": 410.00,
+      "label": "משולב רכבת"
+    },
+    "periphery": {
+      "name": "חופשי חודשי פריפריה",
+      "base": 133.00,
+      "label": "פריפריה",
+      "invalidCities": ["תל אביב", "רמת גן", "חיפה", "ירושלים"]
+    },
+    "eilat": {
+      "name": "חופשי חודשי אילת",
+      "base": 114.50,
+      "label": "אילת",
+      "requiredCity": "אילת"
+    }
+  },
+  "discounts": {
+    "adult": 0,
+    "youth": 0.50,
+    "youth_18_26": 0.33,
+    "senior": 0.50,
+    "student": 0.33,
+    "disabled": 0.50
+  },
+  "freeProfiles": ["soldier", "national_service", "blind", "senior_75"]
+}
