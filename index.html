@@ -326,9 +326,10 @@
         // ============================================================
         
         function determineFareZone(distance) {
-            if (distance === null || distance === undefined) {
+            // Handle invalid distances (null, undefined, or negative)
+            if (distance === null || distance === undefined || distance < 0) {
                 // Fallback for unknown distance - use gray (intercity) zone
-                return { zone: 'gray', data: FARE_RULES.gray, distance: null };
+                return { zone: 'gray', data: FARE_RULES.gray, distance: distance };
             }
             
             if (distance <= FARE_RULES.yellow.maxDistance) {
