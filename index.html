@@ -159,26 +159,45 @@
         var GUSH_DAN_CITIES = ['תל אביב', 'רמת גן'];
 
         // ============================================================
-        // FARE RULES - Distance-based tiers for Single & Daily
+        // FARE RULES - Official Ministry of Transport fare zones
+        // Source: bus.gov.il - Official fare table
         // ============================================================
         var FARE_RULES = {
-            local: {       // 0-15 km
+            yellow: {       // 0-15 km
                 maxDistance: 15,
                 single: 8.00,
-                daily: 13.00,
-                label: 'עירוני/מטרופוליטני'
+                daily: 17.50,
+                label: 'צהוב (0-15 ק"מ)'
             },
-            suburban: {     // 15-40 km
+            green: {        // 15-40 km
                 maxDistance: 40,
-                single: 15.00,
-                daily: 24.00,
-                label: 'פרברי/אזורי'
+                single: 14.50,
+                daily: 27.00,
+                label: 'ירוק (15-40 ק"מ)'
             },
-            intercity: {   // 40+ km
-                maxDistance: Infinity,
-                single: 49.50,
+            lightblue: {    // 40-75 km
+                maxDistance: 75,
+                single: 19.00,
                 daily: 37.50,
-                label: 'בינעירוני'
+                label: 'תכלת (40-75 ק"מ)'
+            },
+            blue: {         // 75-120 km
+                maxDistance: 120,
+                single: 19.00,
+                daily: 37.50,
+                label: 'כחול (75-120 ק"מ)'
+            },
+            purple: {       // 120-225 km
+                maxDistance: 225,
+                single: 30.50,
+                daily: 47.00,
+                label: 'סגול (120-225 ק"מ)'
+            },
+            gray: {         // 225+ km
+                maxDistance: Infinity,
+                single: 74.00,
+                daily: 79.50,
+                label: 'אפור (225+ ק"מ)'
             }
         };
 
@@ -263,12 +282,18 @@
         // ============================================================
         
         function determineFareZone(distance) {
-            if (distance <= FARE_RULES.local.maxDistance) {
-                return { zone: 'local', data: FARE_RULES.local, distance: distance };
-            } else if (distance <= FARE_RULES.suburban.maxDistance) {
-                return { zone: 'suburban', data: FARE_RULES.suburban, distance: distance };
+            if (distance <= FARE_RULES.yellow.maxDistance) {
+                return { zone: 'yellow', data: FARE_RULES.yellow, distance: distance };
+            } else if (distance <= FARE_RULES.green.maxDistance) {
+                return { zone: 'green', data: FARE_RULES.green, distance: distance };
+            } else if (distance <= FARE_RULES.lightblue.maxDistance) {
+                return { zone: 'lightblue', data: FARE_RULES.lightblue, distance: distance };
+            } else if (distance <= FARE_RULES.blue.maxDistance) {
+                return { zone: 'blue', data: FARE_RULES.blue, distance: distance };
+            } else if (distance <= FARE_RULES.purple.maxDistance) {
+                return { zone: 'purple', data: FARE_RULES.purple, distance: distance };
             } else {
-                return { zone: 'intercity', data: FARE_RULES.intercity, distance: distance };
+                return { zone: 'gray', data: FARE_RULES.gray, distance: distance };
             }
         }
 
@@ -307,7 +332,9 @@
             }
 
             // Check intercity condition for National+Train
-            if (contract.condition === 'intercity' && fareZone.zone !== 'intercity') {
+            // National+Train is only valid for intercity routes (>40km)
+            if (contract.condition === 'intercity' && 
+                (fareZone.zone === 'yellow' || fareZone.zone === 'green')) {
                 result.valid = false;
                 result.message = 'לא רלוונטי למסלול';
                 return result;
@@ -329,9 +356,10 @@
                 distance = calculateDistance(oc[0], oc[1], dc[0], dc[1]);
                 fareZone = determineFareZone(distance);
             } else {
-                // Fallback: assume intercity if cities not found
-                distance = null;
-                fareZone = { zone: 'intercity', data: FARE_RULES.intercity, distance: null };
+                // Fallback: assume 54km (Jerusalem-Tel Aviv average) if cities not found
+                // This would fall into the lightblue zone (40-75km)
+                distance = 54;
+                fareZone = { zone: 'lightblue', data: FARE_RULES.lightblue, distance: distance };
             }
 
             var freeProfile = isFreeProfile(passengerType);
@@ -460,17 +488,17 @@
                     if (result.isFallback) {
                         fallbackEl.style.display = 'block';
                         fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' +
-                            FARE_RULES.intercity.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
+                            FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
                     } else {
                         fallbackEl.style.display = 'none';
                     }
 
                 } catch (e) {
-                    // Error fallback: use intercity prices
+                    // Error fallback: use lightblue zone prices (40-75km)
                     document.getElementById('price-single').textContent = 
-                        FARE_RULES.intercity.single.toFixed(2);
+                        FARE_RULES.lightblue.single.toFixed(2);
                     document.getElementById('price-daily').textContent = 
-                        FARE_RULES.intercity.daily.toFixed(2);
+                        FARE_RULES.lightblue.daily.toFixed(2);
                     document.getElementById('price-monthly-national').textContent = 
                         MONTHLY_CONTRACTS.national.base.toFixed(2);
                     document.getElementById('price-monthly-train').textContent = 
@@ -478,10 +506,10 @@
                     document.getElementById('price-monthly-periphery').textContent = 'שגיאה';
                     document.getElementById('price-monthly-eilat').textContent = 'שגיאה';
                     document.getElementById('r-final').textContent = 
-                        FARE_RULES.intercity.single.toFixed(2) + ' ₪';
+                        FARE_RULES.lightblue.single.toFixed(2) + ' ₪';
                     document.getElementById('fallback').style.display = 'block';
                     document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
-                        FARE_RULES.intercity.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
+                        FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
                 }
 
                 btn.disabled = false;

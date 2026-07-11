@@ -71,9 +71,25 @@ npm run sync-fares
 ---
 
 ### Notes
-- **Fallback Mechanism**: When cities are not found, calculator uses intercity prices (49.50 ₪ single)
+- **Fallback Mechanism**: When cities are not found, calculator uses lightblue zone (40-75km) prices (19.00 ₪ single)
 - **Free Profiles**: Soldiers, national service, blind persons, and seniors 75+ always pay 0.00 ₪
 - **Monthly Pass Restrictions**: 
   - Periphery pass unavailable from/to Gush Dan (Tel Aviv area) and major metros
   - Eilat pass only available for routes involving Eilat
   - Train pass only for intercity routes (40+ km)
+
+---
+
+## [1.0.x] - 2025-07-11 - Fare Zone Fix
+
+### 🐛 Critical Bug Fix
+- **Jerusalem-Tel Aviv Single Ride**: Fixed incorrect price from 49.50 ₪ to **19.00 ₪**
+- **Zone System**: Expanded from 3 zones to **6 official MOT fare zones**:
+  - צהוב (Yellow): 0-15 km → 8.00 ₪
+  - ירוק (Green): 15-40 km → 14.50 ₪
+  - תכלת (Light Blue): 40-75 km → **19.00 ₪** ← Jerusalem-Tel Aviv
+  - כחול (Blue): 75-120 km → 19.00 ₪
+  - סגול (Purple): 120-225 km → 30.50 ₪
+  - אפור (Gray): 225+ km → 74.00 ₪
+
+Source: [bus.gov.il](https://bus.gov.il/FaresDistance)
