@@ -69,10 +69,11 @@
                 <h3>👤 פרופיל:</h3>
                 <div class="profile-grid">
                     <div><input type="radio" name="passenger" id="p-adult" value="adult" class="profile-option" checked><label for="p-adult"> מבוגר</label></div>
-                    <div><input type="radio" name="passenger" id="p-youth" value="youth" class="profile-option"><label for="p-youth"> נוער (50%)</label></div>
-                    <div><input type="radio" name="passenger" id="p-senior" value="senior" class="profile-option"><label for="p-senior"> ותיק/ות</label></div>
-                    <div><input type="radio" name="passenger" id="p-student" value="student" class="profile-option"><label for="p-student"> סטודנט</label></div>
-                    <div><input type="radio" name="passenger" id="p-disabled" value="disabled" class="profile-option"><label for="p-disabled"> נכה</label></div>
+                    <div><input type="radio" name="passenger" id="p-youth" value="youth" class="profile-option"><label for="p-youth"> נוער עד 18 (50%)</label></div>
+                    <div><input type="radio" name="passenger" id="p-youth26" value="youth_18_26" class="profile-option"><label for="p-youth26"> צעיר 18-26 (33%)</label></div>
+                    <div><input type="radio" name="passenger" id="p-senior" value="senior" class="profile-option"><label for="p-senior"> ותיק/ות (50%)</label></div>
+                    <div><input type="radio" name="passenger" id="p-student" value="student" class="profile-option"><label for="p-student"> סטודנט (33%)</label></div>
+                    <div><input type="radio" name="passenger" id="p-disabled" value="disabled" class="profile-option"><label for="p-disabled"> נכה (50%)</label></div>
                     <div><input type="radio" name="passenger" id="p-soldier" value="soldier" class="profile-option"><label for="p-soldier"> חייל (חינם)</label></div>
                 </div>
             </div>
@@ -92,8 +93,14 @@
                 </div>
                 <div class="result-card" id="result-monthly">
                     <div class="ticket-type">חופשי חודשי</div>
-                    <div class="label">מחיר:</div>
-                    <div class="price"><span id="price-monthly">0.00</span> ₪</div>
+                    <div class="label">בינעירוני ארצי:</div>
+                    <div class="price"><span id="price-monthly-national">0.00</span> ₪</div>
+                    <div class="label" style="margin-top:8px;">משולב רכבת:</div>
+                    <div class="price"><span id="price-monthly-train">0.00</span> ₪</div>
+                    <div class="label" style="margin-top:8px;">פריפריה:</div>
+                    <div class="price"><span id="price-monthly-periphery">-</span></div>
+                    <div class="label" style="margin-top:8px;">אילת:</div>
+                    <div class="price"><span id="price-monthly-eilat">-</span></div>
                 </div>
             </div>
             <div class="fare-breakdown">
@@ -110,11 +117,13 @@
     </div>
     <script>
         // ============================================================
-        // ISRAELI MINISTRY OF TRANSPORT FARE CALCULATOR
-        // Based on official fare clusters (מחירון אזורים)
+        // ISRAELI MINISTRY OF TRANSPORT FARE RULE ENGINE
+        // Structured Client-Side Rule Engine based on official fare clusters
         // ============================================================
 
-        // Israeli cities with coordinates
+        // ============================================================
+        // CITY DATABASE WITH COORDINATES
+        // ============================================================
         var CITIES = {
             'תל אביב': [32.0853, 34.7818],
             'ירושלים': [31.7683, 35.2137],
@@ -146,43 +155,84 @@
             'עפולה': [32.6080, 35.2896]
         };
 
-        // ============================================================
-        // OFFICIAL MINISTRY OF TRANSPORT FARE CLUSTERS (מחירון אזורים)
-        // ============================================================
-        
-        // Local/Urban: 0-15 km - city and metropolitan area rides
-        var FARE_LOCAL = {
-            single: 6.00,
-            daily: 13.00,
-            monthly: 100.00,
-            label: 'עירוני/מטרופוליטני (0-15 ק"מ)'
-        };
-        
-        // Suburban/Regional: 15-40 km - regional travel
-        var FARE_SUBURBAN = {
-            single: 15.00,
-            daily: 24.00,
-            monthly: 215.00,
-            label: 'פרברי/אזורי (15-40 ק"מ)'
-        };
-        
-        // Intercity: Over 40 km - long-distance intercity travel
-        var FARE_INTERCITY = {
-            single: 49.50,
-            daily: 37.50,
-            monthly: 315.00,
-            label: 'בינעירוני (40+ ק"מ)'
-        };
-
-        // Distance thresholds (km)
-        var THRESHOLD_LOCAL_MAX = 15;
-        var THRESHOLD_SUBURBAN_MAX = 40;
+        // Cities that invalidate Periphery pass
+        var GUSH_DAN_CITIES = ['תל אביב', 'רמת גן'];
 
         // ============================================================
-        // HAVERSINE DISTANCE CALCULATION
+        // FARE RULES - Distance-based tiers for Single & Daily
+        // ============================================================
+        var FARE_RULES = {
+            local: {       // 0-15 km
+                maxDistance: 15,
+                single: 8.00,
+                daily: 13.00,
+                label: 'עירוני/מטרופוליטני'
+            },
+            suburban: {     // 15-40 km
+                maxDistance: 40,
+                single: 15.00,
+                daily: 24.00,
+                label: 'פרברי/אזורי'
+            },
+            intercity: {   // 40+ km
+                maxDistance: Infinity,
+                single: 49.50,
+                daily: 37.50,
+                label: 'בינעירוני'
+            }
+        };
+
+        // ============================================================
+        // MONTHLY CONTRACTS (Official Reform Passes)
+        // ============================================================
+        var MONTHLY_CONTRACTS = {
+            national: {
+                name: 'חופשי חודשי ארצי',
+                base: 315.00,
+                label: 'בינעירוני ארצי'
+            },
+            nationalTrain: {
+                name: 'חופשי ארצי משולב רכבת',
+                base: 410.00,
+                label: 'משולב רכבת',
+                condition: 'intercity' // Only for distance > 40km
+            },
+            periphery: {
+                name: 'חופשי חודשי פריפריה',
+                base: 133.00,
+                label: 'פריפריה',
+                invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
+                invalidMessage: 'לא תקף במסלול זה'
+            },
+            eilat: {
+                name: 'חופשי חודשי אילת',
+                base: 114.50,
+                label: 'אילת',
+                requiredCity: 'אילת'
+            }
+        };
+
+        // ============================================================
+        // PASSENGER PROFILES & DISCOUNT RULES
+        // ============================================================
+        var FREE_PROFILES = ['soldier', 'national_service', 'pre_military', 'blind', 'senior_75'];
+
+        // Monthly pass discounts by profile
+        var MONTHLY_DISCOUNTS = {
+            adult: 0,
+            youth: 0.50,        // Youth under 18 - 50% off
+            youth_18_26: 0.33, // Young adults 18-26 - 33% off
+            senior: 0.50,      // Senior - 50% off
+            student: 0.33,     // Student - 33% off
+            disabled: 0.50     // Disabled - 50% off
+        };
+
+        // ============================================================
+        // UTILITY FUNCTIONS
         // ============================================================
         
-        function dist(lat1, lon1, lat2, lon2) {
+        // Haversine distance calculation
+        function calculateDistance(lat1, lon1, lat2, lon2) {
             var R = 6371; // Earth radius in km
             var dLat = (lat2 - lat1) * Math.PI / 180;
             var dLon = (lon2 - lon1) * Math.PI / 180;
@@ -192,156 +242,248 @@
             return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        function coords(name) {
-            name = name.trim().toLowerCase();
+        function getCoords(cityName) {
+            cityName = cityName.trim().toLowerCase();
             for (var city in CITIES) {
-                if (city.trim().toLowerCase() === name) return CITIES[city];
+                if (city.trim().toLowerCase() === cityName) return CITIES[city];
             }
             return null;
         }
 
-        // ============================================================
-        // FARE ZONE DETERMINATION
-        // ============================================================
-        
-        function getFareZone(origin, dest) {
-            var oc = coords(origin);
-            var dc = coords(dest);
-            
-            if (!oc || !dc) {
-                return null; // Unknown cities - will use fallback
-            }
-            
-            var distance = dist(oc[0], oc[1], dc[0], dc[1]);
-            
-            if (distance <= THRESHOLD_LOCAL_MAX) {
-                return { zone: 'local', data: FARE_LOCAL, distance: distance };
-            } else if (distance <= THRESHOLD_SUBURBAN_MAX) {
-                return { zone: 'suburban', data: FARE_SUBURBAN, distance: distance };
-            } else {
-                return { zone: 'intercity', data: FARE_INTERCITY, distance: distance };
-            }
-        }
-
-        // ============================================================
-        // PROFILE DISCOUNT RULES (per Israeli Transit Law)
-        // ============================================================
-        
-        // Profiles that get FREE travel (0.00 ₪)
-        var FREE_PROFILES = ['soldier', 'national_service', 'pre_military', 'blind', 'senior_75'];
-        
         function isFreeProfile(profile) {
             return FREE_PROFILES.indexOf(profile) !== -1;
         }
-        
-        // Get percentage discount for Monthly Pass only
+
         function getMonthlyDiscount(profile) {
-            var discounts = {
-                adult: 0,
-                youth: 0.50,      // 50% off
-                senior: 0.50,    // 50% off
-                student: 0.33,    // 33% off
-                disabled: 0.50    // 50% off
-            };
-            return discounts[profile] || 0;
+            return MONTHLY_DISCOUNTS[profile] || 0;
         }
 
         // ============================================================
-        // PRICE CALCULATION
+        // FARE RULE ENGINE
         // ============================================================
         
-        function calculatePrices(origin, dest, passengerType) {
-            var fareZone = getFareZone(origin, dest);
-            var basePrices, zoneLabel, calculatedDistance;
+        function determineFareZone(distance) {
+            if (distance <= FARE_RULES.local.maxDistance) {
+                return { zone: 'local', data: FARE_RULES.local, distance: distance };
+            } else if (distance <= FARE_RULES.suburban.maxDistance) {
+                return { zone: 'suburban', data: FARE_RULES.suburban, distance: distance };
+            } else {
+                return { zone: 'intercity', data: FARE_RULES.intercity, distance: distance };
+            }
+        }
+
+        function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
+            var result = { valid: true, price: null, message: '' };
+            var basePrice = contract.base;
+            var originLower = origin.trim().toLowerCase();
+            var destLower = dest.trim().toLowerCase();
+
+            // FREE profiles always pay 0.00 for any ticket type
+            if (isFree) {
+                result.price = 0.00;
+                return result;
+            }
+
+            // Check required city for Eilat pass
+            if (contract.requiredCity) {
+                var requiredCityLower = contract.requiredCity.trim().toLowerCase();
+                if (originLower !== requiredCityLower && destLower !== requiredCityLower) {
+                    result.valid = false;
+                    result.message = 'לא רלוונטי';
+                    return result;
+                }
+            }
+
+            // Check invalid cities for Periphery pass
+            if (contract.invalidCities) {
+                for (var i = 0; i < contract.invalidCities.length; i++) {
+                    var invalidCityLower = contract.invalidCities[i].trim().toLowerCase();
+                    if (originLower === invalidCityLower || destLower === invalidCityLower) {
+                        result.valid = false;
+                        result.message = contract.invalidMessage;
+                        return result;
+                    }
+                }
+            }
+
+            // Check intercity condition for National+Train
+            if (contract.condition === 'intercity' && fareZone.zone !== 'intercity') {
+                result.valid = false;
+                result.message = 'לא רלוונטי למסלול';
+                return result;
+            }
+
+            // Calculate price with discount
+            result.price = Math.round(basePrice * (1 - discount) * 100) / 100;
+            return result;
+        }
+
+        function calculateFare(origin, dest, passengerType) {
+            var oc = getCoords(origin);
+            var dc = getCoords(dest);
+            var isFallback = !oc || !dc;
             
-            if (fareZone) {
-                basePrices = fareZone.data;
-                zoneLabel = fareZone.data.label;
-                calculatedDistance = fareZone.distance;
+            var distance, fareZone;
+            
+            if (oc && dc) {
+                distance = calculateDistance(oc[0], oc[1], dc[0], dc[1]);
+                fareZone = determineFareZone(distance);
             } else {
                 // Fallback: assume intercity if cities not found
-                // This is dynamic fallback based on likely distance being > 40km
-                basePrices = FARE_INTERCITY;
-                zoneLabel = 'בינעירוני (ברירת מחדל - לא נמצאו ערים)';
-                calculatedDistance = null;
+                distance = null;
+                fareZone = { zone: 'intercity', data: FARE_RULES.intercity, distance: null };
             }
-            
+
             var freeProfile = isFreeProfile(passengerType);
             var monthlyDiscount = getMonthlyDiscount(passengerType);
-            
-            var prices = {
-                single: freeProfile ? 0.00 : basePrices.single,
-                daily: freeProfile ? 0.00 : basePrices.daily,
-                monthly: freeProfile ? 0.00 : Math.round(basePrices.monthly * (1 - monthlyDiscount) * 100) / 100,
-                zone: zoneLabel,
-                distance: calculatedDistance,
-                isFallback: !fareZone
+
+            // Calculate Single and Daily prices
+            var singlePrice = freeProfile ? 0.00 : fareZone.data.single;
+            var dailyPrice = freeProfile ? 0.00 : fareZone.data.daily;
+
+            // Evaluate all monthly contracts
+            var monthlyNational = evaluateMonthlyContract(
+                MONTHLY_CONTRACTS.national, fareZone, origin, dest, monthlyDiscount, freeProfile
+            );
+            var monthlyTrain = evaluateMonthlyContract(
+                MONTHLY_CONTRACTS.nationalTrain, fareZone, origin, dest, monthlyDiscount, freeProfile
+            );
+            var monthlyPeriphery = evaluateMonthlyContract(
+                MONTHLY_CONTRACTS.periphery, fareZone, origin, dest, monthlyDiscount, freeProfile
+            );
+            var monthlyEilat = evaluateMonthlyContract(
+                MONTHLY_CONTRACTS.eilat, fareZone, origin, dest, monthlyDiscount, freeProfile
+            );
+
+            return {
+                // Single & Daily
+                single: singlePrice,
+                daily: dailyPrice,
+                
+                // Monthly contracts
+                monthlyNational: monthlyNational,
+                monthlyTrain: monthlyTrain,
+                monthlyPeriphery: monthlyPeriphery,
+                monthlyEilat: monthlyEilat,
+                
+                // Route info
+                zone: fareZone.zone,
+                zoneLabel: fareZone.data.label,
+                distance: distance,
+                isFallback: isFallback
             };
-            
-            return prices;
         }
 
         // ============================================================
-        // EVENT HANDLERS
+        // UI RENDERING
         // ============================================================
         
+        function renderPrice(elementId, value, valid) {
+            var el = document.getElementById(elementId);
+            if (valid) {
+                el.textContent = value.toFixed(2);
+                el.style.color = '';
+            } else {
+                el.textContent = value;
+                el.style.color = '#999';
+            }
+        }
+
         var btn = document.getElementById('calculate-btn');
         btn.onclick = function() {
             var origin = document.getElementById('origin').value;
             var dest = document.getElementById('dest').value;
             var ticketType = document.querySelector('[name="ticketType"]:checked').value;
             var passengerType = document.querySelector('[name="passenger"]:checked').value;
-            
+
             if (!origin || !dest) {
                 alert('יש להזין מוצא ויעד');
                 return;
             }
-            
+
             btn.disabled = true;
             btn.textContent = '...';
-            
+
             setTimeout(function() {
                 try {
-                    var result = calculatePrices(origin, dest, passengerType);
-                    
-                    // Display all ticket prices
+                    var result = calculateFare(origin, dest, passengerType);
+
+                    // Update Single & Daily prices
                     document.getElementById('price-single').textContent = result.single.toFixed(2);
                     document.getElementById('price-daily').textContent = result.daily.toFixed(2);
-                    document.getElementById('price-monthly').textContent = result.monthly.toFixed(2);
-                    
+
+                    // Update Monthly contract prices
+                    renderPrice('price-monthly-national', 
+                        result.monthlyNational.price, 
+                        result.monthlyNational.valid);
+                    renderPrice('price-monthly-train', 
+                        result.monthlyTrain.price, 
+                        result.monthlyTrain.valid);
+                    document.getElementById('price-monthly-periphery').textContent = 
+                        result.monthlyPeriphery.valid ? 
+                            result.monthlyPeriphery.price.toFixed(2) : 
+                            result.monthlyPeriphery.message;
+                    document.getElementById('price-monthly-periphery').style.color = 
+                        result.monthlyPeriphery.valid ? '' : '#c00';
+                    document.getElementById('price-monthly-eilat').textContent = 
+                        result.monthlyEilat.valid ? 
+                            result.monthlyEilat.price.toFixed(2) : 
+                            result.monthlyEilat.message;
+                    document.getElementById('price-monthly-eilat').style.color = 
+                        result.monthlyEilat.valid ? '' : '#c00';
+
                     // Update breakdown
                     document.getElementById('r-origin').textContent = origin;
                     document.getElementById('r-dest').textContent = dest;
+
+                    // Determine the final selected price
+                    var finalPrice = 0;
+                    var typeLabel = '';
                     
-                    var typeLabels = {
-                        single: 'נסיעה בודדת',
-                        daily: 'חופשי יומי',
-                        monthly: 'חופשי חודשי'
-                    };
-                    document.getElementById('r-type').textContent = typeLabels[ticketType];
-                    document.getElementById('r-final').textContent = result[ticketType].toFixed(2) + ' ₪';
-                    
-                    // Show/hide fallback notice based on whether cities were found
+                    if (ticketType === 'single') {
+                        finalPrice = result.single;
+                        typeLabel = 'נסיעה בודדת (' + result.zoneLabel + ')';
+                    } else if (ticketType === 'daily') {
+                        finalPrice = result.daily;
+                        typeLabel = 'חופשי יומי (' + result.zoneLabel + ')';
+                    } else {
+                        // Monthly - use the primary national contract
+                        finalPrice = result.monthlyNational.valid ? result.monthlyNational.price : 0;
+                        typeLabel = MONTHLY_CONTRACTS.national.name + ' (' + result.zoneLabel + ')';
+                    }
+
+                    document.getElementById('r-type').textContent = typeLabel;
+                    document.getElementById('r-final').textContent = finalPrice.toFixed(2) + ' ₪';
+
+                    // Handle fallback notice
                     var fallbackEl = document.getElementById('fallback');
                     if (result.isFallback) {
                         fallbackEl.style.display = 'block';
-                        fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' + 
-                                              FARE_INTERCITY.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
+                        fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' +
+                            FARE_RULES.intercity.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
                     } else {
                         fallbackEl.style.display = 'none';
                     }
-                    
+
                 } catch (e) {
                     // Error fallback: use intercity prices
-                    document.getElementById('price-single').textContent = FARE_INTERCITY.single.toFixed(2);
-                    document.getElementById('price-daily').textContent = FARE_INTERCITY.daily.toFixed(2);
-                    document.getElementById('price-monthly').textContent = FARE_INTERCITY.monthly.toFixed(2);
-                    document.getElementById('r-final').textContent = FARE_INTERCITY.single.toFixed(2) + ' ₪';
+                    document.getElementById('price-single').textContent = 
+                        FARE_RULES.intercity.single.toFixed(2);
+                    document.getElementById('price-daily').textContent = 
+                        FARE_RULES.intercity.daily.toFixed(2);
+                    document.getElementById('price-monthly-national').textContent = 
+                        MONTHLY_CONTRACTS.national.base.toFixed(2);
+                    document.getElementById('price-monthly-train').textContent = 
+                        MONTHLY_CONTRACTS.nationalTrain.base.toFixed(2);
+                    document.getElementById('price-monthly-periphery').textContent = 'שגיאה';
+                    document.getElementById('price-monthly-eilat').textContent = 'שגיאה';
+                    document.getElementById('r-final').textContent = 
+                        FARE_RULES.intercity.single.toFixed(2) + ' ₪';
                     document.getElementById('fallback').style.display = 'block';
-                    document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' + 
-                                              FARE_INTERCITY.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
+                    document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
+                        FARE_RULES.intercity.single.toFixed(2) + ' ₪ (בינעירוני)</strong>';
                 }
-                
+
                 btn.disabled = false;
                 btn.textContent = '🔍 חשב תעריף';
                 document.getElementById('results').classList.add('active');
