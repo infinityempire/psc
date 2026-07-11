@@ -85,11 +85,11 @@ npm run sync-fares
 ### 🐛 Critical Bug Fix
 - **Jerusalem-Tel Aviv Single Ride**: Fixed incorrect price from 49.50 ₪ to **19.00 ₪**
 - **Zone System**: Expanded from 3 zones to **6 official MOT fare zones**:
-  - צהוב (Yellow): 0-15 km → 8.00 ₪
-  - ירוק (Green): 15-40 km → 14.50 ₪
-  - תכלת (Light Blue): 40-75 km → **19.00 ₪** ← Jerusalem-Tel Aviv
-  - כחול (Blue): 75-120 km → 19.00 ₪
-  - סגול (Purple): 120-225 km → 30.50 ₪
-  - אפור (Gray): 225+ km → 74.00 ₪
+  - צהוב (0-15 ק"מ): בודד 8.00₪, יומי 17.50₪
+  - ירוק (15-40 ק"מ): בודד 14.50₪, יומי 29.00₪
+  - תכלת (40-75 ק"מ): בודד 19.00₪, יומי 37.50₪ ← ירושלים-תל אביב
+  - כחול (75-120 ק"מ): בודד 19.00₪, יומי 37.50₪
+  - סגול (120-225 ק"מ): בודד 30.50₪, יומי 60.50₪
+  - אפור (225+ ק"מ): בודד 74.00₪, יומי 79.50₪
 
 Source: [bus.gov.il](https://bus.gov.il/FaresDistance)
