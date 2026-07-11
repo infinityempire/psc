@@ -165,8 +165,8 @@
                     var dc=coords(d);
                     var discount=getDiscount(p);
                     
-                    // Calculate prices for all three ticket types
-                    var prices={
+                    // Base prices for all three ticket types
+                    var basePrices={
                         single:8,
                         daily:18,
                         monthly:315
@@ -177,10 +177,21 @@
                         monthly:'חופשי חודשי'
                     };
                     
-                    // Apply discount to all prices
-                    for(var key in prices){
-                        prices[key]=Math.round(prices[key]*(1-discount)*100)/100;
+                    // Calculate prices
+                    var prices={};
+                    
+                    // Single ride: apply discount
+                    prices.single=Math.round(basePrices.single*(1-discount)*100)/100;
+                    
+                    // Daily Pass: ONLY free (0) for 100% discount profiles, otherwise full price
+                    if(discount===1){
+                        prices.daily=0;
+                    } else {
+                        prices.daily=basePrices.daily;
                     }
+                    
+                    // Monthly pass: apply discount
+                    prices.monthly=Math.round(basePrices.monthly*(1-discount)*100)/100;
                     
                     // Display all three ticket type prices
                     document.getElementById('price-single').textContent=prices.single.toFixed(2);
