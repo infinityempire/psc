@@ -206,17 +206,20 @@
         // ============================================================
         var MONTHLY_CONTRACTS = {
             national: {
+                id: 'national',
                 name: 'חופשי חודשי ארצי',
                 base: 315.00,
                 label: 'בינעירוני ארצי'
             },
             nationalTrain: {
+                id: 'nationalTrain',
                 name: 'חופשי ארצי משולב רכבת',
-                base: 410.00,
+                base: 464.00, // Default, overridden by zone in evaluateMonthlyContract
                 label: 'משולב רכבת',
                 condition: 'intercity' // Only for distance > 40km
             },
             periphery: {
+                id: 'periphery',
                 name: 'חופשי חודשי פריפריה',
                 base: 133.00,
                 label: 'פריפריה',
@@ -224,6 +227,7 @@
                 invalidMessage: 'לא תקף במסלול זה'
             },
             eilat: {
+                id: 'eilat',
                 name: 'חופשי חודשי אילת',
                 base: 114.50,
                 label: 'אילת',
@@ -297,9 +301,18 @@
             }
         }
 
+        // Monthly train prices by zone (from bus.gov.il)
+        var MONTHLY_TRAIN_PRICES = {
+            yellow: 323,
+            green: 323,
+            lightblue: 464,
+            blue: 684,
+            purple: 684,
+            gray: 684
+        };
+
         function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
             var result = { valid: true, price: null, message: '' };
-            var basePrice = contract.base;
             var originLower = origin.trim().toLowerCase();
             var destLower = dest.trim().toLowerCase();
 
@@ -338,6 +351,12 @@
                 result.valid = false;
                 result.message = 'לא רלוונטי למסלול';
                 return result;
+            }
+
+            // Determine base price - National+Train uses zone-based pricing
+            var basePrice = contract.base;
+            if (contract.id === 'nationalTrain') {
+                basePrice = MONTHLY_TRAIN_PRICES[fareZone.zone] || contract.base;
             }
 
             // Calculate price with discount

@@ -92,4 +92,9 @@ npm run sync-fares
   - סגול (120-225 ק"מ): בודד 30.50₪, יומי 60.50₪
   - אפור (225+ ק"מ): בודד 74.00₪, יומי 79.50₪
 
+- **Monthly Pass Prices**: Fixed National+Train to use zone-based pricing:
+  - צהוב/ירוק: 323₪
+  - תכלת: **464₪** (was 410₪)
+  - כחול/סגול/אפור: **684₪** (was 410₪)
+
 Source: [bus.gov.il](https://bus.gov.il/FaresDistance)
