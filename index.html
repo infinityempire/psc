@@ -41,6 +41,81 @@
         .breakdown-item:last-child{font-weight:bold;color:#27ae60}
         .fallback-notice{background:#fff3cd;border-radius:10px;padding:15px;margin-top:15px}
         .disclaimer{margin-top:20px;padding:15px;background:#f8f9fa;border-radius:8px;font-size:0.85em;color:#666}
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 600px) {
+            body {
+                padding: 15px 10px;
+            }
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 15px;
+            }
+            .header {
+                padding: 25px 15px;
+                border-radius: 15px 15px 0 0;
+            }
+            .header h1 {
+                font-size: 1.4em;
+            }
+            .form-section,
+            .results-section {
+                padding: 20px;
+            }
+            .input-group input {
+                padding: 12px;
+                font-size: 1em;
+            }
+            .ticket-type-grid,
+            .profile-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .ticket-type-option+label,
+            .profile-option+label {
+                padding: 10px 8px;
+                font-size: 0.85em;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                hyphens: auto;
+            }
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .result-card .price {
+                font-size: 2em;
+            }
+            .breakdown-item {
+                padding: 10px 0;
+                font-size: 0.9em;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+            .ticket-type-grid {
+                grid-template-columns: 1fr;
+            }
+            .ticket-type-option+label,
+            .profile-option+label {
+                padding: 12px 10px;
+                font-size: 0.9em;
+            }
+        }
+        
+        /* Tablet styles */
+        @media (min-width: 601px) and (max-width: 900px) {
+            .profile-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .results-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
