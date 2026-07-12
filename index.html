@@ -45,6 +45,8 @@
         .fare-breakdown{background:#f8f9fa;border-radius:15px;padding:20px;margin-top:20px}
         .breakdown-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e0e0e0}
         .breakdown-item:last-child{font-weight:bold;color:#27ae60}
+        .breakdown-item.highlight{background:#e8f4fc;margin:0 -20px;padding:12px 20px;border-radius:8px}
+        .breakdown-item.highlight span:first-child{font-weight:600;color:#2c5282}
         .fallback-notice{background:#fff3cd;border-radius:10px;padding:15px;margin-top:15px}
         .disclaimer{margin-top:20px;padding:15px;background:#f8f9fa;border-radius:8px;font-size:0.85em;color:#666}
         
@@ -233,6 +235,7 @@
             <div class="fare-breakdown">
                 <div class="breakdown-item"><span>מוצא:</span><span id="r-origin">-</span></div>
                 <div class="breakdown-item"><span>יעד:</span><span id="r-dest">-</span></div>
+                <div class="breakdown-item highlight" id="r-distance-row"><span>📏 מרחק:</span><span id="r-distance">-</span></div>
                 <div class="breakdown-item"><span>סוג נבחר:</span><span id="r-type">-</span></div>
                 <div class="breakdown-item"><span>סופי:</span><span id="r-final">0.00 ₪</span></div>
             </div>
@@ -1238,6 +1241,9 @@
                     // Update breakdown
                     document.getElementById('r-origin').textContent = origin;
                     document.getElementById('r-dest').textContent = dest;
+                    
+                    // Always display calculated distance in breakdown
+                    document.getElementById('r-distance').textContent = result.distance.toFixed(1) + ' ק"מ';
 
                     // Determine the final selected price
                     var finalPrice = 0;
