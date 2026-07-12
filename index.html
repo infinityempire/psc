@@ -328,7 +328,6 @@
                     <div><input type="radio" name="ticketType" id="t-single" value="single" class="ticket-type-option" checked><label for="t-single"> נסיעה בודדת</label></div>
                     <div><input type="radio" name="ticketType" id="t-daily" value="daily" class="ticket-type-option"><label for="t-daily"> חופשי יומי</label></div>
                     <div><input type="radio" name="ticketType" id="t-monthly" value="monthly" class="ticket-type-option"><label for="t-monthly"> חופשי חודשי</label></div>
-                    <div id="t-student-pass-container" style="display:none;"><input type="radio" name="ticketType" id="t-semester" value="semester" class="ticket-type-option"><label for="t-semester"> חופשי סמסטריאלי / שנתי</label></div>
                 </div>
             </div>
             <div class="passenger-profiles">
@@ -384,23 +383,6 @@
                 </svg>
                 שתף תוצאה ב-WhatsApp
             </button>
-            
-            <!-- Student Extended Passes - Only visible when semester/annual ticket type selected -->
-            <div class="student-passes" id="student-passes" style="display:none;">
-                <h4>🎓 בחר מנוי אקדמי:</h4>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-                    <div class="result-card" id="card-semester" style="cursor:pointer;padding:15px;" onclick="selectStudentPass('semester')">
-                        <div style="font-size:0.9em;color:var(--text-secondary);">מנוי חופשי סמסטריאלי</div>
-                        <div class="price" style="font-size:1.5em;"><span id="price-semester">0.00</span> ₪</div>
-                        <div style="font-size:0.75em;color:var(--text-secondary);margin-top:5px;">4 חודשים</div>
-                    </div>
-                    <div class="result-card" id="card-annual" style="cursor:pointer;padding:15px;" onclick="selectStudentPass('annual')">
-                        <div style="font-size:0.9em;color:var(--text-secondary);">מנוי חופשי שנתי</div>
-                        <div class="price" style="font-size:1.5em;"><span id="price-annual">0.00</span> ₪</div>
-                        <div style="font-size:0.75em;color:var(--text-secondary);margin-top:5px;">8 חודשים</div>
-                    </div>
-                </div>
-            </div>
             
             <div class="fallback-notice" id="fallback" style="display:none;">
                 <strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס 8.00 ₪</strong>
@@ -1172,70 +1154,6 @@
         renderRecentSearches();
 
         // ============================================================
-        // PROFILE CHANGE HANDLER - Show/hide student pass option
-        // ============================================================
-        
-        function updateStudentPassVisibility() {
-            var passengerType = document.querySelector('[name="passenger"]:checked').value;
-            var studentPassContainer = document.getElementById('t-student-pass-container');
-            var isStudent = (passengerType === 'student');
-            
-            if (isStudent) {
-                studentPassContainer.style.display = 'block';
-            } else {
-                studentPassContainer.style.display = 'none';
-                // If semester/annual was selected, switch back to single
-                var semesterRadio = document.getElementById('t-semester');
-                if (semesterRadio.checked) {
-                    document.getElementById('t-single').checked = true;
-                }
-            }
-        }
-        
-        // Add event listeners to all passenger profile radios
-        var profileRadios = document.querySelectorAll('[name="passenger"]');
-        profileRadios.forEach(function(radio) {
-            radio.addEventListener('change', updateStudentPassVisibility);
-        });
-        
-        // Initialize visibility on page load
-        updateStudentPassVisibility();
-
-        // ============================================================
-        // STUDENT PASS SELECTION HELPERS
-        // ============================================================
-        
-        var selectedStudentPass = 'semester'; // Default selection
-        
-        function getSelectedStudentPass() {
-            return selectedStudentPass;
-        }
-        
-        function selectStudentPass(passType) {
-            selectedStudentPass = passType;
-            updateStudentPassCards(passType);
-            // Recalculate and display the result
-            calculateFareAndDisplay();
-        }
-        
-        function updateStudentPassCards(selectedPass) {
-            var cardSemester = document.getElementById('card-semester');
-            var cardAnnual = document.getElementById('card-annual');
-            
-            if (selectedPass === 'semester') {
-                cardSemester.style.borderColor = 'var(--price-color)';
-                cardSemester.style.background = 'var(--card-bg)';
-                cardAnnual.style.borderColor = 'var(--border-color)';
-                cardAnnual.style.background = 'var(--card-bg)';
-            } else {
-                cardAnnual.style.borderColor = 'var(--price-color)';
-                cardAnnual.style.background = 'var(--card-bg)';
-                cardSemester.style.borderColor = 'var(--border-color)';
-                cardSemester.style.background = 'var(--card-bg)';
-            }
-        }
-
-        // ============================================================
         // WHATSAPP SHARE
         // ============================================================
 
@@ -1582,32 +1500,6 @@
                         eilatPassPrice.classList.remove('active');
                     }
 
-                    // FEATURE 4: Student Extended Passes - Only show when semester/annual ticket type selected
-                    var studentPassesEl = document.getElementById('student-passes');
-                    var isStudent = (passengerType === 'student');
-                    var isSemesterTicket = (ticketType === 'semester');
-                    
-                    // Calculate student pass prices
-                    var semesterPrice = 0;
-                    var annualPrice = 0;
-                    var monthlyNationalPrice = result.monthlyNational.price;
-                    
-                    if (isStudent && result.monthlyNational.valid) {
-                        semesterPrice = Math.round(monthlyNationalPrice * 4 * 100) / 100;
-                        annualPrice = Math.round(monthlyNationalPrice * 8 * 100) / 100;
-                        
-                        document.getElementById('price-semester').textContent = semesterPrice.toFixed(2);
-                        document.getElementById('price-annual').textContent = annualPrice.toFixed(2);
-                    }
-                    
-                    // Show student passes section only when semester/annual ticket type is selected
-                    if (isSemesterTicket && isStudent && result.monthlyNational.valid) {
-                        studentPassesEl.style.display = 'block';
-                        updateStudentPassCards('semester');
-                    } else {
-                        studentPassesEl.style.display = 'none';
-                    }
-
                     // Update breakdown
                     document.getElementById('r-origin').textContent = origin;
                     document.getElementById('r-dest').textContent = dest;
@@ -1617,7 +1509,6 @@
                     // Determine the final selected price
                     var finalPrice = 0;
                     var typeLabel = '';
-                    var monthlyNationalPrice = result.monthlyNational.price;
 
                     if (ticketType === 'single') {
                         finalPrice = result.single;
@@ -1625,16 +1516,6 @@
                     } else if (ticketType === 'daily') {
                         finalPrice = result.daily;
                         typeLabel = 'חופשי יומי (' + result.zoneLabel + ')';
-                    } else if (ticketType === 'semester') {
-                        // Handle both semester and annual (selected via updateStudentPassCards)
-                        var selectedPass = getSelectedStudentPass();
-                        if (selectedPass === 'annual') {
-                            finalPrice = Math.round(monthlyNationalPrice * 8 * 100) / 100;
-                            typeLabel = 'מנוי חופשי שנתי (' + result.zoneLabel + ')';
-                        } else {
-                            finalPrice = Math.round(monthlyNationalPrice * 4 * 100) / 100;
-                            typeLabel = 'מנוי חופשי סמסטריאלי (' + result.zoneLabel + ')';
-                        }
                     } else {
                         finalPrice = result.monthlyNational.valid ? result.monthlyNational.price : 0;
                         typeLabel = MONTHLY_CONTRACTS.national.name + ' (' + result.zoneLabel + ')';
