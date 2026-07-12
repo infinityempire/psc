@@ -14,6 +14,12 @@
         .input-group{margin-bottom:20px}
         .input-group label{display:block;font-weight:600;color:#2c3e50;margin-bottom:8px}
         .input-group input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;font-size:1.1em}
+        .input-with-btn{display:flex;gap:8px;align-items:center}
+        .input-with-btn input{flex:1}
+        .location-btn{padding:12px 16px;background:linear-gradient(#3498db,#2980b9);color:#fff;border:none;border-radius:10px;font-size:0.9em;cursor:pointer;white-space:nowrap;flex-shrink:0}
+        .location-btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(52,152,219,0.3)}
+        .location-btn:disabled{background:#999;cursor:not-allowed;transform:none}
+        .location-error{color:#e74c3c;font-size:0.85em;margin-top:5px;display:none}
         .ticket-type-section{background:#e8f5e9;border-radius:15px;padding:20px;margin-bottom:25px;border:2px solid #a5d6a7}
         .ticket-type-section h3{color:#2c3e50;margin-bottom:15px}
         .ticket-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -66,6 +72,16 @@
             .input-group input {
                 padding: 12px;
                 font-size: 1em;
+            }
+            .input-with-btn {
+                flex-direction: column;
+            }
+            .input-with-btn input {
+                width: 100%;
+            }
+            .location-btn {
+                width: 100%;
+                padding: 12px;
             }
             .ticket-type-grid,
             .profile-grid {
@@ -126,7 +142,11 @@
         <div class="form-section">
             <div class="input-group">
                 <label>📍 מוצא:</label>
-                <input type="text" id="origin" placeholder="ירושלים">
+                <div class="input-with-btn">
+                    <input type="text" id="origin" placeholder="ירושלים">
+                    <button type="button" id="location-btn" class="location-btn" title="השתמש במיקום הנוכחי">📍 המיקום שלי</button>
+                </div>
+                <div id="location-error" class="location-error"></div>
             </div>
             <div class="input-group">
                 <label>🎯 יעד:</label>
@@ -329,6 +349,9 @@
         // UTILITY FUNCTIONS
         // ============================================================
         
+        // Current location coordinates (set when user uses geolocation)
+        var currentLocationCoords = null;
+        
         // Haversine distance calculation
         function calculateDistance(lat1, lon1, lat2, lon2) {
             var R = 6371; // Earth radius in km
@@ -355,6 +378,83 @@
         function getMonthlyDiscount(profile) {
             return MONTHLY_DISCOUNTS[profile] || 0;
         }
+        
+        // ============================================================
+        // GEOLOCATION FUNCTIONS
+        // ============================================================
+        
+        function useCurrentLocation() {
+            var locationBtn = document.getElementById('location-btn');
+            var locationError = document.getElementById('location-error');
+            var originInput = document.getElementById('origin');
+            
+            // Hide any previous error
+            locationError.style.display = 'none';
+            locationError.textContent = '';
+            
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                locationError.textContent = 'הדפדפן שלך אינו תומך באיפיון מיקום';
+                locationError.style.display = 'block';
+                return;
+            }
+            
+            // Disable button while getting location
+            locationBtn.disabled = true;
+            locationBtn.textContent = '...';
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Success: store coordinates
+                    currentLocationCoords = [
+                        position.coords.latitude,
+                        position.coords.longitude
+                    ];
+                    
+                    // Update input field
+                    originInput.value = 'המיקום הנוכחי שלי';
+                    
+                    // Re-enable button
+                    locationBtn.disabled = false;
+                    locationBtn.textContent = '📍 המיקום שלי';
+                },
+                function(error) {
+                    // Error: show user-friendly message
+                    var errorMessage = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'גישה למיקום נדחתה. אנא אפשר גישה למיקום בהגדרות הדפדפן.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'מיקום לא זמין כרגע. נסה שוב מאוחר יותר.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'תם הזמן לקבלת מיקום. נסה שוב.';
+                            break;
+                        default:
+                            errorMessage = 'שגיאה בקבלת המיקום. נסה שוב.';
+                    }
+                    
+                    locationError.textContent = errorMessage;
+                    locationError.style.display = 'block';
+                    
+                    // Re-enable button
+                    locationBtn.disabled = false;
+                    locationBtn.textContent = '📍 המיקום שלי';
+                    
+                    // Clear stored coordinates
+                    currentLocationCoords = null;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+        
+        // Set up location button click handler
+        document.getElementById('location-btn').onclick = useCurrentLocation;
 
         // ============================================================
         // FARE RULE ENGINE
@@ -440,7 +540,9 @@
         }
 
         function calculateFare(origin, dest, passengerType) {
-            var oc = getCoords(origin);
+            // Check if origin is using current location
+            var isCurrentLocation = origin === 'המיקום הנוכחי שלי';
+            var oc = isCurrentLocation ? currentLocationCoords : getCoords(origin);
             var dc = getCoords(dest);
             var isFallback = !oc || !dc;
             
