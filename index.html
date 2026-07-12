@@ -14,7 +14,7 @@
         .input-group{margin-bottom:20px}
         .input-group label{display:block;font-weight:600;color:#2c3e50;margin-bottom:8px}
         .input-group input{width:100%;padding:15px;border:2px solid #e0e0e0;border-radius:12px;font-size:1.1em}
-        .input-with-btn{display:flex;gap:8px;align-items:center}
+        .input-with-btn{display:flex;gap:8px;align-items:center;position:relative}
         .input-with-btn input{flex:1}
         .location-btn{padding:12px 16px;background:linear-gradient(#3498db,#2980b9);color:#fff;border:none;border-radius:10px;font-size:0.9em;cursor:pointer;white-space:nowrap;flex-shrink:0}
         .location-btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(52,152,219,0.3)}
@@ -47,6 +47,28 @@
         .breakdown-item:last-child{font-weight:bold;color:#27ae60}
         .fallback-notice{background:#fff3cd;border-radius:10px;padding:15px;margin-top:15px}
         .disclaimer{margin-top:20px;padding:15px;background:#f8f9fa;border-radius:8px;font-size:0.85em;color:#666}
+        
+        /* Autocomplete styles */
+        .autocomplete-wrapper{position:relative;width:100%}
+        .autocomplete-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #3498db;border-top:none;border-radius:0 0 12px 12px;max-height:250px;overflow-y:auto;z-index:1000;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.15)}
+        .autocomplete-list.active{display:block}
+        .autocomplete-item{padding:12px 15px;cursor:pointer;border-bottom:1px solid #f0f0f0;font-size:1em;color:#2c3e50}
+        .autocomplete-item:last-child{border-bottom:none}
+        .autocomplete-item:hover{background:#e8f4fc}
+        .autocomplete-item.highlighted{background:#d4ebf7}
+        
+        /* GPS Distance Display */
+        .gps-distance{background:#e8f4fc;border-radius:10px;padding:10px 15px;margin-top:10px;font-size:0.95em;color:#2c5282;display:none}
+        .gps-distance.active{display:block}
+        .gps-distance strong{color:#1e3a5f}
+        
+        /* Train Pass Row Styling */
+        .train-pass-row{display:none}
+        .train-pass-row.active{display:flex;flex-direction:column}
+        
+        /* Eilat Pass Row Styling */
+        .eilat-pass-row{display:none}
+        .eilat-pass-row.active{display:flex;flex-direction:column}
         
         /* Mobile Responsive Styles */
         @media (max-width: 600px) {
@@ -107,6 +129,9 @@
                 padding: 10px 0;
                 font-size: 0.9em;
             }
+            .autocomplete-list {
+                max-height: 200px;
+            }
         }
         
         @media (max-width: 400px) {
@@ -143,14 +168,21 @@
             <div class="input-group">
                 <label>📍 מוצא:</label>
                 <div class="input-with-btn">
-                    <input type="text" id="origin" placeholder="ירושלים">
+                    <div class="autocomplete-wrapper">
+                        <input type="text" id="origin" placeholder="ירושלים" autocomplete="off">
+                        <div id="origin-autocomplete" class="autocomplete-list"></div>
+                    </div>
                     <button type="button" id="location-btn" class="location-btn" title="השתמש במיקום הנוכחי">📍 המיקום שלי</button>
                 </div>
                 <div id="location-error" class="location-error"></div>
+                <div id="gps-distance" class="gps-distance"></div>
             </div>
             <div class="input-group">
                 <label>🎯 יעד:</label>
-                <input type="text" id="dest" placeholder="תל אביב">
+                <div class="autocomplete-wrapper">
+                    <input type="text" id="dest" placeholder="תל אביב" autocomplete="off">
+                    <div id="dest-autocomplete" class="autocomplete-list"></div>
+                </div>
             </div>
             <div class="ticket-type-section">
                 <h3>🎫 סוג כרטיס:</h3>
@@ -190,12 +222,12 @@
                     <div class="ticket-type">חופשי חודשי</div>
                     <div class="label">בינעירוני ארצי:</div>
                     <div class="price"><span id="price-monthly-national">0.00</span> ₪</div>
-                    <div class="label" style="margin-top:8px;">משולב רכבת:</div>
-                    <div class="price"><span id="price-monthly-train">0.00</span> ₪</div>
+                    <div class="label train-pass-row" style="margin-top:8px;" id="train-pass-label">משולב רכבת:</div>
+                    <div class="price train-pass-row" id="train-pass-price"><span id="price-monthly-train">0.00</span> ₪</div>
                     <div class="label" style="margin-top:8px;">פריפריה:</div>
                     <div class="price"><span id="price-monthly-periphery">-</span></div>
-                    <div class="label" style="margin-top:8px;">אילת:</div>
-                    <div class="price"><span id="price-monthly-eilat">-</span></div>
+                    <div class="label eilat-pass-row" style="margin-top:8px;" id="eilat-pass-label">אילת:</div>
+                    <div class="price eilat-pass-row" id="eilat-pass-price"><span id="price-monthly-eilat">-</span></div>
                 </div>
             </div>
             <div class="fare-breakdown">
@@ -217,9 +249,10 @@
         // ============================================================
 
         // ============================================================
-        // CITY DATABASE WITH COORDINATES
+        // CITY DATABASE WITH COORDINATES (Extended Israeli Localities)
         // ============================================================
         var CITIES = {
+            // Major Cities
             'תל אביב': [32.0853, 34.7818],
             'ירושלים': [31.7683, 35.2137],
             'חיפה': [32.794, 34.9896],
@@ -230,28 +263,107 @@
             'פתח תקווה': [32.084, 34.888],
             'ראשון לציון': [31.971, 34.789],
             'חולון': [32.016, 34.779],
+            
+            // Northern Region
             'נהריה': [32.9955, 35.0925],
             'ראש הנקרה': [33.0855, 35.1104],
             'עכו': [32.9277, 35.0822],
             'כרמיאל': [32.9176, 35.2969],
             'טבריה': [32.7940, 35.5314],
             'נצרת': [32.7021, 35.2978],
-            'אילת': [29.5581, 34.9512],
-            'אשקלון': [31.8040, 34.6550],
-            'רחובות': [31.8928, 34.8113],
+            'צפת': [32.9658, 35.4983],
+            'קרית שמונה': [33.2077, 35.5694],
+            'עפולה': [32.6080, 35.2896],
+            'מגדל העמק': [32.6776, 35.2397],
+            'ראש פינה': [32.9696, 35.5422],
+            'קרית ביאליק': [32.8302, 35.0833],
+            'קרית מוצקין': [32.8403, 35.0779],
+            'קרית אתא': [32.8023, 35.1059],
+            'קרית ים': [32.8448, 35.0694],
+            'נוף הגליל': [32.7011, 35.3283],
+            'דלית אל כרמל': [32.6935, 34.9758],
+            'בית השיטה': [32.7133, 35.1825],
+            'כפר מנחם': [31.7333, 34.7833],
+            'מעלה אפרים': [31.6667, 35.0833],
+            
+            // Central Region
             'הרצליה': [32.1656, 34.8467],
             'הוד השרון': [32.1525, 34.8903],
             'רמלה': [31.9275, 34.8611],
             'לוד': [31.9497, 34.8958],
             'מודיעין': [31.8973, 35.0103],
             'בית שמש': [31.7466, 34.9881],
-            'קרית שמונה': [33.2077, 35.5694],
-            'צפת': [32.9658, 35.4983],
-            'עפולה': [32.6080, 35.2896]
+            'רחובות': [31.8928, 34.8113],
+            'גבעתיים': [32.0681, 34.8111],
+            'בת ים': [32.0177, 34.7517],
+            'קרית גת': [31.6053, 34.7642],
+            'לים': [32.0177, 34.7517],
+            'שוהם': [31.8797, 34.9644],
+            'יבנה': [31.8747, 34.7372],
+            'גדרה': [31.8136, 34.7761],
+            'מזכרת בתיה': [31.8533, 34.8311],
+            'ראש העין': [32.0953, 34.9564],
+            'גני תקווה': [32.0628, 34.8747],
+            'כפר סבא': [32.1783, 34.9067],
+            'כרכור': [32.7494, 34.9667],
+            'זכרון יעקב': [32.5708, 34.9561],
+            'בנימינה': [32.5181, 34.9508],
+            'חרושת': [32.4833, 34.9500],
+            'מעגן מיכאל': [32.5581, 34.9225],
+            
+            // Southern Region
+            'אשקלון': [31.8040, 34.6550],
+            'אילת': [29.5581, 34.9512],
+            'דימונה': [31.0681, 35.0331],
+            'ערד': [31.2581, 35.2131],
+            'מצפה רמון': [30.6108, 34.8017],
+            'נתיבות': [31.4206, 34.5919],
+            'שדרות': [31.5244, 34.5964],
+            'אופקים': [31.3153, 34.6231],
+            'קרית מלאכי': [31.7317, 34.7461],
+            'ירוחון': [30.9897, 34.9300],
+            'חורה': [31.2897, 34.9358],
+            'להבים': [31.3747, 34.7997],
+            'מיתר': [31.2803, 34.9306],
+            'עזתה': [31.6647, 34.5731],
+            'באר גנים': [31.2889, 34.7847],
+            
+            // Jerusalem District
+            'בית שמש': [31.7466, 34.9881],
+            'מבשרת ציון': [31.7961, 35.1494],
+            'הר אדר': [31.8417, 35.0667],
+            'קרית ענבים': [31.8056, 35.1253],
+            'טלביה': [31.7781, 35.2086],
+            'אבו גוש': [31.8061, 35.1086],
+            'שכם': [32.2225, 35.2544],
+            
+            // Additional localities
+            'קדומים': [32.1842, 35.1678],
+            'איתמר': [32.1731, 35.1586],
+            'אלקנה': [32.1622, 35.1869],
+            'קרית ארבע': [31.5275, 35.1194],
+            'עצמונה': [32.1681, 35.1719],
+            'שקד': [32.1972, 35.1814],
+            'תל קטינה': [31.5667, 35.1167],
+            'חווארג': [31.9333, 35.2167],
+            
+            // Liron (mentioned in requirement - adding as a known locality)
+            'לירון': [31.6500, 34.7500]
         };
 
         // Cities that invalidate Periphery pass
         var GUSH_DAN_CITIES = ['תל אביב', 'רמת גן'];
+        
+        // Cities with train connectivity (Israel Railways network)
+        var TRAIN_CITIES = [
+            'תל אביב', 'ירושלים', 'חיפה', 'באר שבע', 'נתניה', 'אשדוד', 'אשקלון',
+            'רמת גן', 'פתח תקווה', 'ראשון לציון', 'חולון', 'בת ים', 'הרצליה',
+            'הוד השרון', 'רמלה', 'לוד', 'מודיעין', 'בית שמש', 'רחובות',
+            'קרית גת', 'שדרות', 'נתיבות', 'אופקים', 'קרית מלאכי', 'גבעתיים',
+            'יבנה', 'גדרה', 'שוהם', 'קרית ביאליק', 'קרית מוצקין', 'קרית אתא',
+            'קרית ים', 'כרמיאל', 'נהריה', 'עכו', 'מגדל העמק', 'נוף הגליל',
+            'טבריה', 'כפר מנחם', 'בית השיטה'
+        ];
 
         // ============================================================
         // FARE RULES - Official Ministry of Transport fare zones
@@ -380,7 +492,170 @@
         }
         
         // ============================================================
-        // GEOLOCATION FUNCTIONS
+        // AUTOCOMPLETE FUNCTIONALITY (UPGRADE 4)
+        // ============================================================
+        
+        // Get all city names as array
+        function getCityNames() {
+            var names = [];
+            for (var city in CITIES) {
+                names.push(city);
+            }
+            return names;
+        }
+        
+        // Filter cities by input
+        function filterCities(input, cities) {
+            if (!input || input.length < 1) return [];
+            var normalizedInput = input.trim().toLowerCase();
+            return cities.filter(function(city) {
+                return city.toLowerCase().indexOf(normalizedInput) !== -1;
+            }).slice(0, 10); // Limit to 10 results
+        }
+        
+        // Set up autocomplete for an input field
+        function setupAutocomplete(inputId, listId) {
+            var input = document.getElementById(inputId);
+            var list = document.getElementById(listId);
+            var cities = getCityNames();
+            var highlightedIndex = -1;
+            
+            input.addEventListener('input', function() {
+                var value = this.value.trim();
+                
+                if (value.length < 1) {
+                    list.classList.remove('active');
+                    return;
+                }
+                
+                var matches = filterCities(value, cities);
+                
+                if (matches.length === 0) {
+                    list.classList.remove('active');
+                    return;
+                }
+                
+                list.innerHTML = '';
+                highlightedIndex = -1;
+                
+                matches.forEach(function(city, index) {
+                    var item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.textContent = city;
+                    item.setAttribute('data-index', index);
+                    item.addEventListener('click', function() {
+                        input.value = city;
+                        list.classList.remove('active');
+                        // Trigger calculation if both fields are filled
+                        if (inputId === 'origin') {
+                            var destValue = document.getElementById('dest').value;
+                            if (destValue && destValue.trim().length > 0) {
+                                // Optionally auto-calculate
+                            }
+                        }
+                    });
+                    item.addEventListener('mouseenter', function() {
+                        highlightItem(index);
+                    });
+                    list.appendChild(item);
+                });
+                
+                list.classList.add('active');
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                var items = list.querySelectorAll('.autocomplete-item');
+                if (!list.classList.contains('active') || items.length === 0) return;
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightNext(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightPrev(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (highlightedIndex >= 0 && highlightedIndex < items.length) {
+                        input.value = items[highlightedIndex].textContent;
+                        list.classList.remove('active');
+                    }
+                } else if (e.key === 'Escape') {
+                    list.classList.remove('active');
+                }
+            });
+            
+            function highlightItem(index) {
+                var items = list.querySelectorAll('.autocomplete-item');
+                items.forEach(function(item) { item.classList.remove('highlighted'); });
+                if (index >= 0 && index < items.length) {
+                    items[index].classList.add('highlighted');
+                    highlightedIndex = index;
+                }
+            }
+            
+            function highlightNext(items) {
+                var newIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0;
+                highlightItem(newIndex);
+            }
+            
+            function highlightPrev(items) {
+                var items = list.querySelectorAll('.autocomplete-item');
+                var newIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1;
+                highlightItem(newIndex);
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.remove('active');
+                }
+            });
+        }
+        
+        // Initialize autocomplete for both inputs
+        setupAutocomplete('origin', 'origin-autocomplete');
+        setupAutocomplete('dest', 'dest-autocomplete');
+        
+        // ============================================================
+        // TRAIN CONNECTIVITY CHECK (UPGRADE 2)
+        // ============================================================
+        
+        function hasTrainConnectivity(origin, dest) {
+            // Normalize input
+            var originLower = origin.trim().toLowerCase();
+            var destLower = dest.trim().toLowerCase();
+            
+            // Special case: current location doesn't have train connectivity
+            if (originLower === 'המיקום הנוכחי שלי') {
+                return false;
+            }
+            
+            // Check if both cities are in the train network
+            var originHasTrain = TRAIN_CITIES.some(function(city) {
+                return city.toLowerCase() === originLower;
+            });
+            var destHasTrain = TRAIN_CITIES.some(function(city) {
+                return city.toLowerCase() === destLower;
+            });
+            
+            return originHasTrain && destHasTrain;
+        }
+        
+        // ============================================================
+        // EILAT VISIBILITY CHECK (UPGRADE 3)
+        // ============================================================
+        
+        function shouldShowEilatPass(origin, dest) {
+            var originLower = origin.trim().toLowerCase();
+            var destLower = dest.trim().toLowerCase();
+            var eilatLower = 'אילת'.toLowerCase();
+            
+            // Only show if Eilat is explicitly selected as origin or destination
+            return originLower === eilatLower || destLower === eilatLower;
+        }
+        
+        // ============================================================
+        // GEOLOCATION FUNCTIONS (UPGRADE 1)
         // ============================================================
         
         function useCurrentLocation() {
@@ -655,6 +930,47 @@
                             result.monthlyEilat.message;
                     document.getElementById('price-monthly-eilat').style.color = 
                         result.monthlyEilat.valid ? '' : '#c00';
+
+                    // UPGRADE 1: GPS Distance Display
+                    var gpsDistanceEl = document.getElementById('gps-distance');
+                    var isCurrentLocation = origin === 'המיקום הנוכחי שלי';
+                    if (isCurrentLocation && currentLocationCoords) {
+                        var destCoords = getCoords(dest);
+                        if (destCoords) {
+                            var gpsDist = calculateDistance(
+                                currentLocationCoords[0], currentLocationCoords[1],
+                                destCoords[0], destCoords[1]
+                            );
+                            gpsDistanceEl.innerHTML = '<strong>📍 מרחק GPS:</strong> ' + gpsDist.toFixed(1) + ' ק"מ';
+                            gpsDistanceEl.classList.add('active');
+                        } else {
+                            gpsDistanceEl.classList.remove('active');
+                        }
+                    } else {
+                        gpsDistanceEl.classList.remove('active');
+                    }
+
+                    // UPGRADE 2: Train Pass Visibility - Hide if no train connectivity
+                    var trainPassRow = document.getElementById('train-pass-label');
+                    var trainPassPrice = document.getElementById('train-pass-price');
+                    if (hasTrainConnectivity(origin, dest)) {
+                        trainPassRow.classList.add('active');
+                        trainPassPrice.classList.add('active');
+                    } else {
+                        trainPassRow.classList.remove('active');
+                        trainPassPrice.classList.remove('active');
+                    }
+
+                    // UPGRADE 3: Eilat Pass Visibility - Hide by default, show only if Eilat selected
+                    var eilatPassRow = document.getElementById('eilat-pass-label');
+                    var eilatPassPrice = document.getElementById('eilat-pass-price');
+                    if (shouldShowEilatPass(origin, dest)) {
+                        eilatPassRow.classList.add('active');
+                        eilatPassPrice.classList.add('active');
+                    } else {
+                        eilatPassRow.classList.remove('active');
+                        eilatPassPrice.classList.remove('active');
+                    }
 
                     // Update breakdown
                     document.getElementById('r-origin').textContent = origin;
