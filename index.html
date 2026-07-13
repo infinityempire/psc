@@ -1244,8 +1244,8 @@
         function shareToWhatsApp() {
             if (!lastCalculatedResult) return;
             
-            var origin = document.getElementById('origin').value;
-            var dest = document.getElementById('dest').value;
+            var origin = lastCalculatedResult.origin;
+            var dest = lastCalculatedResult.dest;
             var distance = lastCalculatedResult.distance;
             var singlePrice = lastCalculatedResult.single;
             var monthlyPrice = lastCalculatedResult.monthlyNational.price;
@@ -1471,6 +1471,8 @@
                 monthlyEilat: monthlyEilat,
                 
                 // Route info
+                origin: origin,
+                dest: dest,
                 zone: fareZone.zone,
                 zoneLabel: fareZone.data.label,
                 distance: distance,
