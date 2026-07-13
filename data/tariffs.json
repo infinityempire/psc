@@ -1,0 +1,90 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "lastUpdated": "2025-07-13",
+        "source": "PSC Fare Authority",
+        "description": "Public Service Commission transit fare tariffs extracted from index.html"
+    },
+    "currency": {
+        "code": "ILS",
+        "symbol": "₪",
+        "name": "Israeli Shekel"
+    },
+    "fareRules": {
+        "yellow": {
+            "minDistance": 0,
+            "maxDistance": 27,
+            "single": 8.00,
+            "daily": 17.50
+        },
+        "green": {
+            "minDistance": 27,
+            "maxDistance": 41,
+            "single": 14.50,
+            "daily": 29.00
+        },
+        "lightblue": {
+            "minDistance": 40,
+            "maxDistance": 75,
+            "single": 19.00,
+            "daily": 37.50
+        },
+        "blue": {
+            "minDistance": 75,
+            "maxDistance": 116,
+            "single": 19.00,
+            "daily": 37.50
+        },
+        "purple": {
+            "minDistance": 116,
+            "maxDistance": 150,
+            "single": 30.50,
+            "daily": 60.50
+        },
+        "gray": {
+            "minDistance": 150,
+            "maxDistance": null,
+            "single": 74.00,
+            "daily": 79.50
+        }
+    },
+    "ticketTypes": {
+        "single": {
+            "name": "נסיעה בודדת",
+            "description": "Single ride ticket"
+        },
+        "daily": {
+            "name": "חופשי יומי",
+            "description": "Daily unlimited rides pass"
+        },
+        "monthly": {
+            "name": "חופשי חודשי",
+            "description": "Monthly unlimited rides pass",
+            "baseMultiplier": 1.0
+        },
+        "semester": {
+            "name": "סמסטריאלי",
+            "description": "Semester pass",
+            "baseMultiplier": 4.0
+        },
+        "annual": {
+            "name": "שנתי",
+            "description": "Annual pass",
+            "baseMultiplier": 8.0
+        }
+    },
+    "passengerTypes": {
+        "regular": {
+            "discount": 1.0,
+            "name": "רגיל"
+        },
+        "student": {
+            "discount": 0.5,
+            "name": "סטודנט"
+        },
+        "senior": {
+            "discount": 0.5,
+            "name": "קשיש"
+        }
+    }
+}
