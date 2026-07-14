@@ -291,60 +291,6 @@
             }
         }
 
-        /* Periphery Address Fields Styles */
-        .periphery-address-fields {
-            background: var(--highlight-bg);
-            border: 2px solid var(--autocomplete-border);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            transition: all 0.3s ease;
-        }
-
-        .periphery-address-fields .input-group {
-            margin-bottom: 15px;
-        }
-
-        .periphery-address-fields .input-group:last-of-type {
-            margin-bottom: 0;
-        }
-
-        .periphery-status {
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-size: 0.95em;
-            text-align: center;
-        }
-
-        .periphery-status.checking {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffc107;
-        }
-
-        .periphery-status.eligible {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #28a745;
-        }
-
-        .periphery-status.ineligible {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #dc3545;
-        }
-
-        .periphery-status.error {
-            background: #e2e3e5;
-            color: #383d41;
-            border: 1px solid #6c757d;
-        }
-
-        .periphery-eligible-price {
-            color: #27ae60 !important;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -398,25 +344,6 @@
                     <div><input type="radio" name="passenger" id="p-soldier" value="soldier" class="profile-option"><label for="p-soldier"> חייל (חינם)</label></div>
                     <div><input type="radio" name="passenger" id="p-periphery" value="periphery_resident" class="profile-option"><label for="p-periphery"> תושב פריפריה גיאוגרפית</label></div>
                 </div>
-            </div>
-            <!-- Periphery Address Fields - shown only when periphery_resident profile is selected -->
-            <div class="periphery-address-fields" id="periphery-address-fields" style="display:none;">
-                <div class="input-group">
-                    <label>📍 פרטי מגורים (לבדיקת זכאות פריפריה):</label>
-                </div>
-                <div class="input-group">
-                    <label for="periphery_city">עיר מגורים:</label>
-                    <input type="text" id="periphery_city" placeholder="הקלד עיר מגורים (למשל: חיפה)" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <label for="street">רחוב:</label>
-                    <input type="text" id="street" placeholder="הזן שם רחוב" autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <label for="house_number">מספר בית:</label>
-                    <input type="text" id="house_number" placeholder="הזן מספר בית" autocomplete="off">
-                </div>
-                <div class="periphery-status" id="periphery-status"></div>
             </div>
             <button id="calculate-btn">🔍 חשב תעריף</button>
         </div>
@@ -996,306 +923,6 @@
         }
 
         // ============================================================
-        // PERIPHERY ELIGIBILITY CHECK (HOUSE NUMBER LEVEL)
-        // ============================================================
-
-        // Periphery fallback data cache
-        var peripheryFallbackCache = null;
-
-        // Load periphery fallback data
-        async function loadPeripheryFallbackData() {
-            if (peripheryFallbackCache) return peripheryFallbackCache;
-            try {
-                const response = await fetch('data/periphery_fallback.json');
-                if (response.ok) {
-                    peripheryFallbackCache = await response.json();
-                    return peripheryFallbackCache;
-                }
-            } catch (e) {
-                console.error('Failed to load periphery fallback data:', e);
-            }
-            return null;
-        }
-
-        // Normalize street name for comparison
-        // Handles variations like "הנורית" vs "נורית"
-        function normalizeStreetName(streetName) {
-            if (!streetName) return '';
-            // Remove leading 'ה' (he) prefix (common in Hebrew street names)
-            let normalized = streetName.trim();
-            if (normalized.startsWith('ה') && normalized.length > 1) {
-                normalized = normalized.substring(1);
-            }
-            // Remove extra spaces
-            normalized = normalized.replace(/\s+/g, ' ').trim();
-            return normalized;
-        }
-
-        // Normalize city name for comparison
-        function normalizeCityName(cityName) {
-            if (!cityName) return '';
-            // Remove extra spaces
-            return cityName.trim().replace(/\s+/g, ' ').trim();
-        }
-
-        // Check if house number is eligible based on street rules
-        function isHouseNumberEligible(houseNumber, houseRules, range) {
-            if (!houseNumber || houseNumber === '') return true; // No house number = assume eligible
-            const num = parseInt(houseNumber, 10);
-            if (isNaN(num)) return true; // Invalid number = assume eligible
-
-            if (houseRules === 'all') {
-                return true;
-            } else if (houseRules === 'odd') {
-                return num % 2 === 1;
-            } else if (houseRules === 'even') {
-                return num % 2 === 0;
-            } else if (houseRules === 'range') {
-                // Parse range like "1-45" or use min/max
-                if (range) {
-                    const parts = range.split('-');
-                    if (parts.length === 2) {
-                        const min = parseInt(parts[0], 10);
-                        const max = parseInt(parts[1], 10);
-                        return num >= min && num <= max;
-                    }
-                }
-                return true;
-            }
-            return true;
-        }
-
-        // Check local fallback data for periphery eligibility
-        async function checkLocalPeripheryEligibility(cityName, streetName, houseNumber) {
-            const data = await loadPeripheryFallbackData();
-            if (!data) return { eligible: false, source: 'local', error: 'Failed to load fallback data' };
-
-            const cityLower = normalizeCityName(cityName).toLowerCase();
-            const normalizedStreet = normalizeStreetName(streetName);
-            const streetLower = normalizedStreet.toLowerCase();
-
-            // Check fully eligible cities first (array format)
-            if (data.fully_eligible_cities) {
-                for (const city of data.fully_eligible_cities) {
-                    if (normalizeCityName(city).toLowerCase() === cityLower) {
-                        return {
-                            eligible: true,
-                            source: 'local',
-                            note: 'עיר זכאית - כל הכתובות כלולות'
-                        };
-                    }
-                }
-            }
-
-            // Check partial eligibility cities (street-level)
-            if (data.partial_eligibility_cities) {
-                for (const city in data.partial_eligibility_cities) {
-                    if (normalizeCityName(city).toLowerCase() === cityLower) {
-                        const cityData = data.partial_eligibility_cities[city];
-                        
-                        if (!streetName || streetName === '' || !normalizedStreet) {
-                            // No street provided - need more info
-                            return {
-                                eligible: false,
-                                source: 'local',
-                                needsMoreInfo: true,
-                                note: cityData.note + ' - יש להזין רחוב לבדיקה'
-                            };
-                        }
-
-                        if (cityData.streets) {
-                            for (const street in cityData.streets) {
-                                const normalizedDbStreet = normalizeStreetName(street);
-                                // Match either exact or with 'ה' prefix removed
-                                if (normalizedDbStreet.toLowerCase() === streetLower || 
-                                    street.trim().toLowerCase() === streetLower) {
-                                    const streetData = cityData.streets[street];
-                                    const eligible = isHouseNumberEligible(
-                                        houseNumber,
-                                        streetData.house_rules,
-                                        streetData.range
-                                    );
-                                    return {
-                                        eligible: eligible,
-                                        source: 'local',
-                                        note: eligible ? (streetData.note || 'רחוב זכאי') : 'מספר בית אינו בטווח הזכאות'
-                                    };
-                                }
-                            }
-                        }
-                        // Street not found in partial eligibility list
-                        return {
-                            eligible: false,
-                            source: 'local',
-                            note: 'הרחוב אינו ברשימת הכתובות הזכאות'
-                        };
-                    }
-                }
-            }
-
-            // City not found in any list - assume not eligible
-            return {
-                eligible: false,
-                source: 'local',
-                note: 'עיר לא מזוהה ברשימת הפריפריה'
-            };
-        }
-
-        // Query Data.gov.il API for periphery eligibility
-        async function queryGovernmentAPI(cityName, streetName, houseNumber) {
-            const API_TIMEOUT = 2000; // 2.0 seconds
-
-            // Data.gov.il API for Transportation Justice (צדק תחבורתי) program
-            // This queries the government open data for periphery addresses
-            // Using the geographic periphery dataset from data.gov.il
-            const baseUrl = 'https://data.gov.il/api/3/action/datastore_search';
-            
-            // Try different potential resource IDs for periphery eligibility
-            const resourceIds = [
-                'tzah-tvdnyt-2024',    // צדק תחבורתי 2024
-                'periphery-addresses',   // כתובות פריפריה
-                'geo-periphery',        // גיאוגרפי פריפריה
-            ];
-
-            // Build search query with city, street, and house number
-            const normalizedCity = normalizeCityName(cityName);
-            const normalizedStreet = normalizeStreetName(streetName);
-            const searchQuery = `${normalizedCity} ${normalizedStreet} ${houseNumber}`.trim();
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
-
-            try {
-                // Try each resource ID until one works
-                for (const resourceId of resourceIds) {
-                    const apiUrl = `${baseUrl}?resource_id=${encodeURIComponent(resourceId)}&q=${encodeURIComponent(searchQuery)}`;
-                    
-                    try {
-                        const response = await fetch(apiUrl, {
-                            signal: controller.signal,
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                        if (response.ok) {
-                            const data = await response.json();
-                            
-                            // Parse the response - check for eligible records
-                            if (data.result && data.result.records && data.result.records.length > 0) {
-                                const records = data.result.records;
-                                for (const record of records) {
-                                    // Check various possible field names for periphery eligibility
-                                    const isEligible = 
-                                        record.periphery_eligible === true ||
-                                        record.eligible_for_periphery === true ||
-                                        record.זכאות_פריפריה === true ||
-                                        record.זכאי === true ||
-                                        record.eligible === true ||
-                                        record['צדק תחבורתי'] === true ||
-                                        record['tzah_tvdnyt'] === true;
-
-                                    if (isEligible) {
-                                        return {
-                                            eligible: true,
-                                            source: 'api',
-                                            note: 'נמצא ב-API - זכאי לפי מאגר הממשלתי'
-                                        };
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        // Continue to next resource ID if this one fails
-                        continue;
-                    }
-                }
-
-                // No eligible record found in API
-                return {
-                    eligible: false,
-                    source: 'api',
-                    note: 'כתובת לא נמצאה ב-API'
-                };
-            } catch (error) {
-                clearTimeout(timeoutId);
-                if (error.name === 'AbortError') {
-                    throw new Error('API timeout');
-                }
-                throw error;
-            }
-        }
-
-        // Main periphery eligibility check function
-        async function checkPeripheryEligibility(cityName, streetName, houseNumber) {
-            try {
-                // First try the Government API
-                try {
-                    const apiResult = await queryGovernmentAPI(cityName, streetName, houseNumber);
-                    
-                    // If API found eligible records, return the result immediately
-                    if (apiResult.eligible) {
-                        return apiResult;
-                    }
-                    
-                    // API returned but no eligible records found - this is an "API mismatch"
-                    // Treat this as an API miss and fall back to our comprehensive local database
-                    console.log('Government API returned no matching records, falling back to local data.');
-                    const localResult = await checkLocalPeripheryEligibility(cityName, streetName, houseNumber);
-                    
-                    // If local fallback found eligibility, return that result
-                    if (localResult.eligible) {
-                        return localResult;
-                    }
-                    
-                    // Neither API nor local found eligibility
-                    // Return local result with modified note (don't expose API failure message)
-                    return {
-                        eligible: false,
-                        source: 'local',
-                        note: localResult.note || 'הכתובת אינה כלולה בהסדר הפריפריה'
-                    };
-                } catch (apiError) {
-                    console.log('Government API failed, falling back to local data:', apiError.message);
-                    // API threw an error, fall back to local data
-                    return await checkLocalPeripheryEligibility(cityName, streetName, houseNumber);
-                }
-            } catch (error) {
-                console.error('Periphery eligibility check error:', error);
-                return {
-                    eligible: false,
-                    source: 'error',
-                    error: error.message
-                };
-            }
-        }
-
-        // Update UI with periphery eligibility status
-        function updatePeripheryStatus(statusEl, result) {
-            statusEl.className = 'periphery-status';
-            
-            if (result.checking) {
-                statusEl.classList.add('checking');
-                statusEl.innerHTML = '⏰ בודק זכאות מדויקת...';
-            } else if (result.eligible) {
-                statusEl.classList.add('eligible');
-                statusEl.innerHTML = '✅ הכתובת והבית זכאים להנחת פריפריה.';
-            } else {
-                statusEl.classList.add('ineligible');
-                // Use the appropriate message - avoid exposing API failure messages to user
-                let message = result.note || 'הכתובת אינה כלולה בהסדר הפריפריה';
-                
-                // Don't show API-specific failure messages to user when we have local fallback results
-                if (result.source === 'api' || message.includes('כתובת לא נמצאה ב-API')) {
-                    message = 'הכתובת אינה כלולה בהסדר הפריפריה (בדוק את מספר הבית או הרחוב)';
-                }
-                
-                statusEl.innerHTML = '❌ ' + message;
-            }
-        }
-
-        // ============================================================
         // AUTOCOMPLETE FUNCTIONALITY (UPGRADE 4)
         // ============================================================
         
@@ -1572,24 +1199,11 @@
         profileRadios.forEach(function(radio) {
             radio.addEventListener('change', function() {
                 updateStudentPassVisibility();
-                updatePeripheryAddressVisibility();
             });
         });
         
         // Initialize visibility on page load
         updateStudentPassVisibility();
-        updatePeripheryAddressVisibility();
-
-        // Toggle periphery address fields visibility
-        function updatePeripheryAddressVisibility() {
-            var peripheryFields = document.getElementById('periphery-address-fields');
-            var selectedProfile = document.querySelector('[name="passenger"]:checked');
-            if (selectedProfile && selectedProfile.value === 'periphery_resident') {
-                peripheryFields.style.display = 'block';
-            } else {
-                peripheryFields.style.display = 'none';
-            }
-        }
 
         // ============================================================
         // STUDENT PASS SELECTION HELPERS
@@ -1921,50 +1535,13 @@
                         result.monthlyTrain.price,
                         result.monthlyTrain.valid);
                     
-                    // PERIPHERY ELIGIBILITY CHECK
-                    var peripheryStatusEl = document.getElementById('periphery-status');
+                    // PERIPHERY PRICING - Simply apply 133 ₪ when periphery profile is selected
                     var peripheryPriceEl = document.getElementById('price-monthly-periphery');
                     var isPeripheryProfile = (passengerType === 'periphery_resident');
                     
                     if (isPeripheryProfile) {
-                        // Show checking status
-                        updatePeripheryStatus(peripheryStatusEl, { checking: true });
-                        
-                        // Get city, street and house number
-                        var peripheryCity = document.getElementById('periphery_city').value.trim();
-                        var streetName = document.getElementById('street').value.trim();
-                        var houseNumber = document.getElementById('house_number').value.trim();
-                        
-                        // Check if city is provided - required for eligibility check
-                        if (!peripheryCity) {
-                            var emptyCityResult = {
-                                eligible: false,
-                                note: '⚠️ אנא הזן עיר מגורים לבדיקת זכאות.'
-                            };
-                            peripheryPriceEl.textContent = '-';
-                            peripheryPriceEl.classList.remove('periphery-eligible-price');
-                            result.peripheryEligible = false;
-                            updatePeripheryStatus(peripheryStatusEl, emptyCityResult);
-                        } else {
-                            // Check periphery eligibility using explicit city from input
-                            var peripheryResult = await checkPeripheryEligibility(peripheryCity, streetName, houseNumber);
-                            
-                            if (peripheryResult.eligible) {
-                                // Eligible - set price to 133 ₪
-                                peripheryPriceEl.textContent = '133.00';
-                                peripheryPriceEl.classList.add('periphery-eligible-price');
-                                // Store the eligibility for use in final price calculation
-                                result.peripheryEligible = true;
-                            } else {
-                                // Not eligible
-                                peripheryPriceEl.textContent = peripheryResult.note || 'לא זכאי';
-                                peripheryPriceEl.classList.remove('periphery-eligible-price');
-                                result.peripheryEligible = false;
-                            }
-                            
-                            // Update status display
-                            updatePeripheryStatus(peripheryStatusEl, peripheryResult);
-                        }
+                        // Apply standard periphery price directly (133 ₪)
+                        peripheryPriceEl.textContent = '133.00';
                     } else {
                         // Not periphery profile - show standard pricing
                         peripheryPriceEl.textContent =
@@ -1973,9 +1550,6 @@
                                 result.monthlyPeriphery.message;
                         peripheryPriceEl.style.color =
                             result.monthlyPeriphery.valid ? '' : '#c00';
-                        peripheryPriceEl.classList.remove('periphery-eligible-price');
-                        peripheryStatusEl.innerHTML = '';
-                        result.peripheryEligible = false;
                     }
                     
                     document.getElementById('price-monthly-eilat').textContent =
@@ -2063,8 +1637,8 @@
                     var typeLabel = '';
                     var monthlyNationalPrice = result.monthlyNational.price;
 
-                    // Check if periphery profile is selected and eligible
-                    if (isPeripheryProfile && result.peripheryEligible) {
+                    // Check if periphery profile is selected
+                    if (isPeripheryProfile) {
                         finalPrice = 133.00;
                         typeLabel = 'פריפריה גיאוגרפית (133 ₪)';
                     } else if (ticketType === 'single') {
