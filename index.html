@@ -402,7 +402,11 @@
             <!-- Periphery Address Fields - shown only when periphery_resident profile is selected -->
             <div class="periphery-address-fields" id="periphery-address-fields" style="display:none;">
                 <div class="input-group">
-                    <label>📍 כתובת (לבדיקת זכאות פריפריה):</label>
+                    <label>📍 פרטי מגורים (לבדיקת זכאות פריפריה):</label>
+                </div>
+                <div class="input-group">
+                    <label for="periphery_city">עיר מגורים:</label>
+                    <input type="text" id="periphery_city" placeholder="הקלד עיר מגורים (למשל: חיפה)" autocomplete="off">
                 </div>
                 <div class="input-group">
                     <label for="street">רחוב:</label>
@@ -1856,28 +1860,41 @@
                         // Show checking status
                         updatePeripheryStatus(peripheryStatusEl, { checking: true });
                         
-                        // Get street and house number
-                        var streetName = document.getElementById('street').value;
-                        var houseNumber = document.getElementById('house_number').value;
+                        // Get city, street and house number
+                        var peripheryCity = document.getElementById('periphery_city').value.trim();
+                        var streetName = document.getElementById('street').value.trim();
+                        var houseNumber = document.getElementById('house_number').value.trim();
                         
-                        // Check periphery eligibility
-                        var peripheryResult = await checkPeripheryEligibility(dest, streetName, houseNumber);
-                        
-                        if (peripheryResult.eligible) {
-                            // Eligible - set price to 133 ₪
-                            peripheryPriceEl.textContent = '133.00';
-                            peripheryPriceEl.classList.add('periphery-eligible-price');
-                            // Store the eligibility for use in final price calculation
-                            result.peripheryEligible = true;
-                        } else {
-                            // Not eligible
-                            peripheryPriceEl.textContent = peripheryResult.note || 'לא זכאי';
+                        // Check if city is provided - required for eligibility check
+                        if (!peripheryCity) {
+                            var emptyCityResult = {
+                                eligible: false,
+                                note: '⚠️ אנא הזן עיר מגורים לבדיקת זכאות.'
+                            };
+                            peripheryPriceEl.textContent = '-';
                             peripheryPriceEl.classList.remove('periphery-eligible-price');
                             result.peripheryEligible = false;
+                            updatePeripheryStatus(peripheryStatusEl, emptyCityResult);
+                        } else {
+                            // Check periphery eligibility using explicit city from input
+                            var peripheryResult = await checkPeripheryEligibility(peripheryCity, streetName, houseNumber);
+                            
+                            if (peripheryResult.eligible) {
+                                // Eligible - set price to 133 ₪
+                                peripheryPriceEl.textContent = '133.00';
+                                peripheryPriceEl.classList.add('periphery-eligible-price');
+                                // Store the eligibility for use in final price calculation
+                                result.peripheryEligible = true;
+                            } else {
+                                // Not eligible
+                                peripheryPriceEl.textContent = peripheryResult.note || 'לא זכאי';
+                                peripheryPriceEl.classList.remove('periphery-eligible-price');
+                                result.peripheryEligible = false;
+                            }
+                            
+                            // Update status display
+                            updatePeripheryStatus(peripheryStatusEl, peripheryResult);
                         }
-                        
-                        // Update status display
-                        updatePeripheryStatus(peripheryStatusEl, peripheryResult);
                     } else {
                         // Not periphery profile - show standard pricing
                         peripheryPriceEl.textContent =
