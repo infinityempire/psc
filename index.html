@@ -1535,13 +1535,13 @@
                         result.monthlyTrain.price,
                         result.monthlyTrain.valid);
                     
-                    // PERIPHERY PRICING - Simply apply 133 ₪ when periphery profile is selected
+                    // PERIPHERY PRICING - Apply 50% discount (157.50 ₪) when periphery profile is selected
                     var peripheryPriceEl = document.getElementById('price-monthly-periphery');
                     var isPeripheryProfile = (passengerType === 'periphery_resident');
                     
                     if (isPeripheryProfile) {
-                        // Apply standard periphery price directly (133 ₪)
-                        peripheryPriceEl.textContent = '133.00';
+                        // Apply 50% discount: 50% of 315 ₪ = 157.50 ₪
+                        peripheryPriceEl.textContent = '157.50';
                     } else {
                         // Not periphery profile - show standard pricing
                         peripheryPriceEl.textContent =
@@ -1637,10 +1637,10 @@
                     var typeLabel = '';
                     var monthlyNationalPrice = result.monthlyNational.price;
 
-                    // Check if periphery profile is selected
+                    // Check if periphery profile is selected - apply 50% discount
                     if (isPeripheryProfile) {
-                        finalPrice = 133.00;
-                        typeLabel = 'פריפריה גיאוגרפית (133 ₪)';
+                        finalPrice = 157.50;
+                        typeLabel = 'פריפריה גיאוגרפית (157.50 ₪)';
                     } else if (ticketType === 'single') {
                         finalPrice = result.single;
                         typeLabel = 'נסיעה בודדת (' + result.zoneLabel + ')';
