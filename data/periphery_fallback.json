@@ -1,0 +1,226 @@
+{
+    "metadata": {
+        "version": "1.0.0",
+        "lastUpdated": "2025-07-14",
+        "source": "Local periphery eligibility data",
+        "description": "Fallback data for periphery eligibility check when Data.gov.il API is unavailable"
+    },
+    "eligible_cities": {
+        "באר שבע": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "נהריה": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "עכו": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "טבריה": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "צפת": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "רחובות": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "אשדוד": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "אשקלון": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "חדרה": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "נתניה": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "ראשון לציון": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "פתח תקווה": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "חולון": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "בת ים": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "רמלה": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "לוד": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "מודיעין מכבים רעות": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "מודיעין עילית": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "קרית גת": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "קרית מלאכי": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        },
+        "נתבג": {
+            "eligible": true,
+            "note": "Fully eligible - entire city covered"
+        }
+    },
+    "partial_eligibility_cities": {
+        "חיפה": {
+            "note": "Partial eligibility - only specific streets/buildings qualify",
+            "streets": {
+                "ההגנה": {
+                    "house_rules": "odd",
+                    "range": "1-45",
+                    "note": "Odd numbers 1-45"
+                },
+                "ברגמן": {
+                    "house_rules": "all",
+                    "note": "All house numbers"
+                },
+                "פליי": {
+                    "house_rules": "even",
+                    "range": "2-100",
+                    "note": "Even numbers 2-100"
+                },
+                "מורד הנביאים": {
+                    "house_rules": "all",
+                    "note": "All house numbers"
+                },
+                "סולל בונה": {
+                    "house_rules": "range",
+                    "min": 1,
+                    "max": 50,
+                    "note": "Numbers 1-50"
+                }
+            }
+        },
+        "ירושלים": {
+            "note": "Partial eligibility - only specific streets qualify",
+            "streets": {
+                "יפו": {
+                    "house_rules": "all",
+                    "note": "All house numbers"
+                },
+                "ברחוב המלך ג'ורג'": {
+                    "house_rules": "odd",
+                    "range": "1-99",
+                    "note": "Odd numbers 1-99"
+                },
+                "בן יהודה": {
+                    "house_rules": "range",
+                    "min": 1,
+                    "max": 30,
+                    "note": "Numbers 1-30"
+                }
+            }
+        },
+        "בני ברק": {
+            "note": "Partial eligibility - only specific streets qualify",
+            "streets": {
+                "רבי עקיבא": {
+                    "house_rules": "all",
+                    "note": "All house numbers"
+                },
+                "שמואל הנביא": {
+                    "house_rules": "even",
+                    "range": "2-80",
+                    "note": "Even numbers 2-80"
+                }
+            }
+        },
+        "רמת גן": {
+            "note": "Partial eligibility - only specific streets qualify",
+            "streets": {
+                "אבא הילל": {
+                    "house_rules": "odd",
+                    "range": "1-55",
+                    "note": "Odd numbers 1-55"
+                },
+                "ביאליק": {
+                    "house_rules": "all",
+                    "note": "All house numbers"
+                }
+            }
+        },
+        "פתח תקווה": {
+            "note": "Partial eligibility - certain areas only",
+            "streets": {
+                "הרב קוק": {
+                    "house_rules": "all",
+                    "note": "All house numbers"
+                },
+                "ז'בוטינסקי": {
+                    "house_rules": "odd",
+                    "range": "1-75",
+                    "note": "Odd numbers 1-75"
+                }
+            }
+        },
+        "הרצליה": {
+            "note": "Partial eligibility - certain areas only",
+            "streets": {
+                "בן גוריון": {
+                    "house_rules": "range",
+                    "min": 1,
+                    "max": 40,
+                    "note": "Numbers 1-40"
+                }
+            }
+        },
+        "רעננה": {
+            "note": "Partial eligibility - certain areas only",
+            "streets": {
+                "אופיר": {
+                    "house_rules": "even",
+                    "range": "2-60",
+                    "note": "Even numbers 2-60"
+                }
+            }
+        }
+    },
+    "ineligible_cities": {
+        "תל אביב יפו": {
+            "eligible": false,
+            "note": "Not eligible - central area"
+        },
+        "רמת השרון": {
+            "eligible": false,
+            "note": "Not eligible - central area"
+        },
+        "הוד השרון": {
+            "eligible": false,
+            "note": "Not eligible - central area"
+        },
+        "כפר סבא": {
+            "eligible": false,
+            "note": "Not eligible - central area"
+        }
+    }
+}
