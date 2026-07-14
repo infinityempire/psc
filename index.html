@@ -1233,10 +1233,32 @@
                 // First try the Government API
                 try {
                     const apiResult = await queryGovernmentAPI(cityName, streetName, houseNumber);
-                    return apiResult;
+                    
+                    // If API found eligible records, return the result immediately
+                    if (apiResult.eligible) {
+                        return apiResult;
+                    }
+                    
+                    // API returned but no eligible records found - this is an "API mismatch"
+                    // Treat this as an API miss and fall back to our comprehensive local database
+                    console.log('Government API returned no matching records, falling back to local data.');
+                    const localResult = await checkLocalPeripheryEligibility(cityName, streetName, houseNumber);
+                    
+                    // If local fallback found eligibility, return that result
+                    if (localResult.eligible) {
+                        return localResult;
+                    }
+                    
+                    // Neither API nor local found eligibility
+                    // Return local result with modified note (don't expose API failure message)
+                    return {
+                        eligible: false,
+                        source: 'local',
+                        note: localResult.note || 'הכתובת אינה כלולה בהסדר הפריפריה'
+                    };
                 } catch (apiError) {
                     console.log('Government API failed, falling back to local data:', apiError.message);
-                    // API failed, fall back to local data
+                    // API threw an error, fall back to local data
                     return await checkLocalPeripheryEligibility(cityName, streetName, houseNumber);
                 }
             } catch (error) {
@@ -1261,7 +1283,15 @@
                 statusEl.innerHTML = '✅ הכתובת והבית זכאים להנחת פריפריה.';
             } else {
                 statusEl.classList.add('ineligible');
-                statusEl.innerHTML = '❌ ' + (result.note || 'הכתובת אינה כלולה בהסדר הפריפריה (בדוק את מספר הבית או הרחוב)');
+                // Use the appropriate message - avoid exposing API failure messages to user
+                let message = result.note || 'הכתובת אינה כלולה בהסדר הפריפריה';
+                
+                // Don't show API-specific failure messages to user when we have local fallback results
+                if (result.source === 'api' || message.includes('כתובת לא נמצאה ב-API')) {
+                    message = 'הכתובת אינה כלולה בהסדר הפריפריה (בדוק את מספר הבית או הרחוב)';
+                }
+                
+                statusEl.innerHTML = '❌ ' + message;
             }
         }
 
