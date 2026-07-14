@@ -5,10 +5,13 @@ on:
     - cron: '0 3 * * *'  # Run at 03:00 UTC daily
   workflow_dispatch:  # Allow manual trigger
 
+permissions:
+  contents: write  # Required to push changes
+
 jobs:
   sync-fares:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
