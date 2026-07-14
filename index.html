@@ -1017,6 +1017,27 @@
             return null;
         }
 
+        // Normalize street name for comparison
+        // Handles variations like "הנורית" vs "נורית"
+        function normalizeStreetName(streetName) {
+            if (!streetName) return '';
+            // Remove leading 'ה' (he) prefix (common in Hebrew street names)
+            let normalized = streetName.trim();
+            if (normalized.startsWith('ה') && normalized.length > 1) {
+                normalized = normalized.substring(1);
+            }
+            // Remove extra spaces
+            normalized = normalized.replace(/\s+/g, ' ').trim();
+            return normalized;
+        }
+
+        // Normalize city name for comparison
+        function normalizeCityName(cityName) {
+            if (!cityName) return '';
+            // Remove extra spaces
+            return cityName.trim().replace(/\s+/g, ' ').trim();
+        }
+
         // Check if house number is eligible based on street rules
         function isHouseNumberEligible(houseNumber, houseRules, range) {
             if (!houseNumber || houseNumber === '') return true; // No house number = assume eligible
@@ -1049,29 +1070,18 @@
             const data = await loadPeripheryFallbackData();
             if (!data) return { eligible: false, source: 'local', error: 'Failed to load fallback data' };
 
-            const cityLower = cityName.trim().toLowerCase();
+            const cityLower = normalizeCityName(cityName).toLowerCase();
+            const normalizedStreet = normalizeStreetName(streetName);
+            const streetLower = normalizedStreet.toLowerCase();
 
-            // Check fully eligible cities first
-            if (data.eligible_cities) {
-                for (const city in data.eligible_cities) {
-                    if (city.trim().toLowerCase() === cityLower) {
+            // Check fully eligible cities first (array format)
+            if (data.fully_eligible_cities) {
+                for (const city of data.fully_eligible_cities) {
+                    if (normalizeCityName(city).toLowerCase() === cityLower) {
                         return {
                             eligible: true,
                             source: 'local',
-                            note: data.eligible_cities[city].note
-                        };
-                    }
-                }
-            }
-
-            // Check ineligible cities
-            if (data.ineligible_cities) {
-                for (const city in data.ineligible_cities) {
-                    if (city.trim().toLowerCase() === cityLower) {
-                        return {
-                            eligible: false,
-                            source: 'local',
-                            note: data.ineligible_cities[city].note
+                            note: 'עיר זכאית - כל הכתובות כלולות'
                         };
                     }
                 }
@@ -1080,9 +1090,10 @@
             // Check partial eligibility cities (street-level)
             if (data.partial_eligibility_cities) {
                 for (const city in data.partial_eligibility_cities) {
-                    if (city.trim().toLowerCase() === cityLower) {
+                    if (normalizeCityName(city).toLowerCase() === cityLower) {
                         const cityData = data.partial_eligibility_cities[city];
-                        if (!streetName || streetName === '') {
+                        
+                        if (!streetName || streetName === '' || !normalizedStreet) {
                             // No street provided - need more info
                             return {
                                 eligible: false,
@@ -1092,10 +1103,12 @@
                             };
                         }
 
-                        const streetLower = streetName.trim().toLowerCase();
                         if (cityData.streets) {
                             for (const street in cityData.streets) {
-                                if (street.trim().toLowerCase() === streetLower) {
+                                const normalizedDbStreet = normalizeStreetName(street);
+                                // Match either exact or with 'ה' prefix removed
+                                if (normalizedDbStreet.toLowerCase() === streetLower || 
+                                    street.trim().toLowerCase() === streetLower) {
                                     const streetData = cityData.streets[street];
                                     const eligible = isHouseNumberEligible(
                                         houseNumber,
@@ -1105,7 +1118,7 @@
                                     return {
                                         eligible: eligible,
                                         source: 'local',
-                                        note: eligible ? streetData.note : 'מספר בית אינו בטווח הזכאות'
+                                        note: eligible ? (streetData.note || 'רחוב זכאי') : 'מספר בית אינו בטווח הזכאות'
                                     };
                                 }
                             }
@@ -1132,47 +1145,74 @@
         async function queryGovernmentAPI(cityName, streetName, houseNumber) {
             const API_TIMEOUT = 2000; // 2.0 seconds
 
-            // Data.gov.il API endpoint for address validation
-            // This is a mock - in production, you'd use the actual API endpoint
-            const apiUrl = `https://data.gov.il/api/3/action/datastore_search?resource_id=${encodeURIComponent(cityName)}&q=${encodeURIComponent(streetName + ' ' + houseNumber)}`;
+            // Data.gov.il API for Transportation Justice (צדק תחבורתי) program
+            // This queries the government open data for periphery addresses
+            // Using the geographic periphery dataset from data.gov.il
+            const baseUrl = 'https://data.gov.il/api/3/action/datastore_search';
+            
+            // Try different potential resource IDs for periphery eligibility
+            const resourceIds = [
+                'tzah-tvdnyt-2024',    // צדק תחבורתי 2024
+                'periphery-addresses',   // כתובות פריפריה
+                'geo-periphery',        // גיאוגרפי פריפריה
+            ];
+
+            // Build search query with city, street, and house number
+            const normalizedCity = normalizeCityName(cityName);
+            const normalizedStreet = normalizeStreetName(streetName);
+            const searchQuery = `${normalizedCity} ${normalizedStreet} ${houseNumber}`.trim();
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
             try {
-                const response = await fetch(apiUrl, {
-                    signal: controller.signal,
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                clearTimeout(timeoutId);
+                // Try each resource ID until one works
+                for (const resourceId of resourceIds) {
+                    const apiUrl = `${baseUrl}?resource_id=${encodeURIComponent(resourceId)}&q=${encodeURIComponent(searchQuery)}`;
+                    
+                    try {
+                        const response = await fetch(apiUrl, {
+                            signal: controller.signal,
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
 
-                if (!response.ok) {
-                    throw new Error(`API returned ${response.status}`);
-                }
+                        if (response.ok) {
+                            const data = await response.json();
+                            
+                            // Parse the response - check for eligible records
+                            if (data.result && data.result.records && data.result.records.length > 0) {
+                                const records = data.result.records;
+                                for (const record of records) {
+                                    // Check various possible field names for periphery eligibility
+                                    const isEligible = 
+                                        record.periphery_eligible === true ||
+                                        record.eligible_for_periphery === true ||
+                                        record.זכאות_פריפריה === true ||
+                                        record.זכאי === true ||
+                                        record.eligible === true ||
+                                        record['צדק תחבורתי'] === true ||
+                                        record['tzah_tvdnyt'] === true;
 
-                const data = await response.json();
-                
-                // Parse the response - structure depends on actual API
-                if (data.result && data.result.records) {
-                    const records = data.result.records;
-                    for (const record of records) {
-                        // Check if this address is eligible for periphery discount
-                        // The actual field names depend on the API structure
-                        if (record.periphery_eligible === true || 
-                            record.eligible_for_periphery === true ||
-                            record.זכאות_פריפריה === true) {
-                            return {
-                                eligible: true,
-                                source: 'api',
-                                note: 'נמצא ב-API'
-                            };
+                                    if (isEligible) {
+                                        return {
+                                            eligible: true,
+                                            source: 'api',
+                                            note: 'נמצא ב-API - זכאי לפי מאגר הממשלתי'
+                                        };
+                                    }
+                                }
+                            }
                         }
+                    } catch (e) {
+                        // Continue to next resource ID if this one fails
+                        continue;
                     }
                 }
 
+                // No eligible record found in API
                 return {
                     eligible: false,
                     source: 'api',
