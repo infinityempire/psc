@@ -3,1710 +3,2056 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>מחשבון תעריפי תחבורה ציבורית</title>
+    <title>מחשבון תעריפי תחבורה ציבורית - חינם ופתוח לכולם</title>
+    <meta name="description" content="מחשבון תעריפי נסיעה בתחבורה ציבורית עם הנחות - פתוח לכלל הציבור ללא עלות">
     <style>
-        /* ============================================================ */
-        /* CSS VARIABLES FOR THEME SUPPORT */
-        /* ============================================================ */
-        :root {
-            /* Light Mode Colors */
-            --bg-primary: linear-gradient(135deg,#1a5276,#2874a6,#3498db);
-            --bg-secondary: #fff;
-            --text-primary: #2c3e50;
-            --text-secondary: #666;
-            --border-color: #e0e0e0;
-            --card-bg: #ffffff;
-            --card-border: #e0e0e0;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            --header-bg: linear-gradient(#1e3a5f,#2c5282);
-            --highlight-bg: #e8f4fc;
-            --highlight-text: #2c5282;
-            --ticket-section-bg: #e8f5e9;
-            --ticket-section-border: #a5d6a7;
-            --passenger-section-bg: #f8f9fa;
-            --fare-breakdown-bg: #f8f9fa;
-            --autocomplete-bg: #fff;
-            --autocomplete-border: #3498db;
-            --gps-distance-bg: #e8f4fc;
-            --gps-distance-text: #2c5282;
-            --btn-primary: linear-gradient(#27ae60,#2ecc71);
-            --btn-secondary: linear-gradient(#3498db,#2980b9);
-            --btn-location-disabled: #999;
-            --price-color: #27ae60;
-            --link-color: #3498db;
-            --whatsapp-green: #25D366;
-            --whatsapp-green-dark: #128C7E;
-            --disclaimer-bg: #f8f9fa;
-            --fallback-bg: #fff3cd;
-            --history-chip-bg: #e3f2fd;
-            --history-chip-border: #2196f3;
-            --history-chip-text: #1565c0;
-            --student-pass-bg: #fff8e1;
-            --student-pass-border: #ffc107;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a5276 0%, #2874a6 50%, #3498db 100%);
+            min-height: 100vh;
+            padding: 30px 15px;
+        }
+        
+        .container {
+            max-width: 95%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 40px 25px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+        
+        .icon-bus {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .form-section {
+            padding: 35px 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.2);
+        }
+        
+        .route-inputs {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .route-inputs .input-group {
+            flex: 1;
+        }
+        
+        .arrow-icon {
+            font-size: 2em;
+            color: #3498db;
+            padding-top: 25px;
+        }
+        
+        .passenger-profiles {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .passenger-profiles h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .profile-option {
+            display: none;
+        }
+        
+        .profile-option + label {
+            display: block;
+            padding: 12px 10px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .profile-option:checked + label {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results-section {
+            padding: 35px 25px;
+            display: none;
+        }
+        
+        .results-section.active {
+            display: block;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        /* Dark Mode Colors */
-        body.dark-mode {
-            --bg-primary: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-            --bg-secondary: #1e1e2e;
-            --text-primary: #e8e8e8;
-            --text-secondary: #a0a0a0;
-            --border-color: #3a3a4a;
-            --card-bg: #252535;
-            --card-border: #3a3a4a;
-            --card-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            --header-bg: linear-gradient(#1a1a2e,#2d2d44);
-            --highlight-bg: #1a3a5c;
-            --highlight-text: #64b5f6;
-            --ticket-section-bg: #1e3a2e;
-            --ticket-section-border: #4caf50;
-            --passenger-section-bg: #252535;
-            --fare-breakdown-bg: #252535;
-            --autocomplete-bg: #2a2a3a;
-            --autocomplete-border: #64b5f6;
-            --gps-distance-bg: #1a3a5c;
-            --gps-distance-text: #64b5f6;
-            --btn-primary: linear-gradient(#2e7d32,#388e3c);
-            --btn-secondary: linear-gradient(#1976d2,#1565c0);
-            --btn-location-disabled: #555;
-            --price-color: #66bb6a;
-            --link-color: #64b5f6;
-            --disclaimer-bg: #252535;
-            --fallback-bg: #3a3520;
-            --history-chip-bg: #1a3a5c;
-            --history-chip-border: #64b5f6;
-            --history-chip-text: #90caf9;
-            --student-pass-bg: #3a3520;
-            --student-pass-border: #ffc107;
+        .result-card.monthly-card {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         }
 
-        /* ============================================================ */
-        /* BASE STYLES */
-        /* ============================================================ */
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg-primary);min-height:100vh;padding:30px 15px;transition:background 0.3s ease}
-        .container{max-width:95%;margin:0 auto;background:var(--bg-secondary);border-radius:20px;padding:20px;transition:background 0.3s ease,box-shadow 0.3s ease}
-        .header{background:var(--header-bg);color:#fff;padding:40px;text-align:center;border-radius:20px 20px 0 0;display:flex;justify-content:space-between;align-items:center;transition:background 0.3s ease}
-        .header h1{font-size:1.8em;margin-bottom:0;flex:1;text-align:center}
-        .header-content{text-align:center;flex:1}
-        
-        /* Theme Toggle Button */
-        .theme-toggle{background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.3);color:#fff;padding:10px 14px;border-radius:50%;font-size:1.2em;cursor:pointer;transition:all 0.3s ease;flex-shrink:0}
-        .theme-toggle:hover{background:rgba(255,255,255,0.25);transform:scale(1.1)}
-        body.dark-mode .theme-toggle{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2)}
-        body.dark-mode .theme-toggle:hover{background:rgba(255,255,255,0.2)}
-        
-        .form-section{padding:35px}
-        .input-group{margin-bottom:20px}
-        .input-group label{display:block;font-weight:600;color:var(--text-primary);margin-bottom:8px;transition:color 0.3s ease}
-        .input-group input{width:100%;padding:15px;border:2px solid var(--border-color);border-radius:12px;font-size:1.1em;background:var(--bg-secondary);color:var(--text-primary);transition:all 0.3s ease}
-        .input-group input::placeholder{color:var(--text-secondary)}
-        .input-with-btn{display:flex;gap:8px;align-items:center;position:relative}
-        .input-with-btn input{flex:1}
-        .location-btn{padding:12px 16px;background:var(--btn-secondary);color:#fff;border:none;border-radius:10px;font-size:0.9em;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.3s ease}
-        .location-btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(52,152,219,0.3)}
-        .location-btn:disabled{background:var(--btn-location-disabled);cursor:not-allowed;transform:none}
-        .location-error{color:#e74c3c;font-size:0.85em;margin-top:5px;display:none}
-        
-        /* Recent Searches History */
-        .recent-searches{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
-        .recent-searches:empty{display:none}
-        .history-chip{display:inline-flex;align-items:center;padding:8px 14px;background:var(--history-chip-bg);border:1px solid var(--history-chip-border);border-radius:20px;font-size:0.85em;color:var(--history-chip-text);cursor:pointer;transition:all 0.2s ease}
-        .history-chip:hover{transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
-        .history-chip .arrow{margin:0 6px;color:var(--text-secondary)}
-        
-        .ticket-type-section{background:var(--ticket-section-bg);border-radius:15px;padding:20px;margin-bottom:25px;border:2px solid var(--ticket-section-border);transition:all 0.3s ease}
-        .ticket-type-section h3{color:var(--text-primary);margin-bottom:15px}
-        .ticket-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-        .ticket-type-option{display:none}
-        .ticket-type-option+label{display:block;padding:15px;background:var(--bg-secondary);border:2px solid var(--ticket-section-border);border-radius:10px;text-align:center;cursor:pointer;color:var(--text-primary);transition:all 0.3s ease}
-        .ticket-type-option:checked+label{background:#4caf50;color:#fff}
-        .passenger-profiles{background:var(--passenger-section-bg);border-radius:15px;padding:20px;margin-bottom:25px;transition:background 0.3s ease}
-        .passenger-profiles h3{color:var(--text-primary);margin-bottom:15px}
-        .profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-        .profile-option{display:none}
-        .profile-option+label{display:block;padding:12px;background:var(--bg-secondary);border:2px solid var(--border-color);border-radius:10px;text-align:center;cursor:pointer;color:var(--text-primary);transition:all 0.3s ease}
-        .profile-option:checked+label{background:var(--link-color);color:#fff}
-        #calculate-btn{width:100%;padding:18px;background:var(--btn-primary);color:#fff;border:none;border-radius:12px;font-size:1.3em;font-weight:bold;cursor:pointer;transition:all 0.3s ease}
-        #calculate-btn:hover{transform:translateY(-2px)}
-        #calculate-btn:disabled{background:var(--btn-location-disabled);cursor:not-allowed}
-        .results-section{padding:35px;display:none}
-        .results-section.active{display:block}
-        .result-card{background:var(--card-bg);color:var(--text-primary);border-radius:20px;padding:25px;text-align:center;margin-bottom:15px;box-shadow:var(--card-shadow);border:2px solid var(--card-border);transition:all 0.3s ease}
-        .result-card .label{font-size:1.1em;margin-bottom:8px;color:var(--text-secondary)}
-        .result-card .ticket-type{font-size:1.2em;font-weight:bold;margin-bottom:5px;color:var(--text-primary)}
-        .result-card .price{font-size:2.5em;font-weight:bold;color:var(--price-color)}
-        .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:20px}
-        .fare-breakdown{background:var(--fare-breakdown-bg);border-radius:15px;padding:20px;margin-top:20px;transition:background 0.3s ease}
-        .breakdown-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-color);color:var(--text-primary);transition:border-color 0.3s ease}
-        .breakdown-item:last-child{font-weight:bold;color:var(--price-color)}
-        .breakdown-item.highlight{background:var(--highlight-bg);margin:0 -20px;padding:12px 20px;border-radius:8px}
-        .breakdown-item.highlight span:first-child{font-weight:600;color:var(--highlight-text)}
-        .fallback-notice{background:var(--fallback-bg);border-radius:10px;padding:15px;margin-top:15px}
-        .disclaimer{margin-top:20px;padding:15px;background:var(--disclaimer-bg);border-radius:8px;font-size:0.85em;color:var(--text-secondary);transition:background 0.3s ease}
-        
-        /* Autocomplete styles */
-        .autocomplete-wrapper{position:relative;width:100%}
-        .autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--autocomplete-bg);border:2px solid var(--autocomplete-border);border-top:none;border-radius:0 0 12px 12px;max-height:250px;overflow-y:auto;z-index:1000;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:background 0.3s ease,border-color 0.3s ease}
-        .autocomplete-list.active{display:block}
-        .autocomplete-item{padding:12px 15px;cursor:pointer;border-bottom:1px solid var(--border-color);font-size:1em;color:var(--text-primary);transition:background 0.2s ease}
-        .autocomplete-item:last-child{border-bottom:none}
-        .autocomplete-item:hover{background:var(--highlight-bg)}
-        .autocomplete-item.highlighted{background:var(--highlight-bg)}
-        
-        /* GPS Distance Display */
-        .gps-distance{background:var(--gps-distance-bg);border-radius:10px;padding:10px 15px;margin-top:10px;font-size:0.95em;color:var(--gps-distance-text);display:none;transition:background 0.3s ease,color 0.3s ease}
-        .gps-distance.active{display:block}
-        .gps-distance strong{color:var(--highlight-text)}
-        
-        /* Train Pass Row Styling */
-        .train-pass-row{display:none}
-        .train-pass-row.active{display:flex;flex-direction:column}
-        
-        /* Eilat Pass Row Styling */
-        .eilat-pass-row{display:none}
-        .eilat-pass-row.active{display:flex;flex-direction:column}
-        
-        /* WhatsApp Share Button */
-        .whatsapp-share-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 24px;background:linear-gradient(var(--whatsapp-green),var(--whatsapp-green-dark));color:#fff;border:none;border-radius:12px;font-size:1.1em;font-weight:bold;cursor:pointer;margin-top:20px;transition:all 0.3s ease;text-decoration:none}
-        .whatsapp-share-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(37,211,102,0.4)}
-        .whatsapp-share-btn:active{transform:translateY(0)}
-        .whatsapp-share-btn svg{width:24px;height:24px;fill:#fff}
-        
-        /* Student Passes Styling */
-        .student-passes{display:none;background:var(--student-pass-bg);border:2px solid var(--student-pass-border);border-radius:12px;padding:15px;margin-top:15px;transition:all 0.3s ease}
-        .student-passes.active{display:block}
-        .student-passes h4{color:var(--text-primary);margin-bottom:12px;font-size:1em;display:flex;align-items:center;gap:8px}
-        .student-pass-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--border-color);color:var(--text-primary)}
-        .student-pass-item:last-child{border-bottom:none}
-        .student-pass-item span:first-child{font-weight:600}
-        .student-pass-item span:last-child{color:var(--price-color);font-weight:bold}
-        
-        /* Mobile Responsive Styles */
-        @media (max-width: 600px) {
-            body {
-                padding: 15px 10px;
-            }
-            .container {
-                padding: 15px;
-                max-width: 100%;
-                border-radius: 15px;
-            }
-            .header {
-                padding: 25px 15px;
-                border-radius: 15px 15px 0 0;
-            }
-            .header h1 {
-                font-size: 1.4em;
-            }
-            .theme-toggle {
-                padding: 8px 10px;
-                font-size: 1em;
-            }
-            .form-section,
-            .results-section {
-                padding: 20px;
-            }
-            .input-group input {
-                padding: 12px;
-                font-size: 1em;
-            }
-            .input-with-btn {
-                flex-direction: column;
-            }
-            .input-with-btn input {
-                width: 100%;
-            }
-            .location-btn {
-                width: 100%;
-                padding: 12px;
-            }
-            .ticket-type-grid,
-            .profile-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            .ticket-type-option+label,
-            .profile-option+label {
-                padding: 10px 8px;
-                font-size: 0.85em;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                hyphens: auto;
-            }
-            .results-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            .result-card .price {
-                font-size: 2em;
-            }
-            .breakdown-item {
-                padding: 10px 0;
-                font-size: 0.9em;
-            }
-            .autocomplete-list {
-                max-height: 200px;
-            }
-            .whatsapp-share-btn {
-                padding: 14px 20px;
-                font-size: 1em;
-            }
-            .history-chip {
-                padding: 6px 12px;
-                font-size: 0.8em;
-            }
-            .student-passes .result-card {
-                padding: 12px 8px;
-            }
-            .student-passes .result-card .price {
-                font-size: 1.3em;
-            }
-        }
-        
-        @media (max-width: 400px) {
-            .profile-grid {
-                grid-template-columns: 1fr;
-            }
-            .ticket-type-grid {
-                grid-template-columns: 1fr;
-            }
-            .ticket-type-option+label,
-            .profile-option+label {
-                padding: 12px 10px;
-                font-size: 0.9em;
-            }
-            .student-passes > div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-        }
-        
-        /* Tablet styles */
-        @media (min-width: 601px) and (max-width: 900px) {
-            .profile-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .results-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .result-card.monthly-card .label {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 10px;
         }
 
+        .result-card.monthly-card .price {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .result-card.monthly-card .currency {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .result-card .label {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .result-card .price {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .result-card .currency {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .fare-breakdown {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .fare-breakdown h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 1em;
+        }
+        
+        .breakdown-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #27ae60;
+            font-size: 1.2em;
+            padding-top: 15px;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+        
+        .error-message.active {
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .legend {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        
+        .legend h5 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .sync-indicator {
+            text-align: center;
+            font-size: 0.75em;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        .disclaimer {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.75em;
+            color: #6c757d;
+            line-height: 1.6;
+            text-align: justify;
+        }
+
+        .disclaimer strong {
+            color: #495057;
+        }
+        
+        .legend-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ffeaa7;
+        }
+        
+        .legend-item:last-child {
+            border-bottom: none;
+        }
+        
+        .free-badge {
+            background: #27ae60;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .fallback-notice {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+        
+        .fallback-notice strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .distance-info {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.95em;
+            color: #1565c0;
+        }
+
+        /* Periphery Address Verification Form Styles */
+        .periphery-box {
+            display: none;
+            background: #f8fafc;
+            border: 2px solid #3498db;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 25px 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .periphery-title {
+            color: #2c3e50;
+            font-size: 1.15em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .periphery-status-text {
+            font-size: 0.85em;
+            margin-top: 6px;
+            font-weight: 600;
+            display: block;
+        }
+
+        /* Modern soft color palettes for status badges */
+        .periphery-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 10px;
+            line-height: 1.4;
+            transition: all 0.3s ease;
+        }
+        
+        .periphery-badge.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .periphery-badge.warning {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+        
+        .periphery-badge.danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .periphery-badge.info {
+            background-color: #e0f2fe;
+            color: #075985;
+            border: 1px solid #38bdf8;
+        }
+        
+        .periphery-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85em;
+            color: #3498db;
+            margin-right: 8px;
+        }
+        
+        .mini-spinner {
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: mini-spin 0.8s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes mini-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <button type="button" id="theme-toggle" class="theme-toggle" title="החלף מצב תצוגה">🌙</button>
-            <div class="header-content">
-                <h1>🚌 מחשבון תעריפי תחבורה</h1>
-            </div>
-            <div style="width:44px;flex-shrink:0"></div>
+            <div class="icon-bus">🚌</div>
+            <h1>מחשבון תעריפי תחבורה ציבורית</h1>
+            <div class="subtitle">חישוב תעריפים רשמי עם הנחות - 100% חינם ופתוח לכולם!</div>
         </div>
+        
         <div class="form-section">
             <div class="input-group">
-                <label>📍 מוצא:</label>
-                <div class="input-with-btn">
-                    <div class="autocomplete-wrapper">
-                        <input type="text" id="origin" placeholder="ירושלים" autocomplete="off">
-                        <div id="origin-autocomplete" class="autocomplete-list"></div>
-                    </div>
-                    <button type="button" id="location-btn" class="location-btn" title="השתמש במיקום הנוכחי">📍 המיקום שלי</button>
-                </div>
-                <div id="location-error" class="location-error"></div>
-                <div id="gps-distance" class="gps-distance"></div>
+                <label for="origin">📍 נקודת מוצא (עיר או כתובת):</label>
+                <input type="text" id="origin" placeholder="לדוגמה: ירושלים, תל אביב">
             </div>
-            <div class="input-group">
-                <label>🎯 יעד:</label>
-                <div class="autocomplete-wrapper">
-                    <input type="text" id="dest" placeholder="תל אביב" autocomplete="off">
-                    <div id="dest-autocomplete" class="autocomplete-list"></div>
-                </div>
-                <div id="recent-searches" class="recent-searches"></div>
-            </div>
-            <div class="ticket-type-section">
-                <h3>🎫 סוג כרטיס:</h3>
-                <div class="ticket-type-grid">
-                    <div><input type="radio" name="ticketType" id="t-single" value="single" class="ticket-type-option" checked><label for="t-single"> נסיעה בודדת</label></div>
-                    <div><input type="radio" name="ticketType" id="t-daily" value="daily" class="ticket-type-option"><label for="t-daily"> חופשי יומי</label></div>
-                    <div><input type="radio" name="ticketType" id="t-monthly" value="monthly" class="ticket-type-option"><label for="t-monthly"> חופשי חודשי</label></div>
-                    <div id="t-student-pass-container" style="display:none;"><input type="radio" name="ticketType" id="t-semester" value="semester" class="ticket-type-option"><label for="t-semester"> חופשי סמסטריאלי / שנתי</label></div>
+            
+            <div class="route-inputs">
+                <div class="input-group">
+                    <label for="dest">🎯 נקודת יעד (עיר או כתובת):</label>
+                    <input type="text" id="dest" placeholder="לדוגמה: חיפה, באר שבע">
                 </div>
             </div>
+            
             <div class="passenger-profiles">
-                <h3>👤 פרופיל:</h3>
+                <h3>👤 פרופיל בכרטיס הרב קו:</h3>
                 <div class="profile-grid">
-                    <div><input type="radio" name="passenger" id="p-adult" value="adult" class="profile-option" checked><label for="p-adult"> רגיל</label></div>
-                    <div><input type="radio" name="passenger" id="p-youth" value="youth" class="profile-option"><label for="p-youth"> נוער עד 18 (50%)</label></div>
-                    <div><input type="radio" name="passenger" id="p-youth26" value="youth_18_26" class="profile-option"><label for="p-youth26"> צעיר 18-26 (33%)</label></div>
-                    <div><input type="radio" name="passenger" id="p-senior" value="senior" class="profile-option"><label for="p-senior"> ותיק/ות (50%)</label></div>
-                    <div><input type="radio" name="passenger" id="p-student" value="student" class="profile-option"><label for="p-student"> סטודנט (33%)</label></div>
-                    <div><input type="radio" name="passenger" id="p-disabled" value="disabled" class="profile-option"><label for="p-disabled"> נכה (50%)</label></div>
-                    <div><input type="radio" name="passenger" id="p-soldier" value="soldier" class="profile-option"><label for="p-soldier"> חייל (בהתאם להסדר)</label></div>
-                    <div><input type="radio" name="passenger" id="p-periphery" value="periphery_resident" class="profile-option"><label for="p-periphery"> תושב פריפריה גיאוגרפית</label></div>
+                    <div>
+                        <input type="radio" name="passenger" id="adult" value="adult" class="profile-option" checked>
+                        <label for="adult">רגיל</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="youth" value="youth" class="profile-option">
+                        <label for="youth">ילדים/נוער</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="young_monthly" value="young_monthly" class="profile-option">
+                        <label for="young_monthly">צעיר (חופשי חודשי)</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="senior" value="senior" class="profile-option">
+                        <label for="senior">ותיק/ות</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="student" value="student" class="profile-option">
+                        <label for="student">סטודנט</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="student_plus" value="student_plus" class="profile-option">
+                        <label for="student_plus">סטודנט מורחב</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="soldier" value="soldier" class="profile-option">
+                        <label for="soldier">חייל (בהתאם להסדר)</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="disabled" value="disabled" class="profile-option">
+                        <label for="disabled">נכה</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="passenger" id="periphery" value="periphery" class="profile-option">
+                        <label for="periphery">פריפריה גיאוגרפית (צדק תחבורתי)</label>
+                    </div>
                 </div>
             </div>
-            <button id="calculate-btn">🔍 חשב תעריף</button>
+
+            <!-- Periphery Address Verification Form Group (Hidden by default) -->
+            <div id="periphery-form-group" class="periphery-box">
+                <div class="periphery-title">
+                    <span>🌍 בדיקת זכאות להנחת פריפריה גיאוגרפית</span>
+                </div>
+                
+                <!-- City input -->
+                <div class="input-group" id="periphery-city-group">
+                    <label for="periphery-city">
+                        🏙️ יישוב מגורים:
+                        <span id="periphery-city-loading" style="display: none;" class="periphery-loading"><span class="mini-spinner"></span> טוען רשימה...</span>
+                    </label>
+                    <input type="text" id="periphery-city" list="periphery-cities-list" placeholder="הקלד שם יישוב מגורים, למשל: אופקים, שדרות...">
+                    <datalist id="periphery-cities-list"></datalist>
+                    <span id="periphery-city-status" class="periphery-status-text" style="color: #7f8c8d;">הזן עיר מגורים לאימות זכאות</span>
+                </div>
+
+                <!-- Street input -->
+                <div class="input-group" id="periphery-street-group">
+                    <label for="periphery-street">
+                        🛣️ רחוב:
+                        <span id="periphery-street-loading" style="display: none;" class="periphery-loading"><span class="mini-spinner"></span> טוען רחובות...</span>
+                    </label>
+                    <input type="text" id="periphery-street" list="periphery-streets-list" placeholder="הקלד שם רחוב...">
+                    <datalist id="periphery-streets-list"></datalist>
+                    <span id="periphery-street-status" class="periphery-status-text" style="color: #7f8c8d;">הזן רחוב מגורים לאימות זכאות</span>
+                </div>
+
+                <!-- House Number input -->
+                <div class="input-group" id="periphery-house-group">
+                    <label for="periphery-house">🏠 מספר בית:</label>
+                    <input type="number" id="periphery-house" min="1" placeholder="לדוגמה: 12">
+                    <span id="periphery-house-status" class="periphery-status-text" style="color: #7f8c8d;">הזן מספר בית להשלמת אימות הזכאות</span>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateRoute()">🔍 חשב תעריף נסיעה</button>
+            <p class="sync-indicator">📅 התעריפים עודכנו לאחרונה: מאי 2025</p>
         </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>🔎 מחפש תעריף רשמי...</div>
+        </div>
+        
+        <div class="error-message" id="error-message">
+            <div id="error-text">שגיאה</div>
+        </div>
+        
         <div class="results-section" id="results">
-            <div class="results-grid" id="results-grid">
-                <div class="result-card" id="result-single">
-                    <div class="ticket-type">נסיעה בודדת</div>
-                    <div class="label">מחיר:</div>
-                    <div class="price"><span id="price-single">0.00</span> ₪</div>
-                </div>
-                <div class="result-card" id="result-daily">
-                    <div class="ticket-type">חופשי יומי</div>
-                    <div class="label">מחיר:</div>
-                    <div class="price"><span id="price-daily">0.00</span> ₪</div>
-                </div>
-                <div class="result-card" id="result-monthly">
-                    <div class="ticket-type">חופשי חודשי</div>
-                    <div class="label">בינעירוני ארצי:</div>
-                    <div class="price"><span id="price-monthly-national">0.00</span> ₪</div>
-                    <div class="label train-pass-row" style="margin-top:8px;" id="train-pass-label">משולב רכבת:</div>
-                    <div class="price train-pass-row" id="train-pass-price"><span id="price-monthly-train">0.00</span> ₪</div>
-                    <div class="label" style="margin-top:8px;">פריפריה:</div>
-                    <div class="price"><span id="price-monthly-periphery">-</span></div>
-                    <div class="label eilat-pass-row" style="margin-top:8px;" id="eilat-pass-label">אילת:</div>
-                    <div class="price eilat-pass-row" id="eilat-pass-price"><span id="price-monthly-eilat">-</span></div>
-                </div>
+            <div class="result-card">
+                <div class="label">מחיר הנסיעה עבורך:</div>
+                <div class="price"><span id="final-price">0.00</span></div>
+                <div class="currency">₪ שקלים חדשים</div>
             </div>
+
+            <div class="result-card monthly-card">
+                <div class="label">חופשי חודשי (לכל הארץ):</div>
+                <div class="price"><span id="monthly-price">315.00</span></div>
+                <div class="currency"><span id="monthly-note">ללא הנחה</span></div>
+            </div>
+            
             <div class="fare-breakdown">
-                <div class="breakdown-item"><span>מוצא:</span><span id="r-origin">-</span></div>
-                <div class="breakdown-item"><span>יעד:</span><span id="r-dest">-</span></div>
-                <div class="breakdown-item highlight" id="r-distance-row"><span>📏 מרחק:</span><span id="r-distance">-</span></div>
-                <div class="breakdown-item"><span>סוג נבחר:</span><span id="r-type">-</span></div>
-                <div class="breakdown-item"><span>סופי:</span><span id="r-final">0.00 ₪</span></div>
-            </div>
-            
-            <!-- WhatsApp Share Button -->
-            <button type="button" id="whatsapp-share-btn" class="whatsapp-share-btn" style="display:none;">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                שתף תוצאה ב-WhatsApp
-            </button>
-            
-            <!-- Student Extended Passes - Only visible when semester/annual ticket type selected -->
-            <div class="student-passes" id="student-passes" style="display:none;">
-                <h4>🎓 בחר מנוי אקדמי:</h4>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-                    <div class="result-card" id="card-semester" style="cursor:pointer;padding:15px;" onclick="selectStudentPass('semester')">
-                        <div style="font-size:0.9em;color:var(--text-secondary);">מנוי חופשי סמסטריאלי</div>
-                        <div class="price" style="font-size:1.5em;"><span id="price-semester">0.00</span> ₪</div>
-                        <div style="font-size:0.75em;color:var(--text-secondary);margin-top:5px;">4 חודשים</div>
-                    </div>
-                    <div class="result-card" id="card-annual" style="cursor:pointer;padding:15px;" onclick="selectStudentPass('annual')">
-                        <div style="font-size:0.9em;color:var(--text-secondary);">מנוי חופשי שנתי</div>
-                        <div class="price" style="font-size:1.5em;"><span id="price-annual">0.00</span> ₪</div>
-                        <div style="font-size:0.75em;color:var(--text-secondary);margin-top:5px;">8 חודשים</div>
-                    </div>
+                <h4>📋 פירוט החישוב</h4>
+                <div class="breakdown-item">
+                    <span>מוצא:</span>
+                    <span id="breakdown-origin">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>יעד:</span>
+                    <span id="breakdown-dest">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>מרחק משוער (כביש):</span>
+                    <span id="breakdown-distance">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>מחיר בסיס (ללא הנחה):</span>
+                    <span id="breakdown-base">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>הנחה:</span>
+                    <span id="breakdown-discount">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span>מחיר סופי:</span>
+                    <span id="breakdown-final">-</span>
                 </div>
             </div>
             
-            <div class="fallback-notice" id="fallback" style="display:none;">
-                <strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס 8.00 ₪</strong>
+            <div id="fallback-notice" class="fallback-notice" style="display: none;">
+                <strong>⚠️ הופעל מנגנון חישוב מקומי (Fallback)</strong>
+                <div id="fallback-reason">ה-API הממשלתי לא הגיב בזמן. המחירים מחושבים לפי מטריצה מקומית מכוילת.</div>
             </div>
-            <div class="disclaimer">⚠️ שימוש להמחשה בלבד</div>
+            
+            <div class="distance-info" id="distance-info" style="display: none;">
+                <strong>📍 מידע על המסלול:</strong>
+                <div id="distance-info-text"></div>
+            </div>
+            
+            <div class="legend">
+                <h5>📝 הערות חשובות</h5>
+                <div class="legend-item">
+                    <span>ותיק נשים (62+):</span>
+                    <span>50% הנחה</span>
+                </div>
+                <div class="legend-item">
+                    <span>סטודנט:</span>
+                    <span>33% הנחה</span>
+                </div>
+                <div class="legend-item">
+                    <span>נוער/נכים:</span>
+                    <span>מחיר מלא</span>
+                </div>
+            </div>
+
+            <div class="disclaimer">
+                <strong>כתב ויתור אחריות:</strong> מחשבון זה הנו כלי עזר פרטי ואינו קשור למשרד התחבורה, לחברת רב-קו או לכל גוף רשמי אחר. המידע והתעריפים המוצגים נמשכים כמקור מידע ציבורי ואינם מהווים ייעוץ רשמי או מחייב. התעריף הקובע והמחייב באופן בלעדי הוא התעריף המוצג בעת התיקוף בפועל במסוף הרכב הציבורי או במסופי חברת רב-קו.
+            </div>
         </div>
     </div>
+
     <script>
         // ============================================================
-        // ISRAELI MINISTRY OF TRANSPORT FARE RULE ENGINE
-        // Structured Client-Side Rule Engine based on official fare clusters
+        // מחשבון תעריפי תחבורה ציבורית - גרסה 100% חינמית
+        // כל הלוגיקה רצה בצד הלקוח (Client-Side)
         // ============================================================
 
-        // ============================================================
-        // CITY DATABASE WITH COORDINATES (Extended Israeli Localities)
-        // ============================================================
-        var CITIES = {
-            // ============================================================
-            // COMPREHENSIVE ISRAELI LOCALITIES DATABASE
-            // Including cities, towns, moshavim, kibbutzim, and regional areas
-            // ============================================================
-            
-            // Major Cities
-            'תל אביב': [32.0853, 34.7818],
-            'ירושלים': [31.7683, 35.2137],
-            'חיפה': [32.794, 34.9896],
-            'באר שבע': [31.253, 34.7915],
-            'נתניה': [32.329, 34.856],
-            'אשדוד': [31.804, 34.655],
-            'רמת גן': [32.07, 34.824],
-            'פתח תקווה': [32.084, 34.888],
-            'ראשון לציון': [31.971, 34.789],
-            'חולון': [32.016, 34.779],
-            'בת ים': [32.0177, 34.7517],
-            'אשקלון': [31.804, 34.655],
-            'רחובות': [31.8928, 34.8113],
-            'בני ברק': [32.0833, 34.8244],
-            'הוד השרון': [32.1525, 34.8903],
-            'רמלה': [31.9275, 34.8611],
-            'לוד': [31.9497, 34.8958],
-            'מודיעין': [31.8973, 35.0103],
-            'נהריה': [32.9955, 35.0925],
-            'עכו': [32.9277, 35.0822],
-            'קרית שמונה': [33.2077, 35.5694],
-            'אילת': [29.5581, 34.9512],
-            'טבריה': [32.7940, 35.5314],
-            'צפת': [32.9658, 35.4983],
-            'כרמיאל': [32.9176, 35.2969],
-            'נצרת': [32.7021, 35.2978],
-            'עפולה': [32.6080, 35.2896],
-            'מגדל העמק': [32.6776, 35.2397],
-            'ראש פינה': [32.9696, 35.5422],
-            
-            // Central District
-            'הרצליה': [32.1656, 34.8467],
-            'כפר סבא': [32.1783, 34.9067],
-            'גבעתיים': [32.0681, 34.8111],
-            'קרית אונו': [32.0631, 34.8556],
-            'גני תקווה': [32.0628, 34.8747],
-            'שוהם': [31.8797, 34.9644],
-            'יבנה': [31.8747, 34.7372],
-            'גדרה': [31.8136, 34.7761],
-            'מזכרת בתיה': [31.8533, 34.8311],
-            'ראש העין': [32.0953, 34.9564],
-            'אור יהודה': [32.0317, 34.8517],
-            'יהוד': [32.0333, 34.8833],
-            'סביון': [32.0494, 34.8739],
-            'שדרות': [31.5244, 34.5964],
-            'נתיבות': [31.4206, 34.5919],
-            'אופקים': [31.3153, 34.6231],
-            'קרית גת': [31.6053, 34.7642],
-            'קרית מלאכי': [31.7317, 34.7461],
-            'ירוחון': [30.9897, 34.9300],
-            'שדה בוקר': [30.8925, 34.7825],
-            'ניר עציון': [31.7167, 34.7333],
-            'משגב עם': [31.7833, 34.7667],
-            'בית שמש': [31.7466, 34.9881],
-            'להבים': [31.3747, 34.7997],
-            'מיתר': [31.2803, 34.9306],
-            'חורה': [31.2897, 34.9358],
-            'באר גנים': [31.2889, 34.7847],
-            'עזתה': [31.6647, 34.5731],
-            'מבטחים': [31.5667, 34.5667],
-            'כרמיה': [31.6167, 34.5833],
-            
-            // Northern Region - Cities
-            'קרית ביאליק': [32.8302, 35.0833],
-            'קרית מוצקין': [32.8403, 35.0779],
-            'קרית אתא': [32.8023, 35.1059],
-            'קרית ים': [32.8448, 35.0694],
-            'קרית טבעון': [32.7717, 35.1158],
-            'נוף הגליל': [32.7011, 35.3283],
-            'ראש הנקרה': [33.0855, 35.1104],
-            'דלית אל כרמל': [32.6935, 34.9758],
-            'בית השיטה': [32.7133, 35.1825],
-            'כפר מנחם': [31.7333, 34.7833],
-            
-            // Northern Region - Towns
-            'מעלה אפרים': [31.6667, 35.0833],
-            'קדומים': [32.1842, 35.1678],
-            'שלומי': [33.0744, 35.1428],
-            'מעלות': [33.0172, 35.2717],
-            'כפר ורדים': [32.9972, 35.2728],
-            'חצור': [32.9633, 35.5439],
-            'צור': [33.0353, 35.1756],
-            'גשר': [33.0294, 35.5425],
-            'דן': [33.2311, 35.6514],
-            'בית העמק': [32.9333, 35.0833],
-            'כרכור': [32.7494, 34.9667],
-            'זכרון יעקב': [32.5708, 34.9561],
-            'בנימינה': [32.5181, 34.9508],
-            'חרושת': [32.4833, 34.9500],
-            'מעגן מיכאל': [32.5581, 34.9225],
-            'גבעת עוז': [32.5833, 35.0500],
-            'עתלית': [32.7006, 34.9439],
-            'חדרה': [32.6742, 35.1089],
-            'פרדס חנה': [32.6367, 34.9528],
-            'ברעם': [33.0328, 35.2458],
-            'אביאל': [32.6833, 35.0833],
-            'אלונים': [32.6833, 35.0500],
-            'בוסתן אל מרג\' עמאר': [32.7667, 35.0833],
-            'גבע': [32.7167, 35.1333],
-            'הושעיה': [32.7167, 35.1833],
-            'כפר חוג הים': [32.7833, 35.0500],
-            'רכסים': [32.7333, 35.0833],
-            'עין המפרץ': [32.8833, 35.0500],
-            'מטולה': [33.2772, 35.5719],
-            'קדש ברנע': [33.0819, 35.2769],
-            'שער הגולן': [33.2667, 35.7667],
-            'בועיינה א נג\'יד': [32.7500, 35.2667],
-            'כפר כנא': [32.7667, 35.3333],
-            'דמייפה': [32.7167, 35.3500],
-            'ג\'סר א זרקא': [32.9167, 35.2167],
-            'עיילבוניה': [32.9333, 35.3833],
-            'רומאנה': [32.9667, 35.3500],
-            'סאג\'ור': [32.9500, 35.3167],
-            'עמוקה': [33.0167, 35.5333],
-            'צבעון': [33.0333, 35.4333],
-            'פקיעין': [33.0333, 35.2833],
-            'ביריה': [32.9167, 35.5167],
-            'חוסן': [32.9667, 35.2167],
-            'עין קיניה': [33.0167, 35.4833],
-            'הררית': [32.9167, 35.4000],
-            'כפר חנניה': [32.9500, 35.4000],
-            'לפיד': [33.1500, 35.1833],
-            'מנחת': [33.1833, 35.7500],
-            'נוב': [33.2667, 35.8000],
-            'קצרין': [32.9900, 35.6928],
-            'בוקעתא': [33.2500, 35.7667],
-            'אודים': [32.6667, 35.0500],
-            'גבת': [32.7000, 35.1167],
-            'דבוריה': [32.6833, 35.3667],
-            'יפיע': [32.7000, 35.3167],
-            'כעביה טבאש': [32.7667, 35.3833],
-            'משהד': [32.7500, 35.2667],
-            
-            // Haifa District
-            'נשר': [32.7667, 35.0333],
-            'טירת כרמל': [32.7667, 34.9667],
-            'רכס': [32.7167, 34.9667],
-            'אור עקיבא': [32.6100, 34.9211],
-            'קרית חיים': [32.8167, 35.0833],
-            
-            // Sharon Region
-            'רמת השרון': [32.1461, 34.8367],
-            'תל מונד': [32.2500, 34.9167],
-            'אבן יהודה': [32.2833, 34.8833],
-            'כפר יונה': [32.3167, 34.9167],
-            'קדימה': [32.2833, 34.8833],
-            'צורן': [32.2833, 34.9167],
-            'פרדסיה': [32.2667, 34.8833],
-            'בית יהושע': [32.3167, 34.8500],
-            'בצרה': [32.3333, 34.8333],
-            'חרות': [32.3500, 34.8667],
-            'כפר ביל"ו': [32.2833, 34.8167],
-            'געש': [32.2667, 34.8167],
-            'גבעת כ\"ס': [32.2500, 34.8333],
-            'רמות השרון': [32.1667, 34.8500],
-            'שערי תקווה': [32.0833, 34.8833],
-            'יד חנה': [32.1833, 34.8833],
-            'אלישמע': [32.1333, 34.9333],
-            'כפר שמריהו': [32.1833, 34.8000],
-            'בני דר': [32.1167, 34.8833],
-            'גבעת שמואל': [32.0833, 34.8500],
-            
-            // Jerusalem District
-            'מבשרת ציון': [31.7961, 35.1494],
-            'הר אדר': [31.8417, 35.0667],
-            'קרית ענבים': [31.8056, 35.1253],
-            'טלביה': [31.7781, 35.2086],
-            'אבו גוש': [31.8061, 35.1086],
-            'שכם': [32.2225, 35.2544],
-            'קרית ארבע': [31.5275, 35.1194],
-            'עצמונה': [32.1681, 35.1719],
-            'שקד': [32.1972, 35.1814],
-            'תל קטינה': [31.5667, 35.1167],
-            'חווארג': [31.9333, 35.2167],
-            'איתמר': [32.1731, 35.1586],
-            'אלקנה': [32.1622, 35.1869],
-            'לטרון': [31.8500, 34.9667],
-            'ביתר עילית': [31.7000, 35.1167],
-            'מעלה אדומים': [31.7833, 35.3000],
-            'אריאל': [32.1069, 35.1667],
-            'קלנסווה': [32.3167, 35.0500],
-            'ג\'נין': [32.4667, 35.3000],
-            'טול כרם': [32.2833, 35.0333],
-            'קלקיליה': [32.3167, 35.0833],
-            'ראמאללה': [31.9000, 35.2000],
-            'בית לחם': [31.7054, 35.2022],
-            'חברון': [31.5327, 35.0954],
-            'נפתלי': [32.1500, 35.1833],
-            'עפרה': [31.9500, 35.2167],
-            'כוכב יעקב': [31.8500, 35.2500],
-            'גבע בנימין': [31.8667, 35.2333],
-            'אפרת': [31.6667, 35.1333],
-            'בית אל': [31.9500, 35.2333],
-            'עלי': [32.0333, 35.2167],
-            
-            // Southern Region - Additional
-            'דימונה': [31.0681, 35.0331],
-            'ערד': [31.2581, 35.2131],
-            'מצפה רמון': [30.6108, 34.8017],
-            'רהט': [31.3833, 34.7583],
-            'חורין': [31.4500, 34.8000],
-            'לקיה': [31.3333, 34.7667],
-            'שסטל': [31.3000, 34.8000],
-            'בית קמה': [31.4667, 34.7333],
-            'בית גודר': [31.5000, 34.7167],
-            'גילת': [31.5333, 34.6833],
-            'כרמי קטיף': [31.4500, 34.6500],
-            'ענבל': [31.4833, 34.7167],
-            'צאלים': [31.5500, 34.5167],
-            'פרי גנים': [31.6000, 34.5833],
-            'ישע': [31.6000, 34.5167],
-            
-            // Eilat Region
-            'אילות': [29.5667, 34.9167],
-            'נוער': [29.5000, 34.9500],
-            'קיבוץ אילות': [29.5500, 34.9000],
-            'עין אלכסנדר': [29.5167, 34.9500],
-            'טב בוש': [29.5333, 34.9667],
-            
-            // Dead Sea & Kineret Region
-            'עין גדי': [31.4667, 35.3833],
-            'מצפה שלם': [31.5167, 35.3667],
-            'נאות הכיכר': [31.5333, 35.4000],
-            'אלמוג': [31.5667, 35.5333],
-            'קליוט': [31.6000, 35.5667],
-            'עין פשח': [31.6333, 35.5833],
-            'גלגל': [32.6833, 35.5333],
-            'עין גב': [32.7333, 35.5333],
-            'כנרת': [32.7167, 35.5667],
-            'מגדל': [32.6833, 35.5167],
-            'דגניה א': [32.7167, 35.5667],
-            'דגניה ב': [32.7000, 35.5333],
-            'אפיקים': [32.6667, 35.5167],
-            'שפר': [32.6500, 35.5000],
-            'חמת גדר': [32.7167, 35.6167],
-            'רמת הגולן': [32.9667, 35.6833],
-            'מסעדה': [33.2167, 35.7667],
-            
-            // Additional Regional Areas
-            'מעלה החרמון': [33.2833, 35.7667],
-            'שפרעם': [32.9667, 35.1700],
-            'טמרה': [32.8500, 35.2000],
-            'סח\'נין': [32.8667, 35.3000],
-            'מגאר': [32.7000, 35.2500],
-            'ערערה': [32.5000, 35.0833],
-            'זרזיר': [32.7333, 35.0833],
-            'ג\'וליס': [32.9833, 35.1500],
-            'בית דגן': [32.0100, 34.8200],
-            'גני הדרום': [31.8000, 34.7000],
-            'נחל עוז': [31.6500, 34.6000],
-            'אורות': [31.7333, 34.6500],
-            'צוחר': [31.5500, 34.6167],
-            'פדויים': [31.5500, 34.6500],
-            'כיסופים': [31.6000, 34.5833],
-            'מפלסים': [31.6167, 34.5333],
-            'שדי אברהם': [31.6167, 34.5667],
-            'אוהד': [31.6333, 34.6000],
-            'טנטורה': [31.6500, 34.6333],
-            'ניר ישראל': [31.6667, 34.6667],
-            'גבים': [31.6833, 34.6167],
-            'חצבה': [31.3500, 34.7833],
-            'נאות הסיני': [30.8833, 34.8000],
-            'פארן': [30.4500, 35.1833],
-            'חמד גד': [31.3167, 34.9333],
-            'רביבים': [31.6167, 34.7833],
-            'לכיש': [31.5500, 34.8167],
-            'אמציה': [31.5667, 34.7667],
-            'שגב שלום': [31.2167, 34.7833],
-            'עין יהב': [30.7167, 35.2167],
-            'צין': [30.5500, 35.0500],
-            'חרוצים': [31.3500, 34.6500],
-            'קוממיות': [31.6333, 34.5833],
-            'שדמות מחולה': [31.6500, 34.5333],
-            'מירב': [31.6000, 34.6167],
-            'חלץ': [31.5833, 34.7000],
-            'נען': [31.9167, 34.8667],
-            'כפר סתויות': [31.8667, 34.8500],
-            'גבעת השלושה': [31.9000, 34.8000],
-            'קרית עקרון': [31.8500, 34.8167],
-            'גזר': [31.7833, 34.9500],
-            'מחסירים': [31.7333, 34.9667],
-            'בית עבריה': [31.7667, 35.0000],
-            'טירת צבי': [32.4500, 35.0500],
-            'כפר רופין': [32.4333, 35.0500],
-            'אליקים': [32.4667, 35.0333],
-            'מרחביה': [32.5667, 35.1500],
-            'גיניגר': [32.5833, 35.2000],
-            'עין דור': [32.5000, 35.1167],
-            'שדה נחמיה': [32.6833, 35.5333],
-            'שדה אליהו': [32.6333, 35.4500],
-            'כפר גלים': [31.7500, 34.7167],
-            'גבעת וושינגטון': [31.7667, 34.7500],
-            'אבשבוס': [31.6667, 34.6833],
-            'קיסריה': [32.5000, 34.9111],
-            'גבעת זאב': [31.8833, 35.1500],
-            'הר ברכה': [31.8167, 35.1667],
-            'כפר אדומים': [31.8167, 35.2500],
-            'ג\'סר א זרקא': [32.9167, 35.2167],
-            
-            // More Northern Communities
-            'מעלה גלעד': [33.2500, 35.5500],
-            'מנרה': [33.0333, 35.3667],
-            'כפר גלעדי': [33.2333, 35.6167],
-            'חספין': [32.7833, 35.4500],
-            'בר אילן': [32.9167, 35.4833],
-            'כפר ברא': [32.9667, 35.5167],
-            'שאר ישוב': [32.9500, 35.4000],
-            'קשת': [32.9500, 35.3833],
-            'אושה': [32.9333, 35.4000],
-            'חולית': [32.7500, 35.5000],
-            'מירון': [32.9833, 35.4500],
-            'פקוף': [32.9667, 35.3667],
-            'כרוכים': [32.9667, 35.3500],
-            'זרזיר': [32.7333, 35.0833],
-            'שעב': [32.8833, 35.1833],
-            'דייר אל אסד': [32.8500, 35.2333],
-            'דייר מנס': [32.8667, 35.2500],
-            'רומלה': [32.9333, 35.2167],
-            'פורדיס': [32.5000, 35.0667],
-            'כפר קרע': [32.5000, 35.0833],
-            'ג\'ור': [32.9667, 35.2167],
-            'ריינה': [32.7167, 35.2833],
-            'סבביה': [32.7000, 35.3000],
-            'מרכז שפירא': [31.7500, 34.7333],
-            'כפר הנגיד': [31.7833, 34.7167],
-            'גבעת וושינגטון': [31.7667, 34.7500],
-            'מעש': [31.7333, 34.7667],
-            'שדה יואב': [31.6333, 34.5833],
-            'תל עדשים': [31.7333, 34.8000],
-            'אדורה': [31.7167, 34.8500],
-            'בית ניר': [31.7167, 34.8167],
-            'כפר אביב': [31.8000, 34.8500],
-            'גבעת שלום': [31.7833, 34.8000],
-            'רווחה': [31.7333, 34.7833],
-            'משמר הנגב': [31.2833, 34.7167],
-            'ניר עציון': [31.7167, 34.7333],
-            'פדד': [31.7167, 34.7000],
-            'כרם שלום': [31.7167, 34.6500],
-            'בארות יצחק': [31.7333, 34.6167],
-            'שדה בוקר': [30.8925, 34.7825],
-            'חצב': [31.7333, 34.8167],
-            'קרית מלאכי': [31.7317, 34.7461],
-            'גבעתיים': [32.0681, 34.8111],
-            'גני תקווה': [32.0628, 34.8747],
-            'אופקים': [31.3153, 34.6231],
-            'שדרות': [31.5244, 34.5964],
-            'נתיבות': [31.4206, 34.5919],
-            'קרית גת': [31.6053, 34.7642],
-            'ירוחון': [30.9897, 34.9300],
-            'חורה': [31.2897, 34.9358],
-            'להבים': [31.3747, 34.7997],
-            'מיתר': [31.2803, 34.9306],
-            'באר גנים': [31.2889, 34.7847],
-            'עזתה': [31.6647, 34.5731]
-        };
-
-        // Cities that invalidate Periphery pass
-        var GUSH_DAN_CITIES = ['תל אביב', 'רמת גן'];
-        
-        // Cities with train connectivity (Israel Railways network)
-        var TRAIN_CITIES = [
-            'תל אביב', 'ירושלים', 'חיפה', 'באר שבע', 'נתניה', 'אשדוד', 'אשקלון',
-            'רמת גן', 'פתח תקווה', 'ראשון לציון', 'חולון', 'בת ים', 'הרצליה',
-            'הוד השרון', 'רמלה', 'לוד', 'מודיעין', 'בית שמש', 'רחובות',
-            'קרית גת', 'שדרות', 'נתיבות', 'אופקים', 'קרית מלאכי', 'גבעתיים',
-            'יבנה', 'גדרה', 'שוהם', 'קרית ביאליק', 'קרית מוצקין', 'קרית אתא',
-            'קרית ים', 'כרמיאל', 'נהריה', 'עכו', 'מגדל העמק', 'נוף הגליל',
-            'טבריה', 'כפר מנחם', 'בית השיטה'
-        ];
+        // קבועים
+        const GOV_API_URL = "https://data.gov.il/api/3/action/datastore_search";
+        const CORS_PROXY = "https://api.allorigins.win/get?url=";
+        const RESOURCE_ID = "4c849191-bb02-4161-8973-f16365a6f2bb";
+        const API_TIMEOUT = 1200; // 1.2 שניות (1200 אלפיות השנייה)
 
         // ============================================================
-        // FARE RULES - Official Ministry of Transport fare zones
-        // Source: bus.gov.il - Official fare table
+        // מערכת תצורה דינמית עם Fallback
         // ============================================================
-        var FARE_RULES = {
-            yellow: {       // 0-15 km
-                maxDistance: 15,
-                single: 8.00,
-                daily: 17.50,
-                label: 'צהוב (0-15 ק"מ)'
+
+        // תצורה נוכחית (נטענת מה-API או מ-Fallback)
+        let CONFIG = null;
+
+        // Fallback - הגדרות מקומיות (תעריפים נכונים למאי 2025)
+        const FALLBACK_CONFIG = {
+            lastUpdated: '2025-05',
+            tariffs: {
+                single: [
+                    { maxDistance: 15, price: 8.00, label: 'נסיעה עירונית/קצרה' },
+                    { maxDistance: 40, price: 14.50, label: 'נסיעה בינונית' },
+                    { maxDistance: 75, price: 19.00, label: 'נסיעה ארוכה' },
+                    { maxDistance: 120, price: 19.00, label: 'נסיעה ארוכה' },
+                    { maxDistance: 225, price: 30.50, label: 'נסיעה למרחק גדול' },
+                    { maxDistance: Infinity, price: 74.00, label: 'נסיעה למרחק גדול מאוד' }
+                ],
+                daily: [17.50, 29.00, 37.50, 37.50, 60.50, 79.50],
+                monthly: 315.00,
+                monthlyLong: 684.00
             },
-            green: {        // 15-40 km
-                maxDistance: 40,
-                single: 14.50,
-                daily: 29.00,
-                label: 'ירוק (15-40 ק"מ)'
+            expressLines: {
+                'טבריה': {
+                    'תל אביב': 41.50, 'ירושלים': 41.50, 'נהריה': 41.50, 'חיפה': 33.50
+                },
+                'נהריה': {
+                    'תל אביב': 33.50, 'ירושלים': 41.50, 'טבריה': 41.50, 'חיפה': 19.00
+                }
             },
-            lightblue: {    // 40-75 km
-                maxDistance: 75,
-                single: 19.00,
-                daily: 37.50,
-                label: 'תכלת (40-75 ק"מ)'
-            },
-            blue: {         // 75-120 km
-                maxDistance: 120,
-                single: 19.00,
-                daily: 37.50,
-                label: 'כחול (75-120 ק"מ)'
-            },
-            purple: {       // 120-225 km
-                maxDistance: 225,
-                single: 30.50,
-                daily: 60.50,
-                label: 'סגול (120-225 ק"מ)'
-            },
-            gray: {         // 225+ km
-                maxDistance: Infinity,
-                single: 74.00,
-                daily: 79.50,
-                label: 'אפור (225+ ק"מ)'
+            discounts: {
+                'adult': { multiplier: 1.0, storedValue: 1.0, dailyPass: 1.0, monthlyPass: 1.0, label: 'מבוגר' },
+                'youth': { multiplier: 1.0, storedValue: 0.5, dailyPass: 1.0, monthlyPass: 0.5, label: 'ילדים/נוער' },
+                'young_monthly': { multiplier: 0.67, storedValue: 0.67, dailyPass: 1.0, monthlyPass: 0.5, label: 'צעיר (חופשי חודשי)' },
+                'senior': { multiplier: 0.5, storedValue: 0.5, dailyPass: 0.5, monthlyPass: 0.5, label: 'ותיק/ות' },
+                'student': { multiplier: 0.67, storedValue: 0.67, dailyPass: 1.0, monthlyPass: null, label: 'סטודנט' },
+                'student_plus': { multiplier: 0.5, storedValue: 0.5, dailyPass: 0.5, monthlyPass: 0.5, label: 'סטודנט מורחב' },
+                'soldier': { multiplier: 0.0, storedValue: 0.0, dailyPass: 0.0, monthlyPass: 0.0, label: 'חייל / שירות לאומי / קד"צ (חינם)' },
+                'disabled': { multiplier: 1.0, storedValue: 0.5, dailyPass: 1.0, monthlyPass: 0.5, label: 'נכה' },
+                'periphery': { multiplier: 1.0, storedValue: 1.0, dailyPass: 1.0, monthlyPass: 0.5, label: 'פריפריה גיאוגרפית' }
             }
         };
 
-        // ============================================================
-        // MONTHLY CONTRACTS (Official Reform Passes)
-        // ============================================================
-        var MONTHLY_CONTRACTS = {
-            national: {
-                id: 'national',
-                name: 'חופשי חודשי ארצי',
-                base: 315.00,
-                label: 'בינעירוני ארצי'
-            },
-            nationalTrain: {
-                id: 'nationalTrain',
-                name: 'חופשי ארצי משולב רכבת',
-                base: 464.00, // Default, overridden by zone in evaluateMonthlyContract
-                label: 'משולב רכבת',
-                condition: 'intercity' // Only for distance > 40km
-            },
-            periphery: {
-                id: 'periphery',
-                name: 'חופשי חודשי פריפריה',
-                base: 133.00,
-                label: 'פריפריה',
-                invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
-                invalidMessage: 'לא תקף במסלול זה'
-            },
-            eilat: {
-                id: 'eilat',
-                name: 'חופשי חודשי אילת',
-                base: 114.50,
-                label: 'אילת',
-                requiredCity: 'אילת'
+        // ניסיון לטעון תצורה מה-API
+        async function loadDynamicConfig() {
+            try {
+                try {
+                    const url = `${CORS_PROXY}${encodeURIComponent(GOV_API_URL)}?id=${RESOURCE_ID}&limit=1`;
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
+                    
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeout);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        // אם ה-API החזיר נתונים, נעדכן את התצורה
+                        // נשתמש בנתונים לעדכון התעריפים
+                        log('✅ נתונים נטענו מ-API ממשלתי', 'success');
+                        // TODO: פרסור הנתונים ועדכון CONFIG
+                    }
+                } catch (error) {
+                    log(`⚠️ שימוש ב-Fallback מקומי: ${error.message}`, 'warn');
+                }
+                
+                // שימוש ב-Fallback
+                CONFIG = JSON.parse(JSON.stringify(FALLBACK_CONFIG));
+                log(`📅 תצורה נטענה: מאי 2025 (Fallback)`, 'info');
+            } catch (e) {
+                log(`⚠️ שגיאה בטעינת תצורה, שימוש ב-CONFIG מקומי ישיר: ${e.message}`, 'error');
+                CONFIG = FALLBACK_CONFIG;
             }
-        };
-
-        // ============================================================
-        // PASSENGER PROFILES & DISCOUNT RULES
-        // ============================================================
-        var FREE_PROFILES = ['soldier', 'national_service', 'pre_military', 'blind', 'senior_75'];
-
-        // Monthly pass discounts by profile
-        var MONTHLY_DISCOUNTS = {
-            adult: 0,
-            youth: 0.50,        // Youth under 18 - 50% off
-            youth_18_26: 0.33, // Young adults 18-26 - 33% off
-            senior: 0.50,      // Senior - 50% off
-            student: 0.33,     // Student - 33% off
-            disabled: 0.50     // Disabled - 50% off
-        };
-
-        // ============================================================
-        // UTILITY FUNCTIONS
-        // ============================================================
-        
-        // Current location coordinates (set when user uses geolocation)
-        var currentLocationCoords = null;
-        
-        // Haversine distance calculation
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            var R = 6371; // Earth radius in km
-            var dLat = (lat2 - lat1) * Math.PI / 180;
-            var dLon = (lon2 - lon1) * Math.PI / 180;
-            var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
-        function getCoords(cityName) {
-            cityName = cityName.trim().toLowerCase();
-            for (var city in CITIES) {
-                if (city.trim().toLowerCase() === cityName) return CITIES[city];
+        // פונקציה לקבלת תעריף לפי מרחק
+        function getTariffByDistance(distanceKm) {
+            if (!CONFIG) return FALLBACK_CONFIG.tariffs.single[0];
+            
+            for (const tier of CONFIG.tariffs.single) {
+                if (distanceKm <= tier.maxDistance) {
+                    return tier;
+                }
             }
+            return CONFIG.tariffs.single[CONFIG.tariffs.single.length - 1];
+        }
+
+        // פונקציה לקבלת מכפיל הנחה
+        function getDiscountMultiplier(profile, type = 'single') {
+            if (!CONFIG) return FALLBACK_CONFIG.discounts[profile] || { multiplier: 1.0 };
+            
+            const discount = CONFIG.discounts[profile];
+            if (!discount) return { multiplier: 1.0 };
+            
+            switch (type) {
+                case 'storedValue': return { multiplier: discount.storedValue };
+                case 'dailyPass': return { multiplier: discount.dailyPass };
+                case 'monthlyPass': return { multiplier: discount.monthlyPass };
+                default: return { multiplier: discount.multiplier };
+            }
+        }
+
+        // שמות פרופילים לתצוגה
+        const PROFILE_NAMES = {
+            'adult': 'רגיל',
+            'youth': 'ילדים/נוער',
+            'young_monthly': 'צעיר (חופשי חודשי)',
+            'senior': 'ותיק/ות',
+            'student': 'סטודנט',
+            'student_plus': 'סטודנט מורחב',
+            'soldier': 'חייל (בהתאם להסדר)',
+            'disabled': 'נכה',
+            'periphery': 'פריפריה גיאוגרפית'
+        };
+
+        // ============================================================
+        // מטריצת תעריפים מקומית (Fallback) - תעריפים רשמיים של משרד התחבורה
+        // נכון למאי 2025 - לפי טווחי מרחק בפועל בכביש
+        // ============================================================
+        const FALLBACK_FARES = {
+            // מסלולים צפוניים
+            'טבריה': {
+                'תל אביב': 41.50,
+                'ירושלים': 41.50,
+                'נהריה': 41.50,
+                'חיפה': 33.50,
+                'טבריה': 8.00
+            },
+            'נהריה': {
+                'תל אביב': 33.50,
+                'ירושלים': 41.50,
+                'טבריה': 41.50,
+                'חיפה': 19.00,
+                'נהריה': 8.00
+            },
+            // מסלולים מרכזיים
+            'ירושלים': {
+                'תל אביב': 19.00,
+                'חיפה': 19.00,
+                'באר שבע': 19.00,
+                'נתניה': 19.00,
+                'אשדוד': 19.00,
+                'אשקלון': 19.00,
+                'ירושלים': 8.00
+            },
+            'תל אביב': {
+                'ירושלים': 19.00,
+                'חיפה': 19.00,
+                'באר שבע': 19.00,
+                'נתניה': 14.50,
+                'אשדוד': 14.50,
+                'ראשון לציון': 8.00,
+                'פתח תקווה': 8.00,
+                'חולון': 8.00,
+                'בת ים': 8.00,
+                'רמת גן': 8.00,
+                'בני ברק': 8.00,
+                'הרצליה': 8.00,
+                'גבעתיים': 8.00,
+                'קריית אונו': 8.00,
+                'גבעת שמואל': 8.00,
+                'יהוד': 8.00,
+                'סביון': 8.00,
+                'שוהם': 8.00,
+                'ראש העין': 8.00,
+                'כפר סבא': 14.50,
+                'הוד השרון': 14.50,
+                'רעננה': 14.50,
+                'כרכור': 8.00,
+                'משגב עם': 8.00,
+                'קיסריה': 14.50,
+                'פרדס חנה': 14.50,
+                'בנימינה': 14.50,
+                'חדרה': 19.00,
+                'בית שאן': 32.50,
+                'אופקים': 19.00,
+                'שדרות': 19.00,
+                'נתיבות': 19.00,
+                'אילת': 74.00,
+                'תל אביב': 8.00
+            },
+            // ערים נוספות במטרופולין תל אביב
+            'ראשון לציון': {
+                'תל אביב': 8.00,
+                'רמלה': 8.00,
+                'לוד': 8.00,
+                'נהב': 8.00,
+                'יבנה': 8.00,
+                'גדרה': 8.00,
+                'ראשון לציון': 8.00
+            },
+            'רמלה': {
+                'תל אביב': 8.00,
+                'לוד': 8.00,
+                'ראשון לציון': 8.00,
+                'רמלה': 8.00
+            },
+            'לוד': {
+                'תל אביב': 8.00,
+                'רמלה': 8.00,
+                'ראשון לציון': 8.00,
+                'לוד': 8.00
+            },
+            'יבנה': {
+                'תל אביב': 8.00,
+                'אשדוד': 8.00,
+                'גדרה': 8.00,
+                'ראשון לציון': 8.00,
+                'יבנה': 8.00
+            },
+            'גדרה': {
+                'תל אביב': 14.50,
+                'אשדוד': 8.00,
+                'יבנה': 8.00,
+                'גדרה': 8.00
+            },
+            'נהב': {
+                'תל אביב': 8.00,
+                'נהב': 8.00
+            },
+            'יהוד': {
+                'תל אביב': 8.00,
+                'יהוד': 8.00
+            },
+            'פתח תקווה': {
+                'תל אביב': 8.00,
+                'רמת גן': 8.00,
+                'בני ברק': 8.00,
+                'גבעתיים': 8.00,
+                'קריית אונו': 8.00,
+                'גבעת שמואל': 8.00,
+                'שוהם': 8.00,
+                'ראש העין': 8.00,
+                'פתח תקווה': 8.00
+            },
+            'חולון': {
+                'תל אביב': 8.00,
+                'בת ים': 8.00,
+                'רמלה': 8.00,
+                'חולון': 8.00
+            },
+            'בת ים': {
+                'תל אביב': 8.00,
+                'חולון': 8.00,
+                'ראשון לציון': 8.00,
+                'בת ים': 8.00
+            },
+            'רמת גן': {
+                'תל אביב': 8.00,
+                'פתח תקווה': 8.00,
+                'בני ברק': 8.00,
+                'גבעתיים': 8.00,
+                'הוד השרון': 14.50,
+                'רמת גן': 8.00
+            },
+            'בני ברק': {
+                'תל אביב': 8.00,
+                'פתח תקווה': 8.00,
+                'רמת גן': 8.00,
+                'גבעתיים': 8.00,
+                'בני ברק': 8.00
+            },
+            'הרצליה': {
+                'תל אביב': 8.00,
+                'רעננה': 8.00,
+                'כפר סבא': 8.00,
+                'הרצליה': 8.00
+            },
+            'רעננה': {
+                'תל אביב': 14.50,
+                'הרצליה': 8.00,
+                'כפר סבא': 8.00,
+                'הוד השרון': 8.00,
+                'רעננה': 8.00
+            },
+            'כפר סבא': {
+                'תל אביב': 14.50,
+                'רעננה': 8.00,
+                'הוד השרון': 8.00,
+                'כפר סבא': 8.00
+            },
+            'חיפה': {
+                'תל אביב': 19.00,
+                'ירושלים': 19.00,
+                'נהריה': 19.00,
+                'טבריה': 19.00,
+                'צפת': 19.00,
+                'עכו': 14.50,
+                'נשר': 8.00,
+                'קריית ביאליק': 8.00,
+                'קריית מוצקין': 8.00,
+                'קריית ים': 8.00,
+                'זכרון יעקב': 14.50,
+                'בנימינה': 14.50,
+                'חדרה': 14.50,
+                'עתלית': 14.50,
+                'חיפה': 8.00
+            },
+            'באר שבע': {
+                'תל אביב': 19.00,
+                'ירושלים': 19.00,
+                'אשדוד': 19.00,
+                'אשקלון': 19.00,
+                'אופקים': 8.00,
+                'שדרות': 8.00,
+                'נתיבות': 8.00,
+                'אילת': 74.00,
+                'באר שבע': 8.00
+            },
+            'צפת': {
+                'חיפה': 19.00,
+                'תל אביב': 30.50,
+                'נהריה': 19.00,
+                'צפת': 8.00
+            },
+            'קריית שמונה': {
+                'תל אביב': 74.00,
+                'חיפה': 41.50,
+                'טבריה': 19.00,
+                'קריית שמונה': 8.00
+            },
+            'עכו': {
+                'תל אביב': 19.00,
+                'חיפה': 14.50,
+                'נהריה': 8.00,
+                'עכו': 8.00
+            },
+            'נתניה': {
+                'תל אביב': 14.50,
+                'ירושלים': 19.00,
+                'חיפה': 19.00,
+                'כפר סבא': 8.00,
+                'נתניה': 8.00
+            },
+            'אשדוד': {
+                'תל אביב': 14.50,
+                'ירושלים': 19.00,
+                'באר שבע': 19.00,
+                'אשקלון': 8.00,
+                'גדרה': 8.00,
+                'יבנה': 8.00,
+                'אשדוד': 8.00
+            },
+            'אשקלון': {
+                'תל אביב': 19.00,
+                'ירושלים': 19.00,
+                'באר שבע': 19.00,
+                'אשדוד': 8.00,
+                'אשקלון': 8.00
+            }
+        };
+
+        // ============================================================
+        // פונקציות עזר
+        // ============================================================
+
+        // פונקציית לוג - מושבתת לניקוי הממשק
+        function log(message, type = 'info') {
+            // מושבת - לשימוש עתידי בפיתוח
+        }
+
+        // נרמול טקסט עברי להשוואה
+        function normalizeText(text) {
+            if (!text) return "";
+            return text.trim()
+                .replace(/\s+/g, '')
+                .replace(/-/g, '')
+                .toLowerCase()
+                .normalize('NFC');
+        }
+
+        // חישוב מרחק אווירי (Haversine)
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371.0088; // רדיוס כדור הארץ בק"מ
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+        }
+
+        // שליפת קואורדינטות מ-Nominatim (OpenStreetMap - חינם!)
+        async function getCoords(address) {
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                log(`📡 מכשיר לא מקוון. דילוג על חיפוש גיאוגרפי עבור "${address}"`, 'warn');
+                return null;
+            }
+            
+            log(`🔍 מחפש קואורדינטות עבור: "${address}"`, 'info');
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ', ישראל')}&countrycodes=il&limit=1`;
+            
+            let controller;
+            let timeoutId;
+            let signal;
+            
+            if (typeof AbortController !== 'undefined') {
+                controller = new AbortController();
+                timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+                signal = controller.signal;
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    headers: { 'Accept-Language': 'he, he-IL' },
+                    signal: signal
+                });
+                if (timeoutId) clearTimeout(timeoutId);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const result = {
+                        lat: parseFloat(data[0].lat),
+                        lon: parseFloat(data[0].lon),
+                        name: data[0].display_name.split(',')[0]
+                    };
+                    log(`✅ נמצאו קואורדינטות: ${result.lat.toFixed(4)}, ${result.lon.toFixed(4)}`, 'success');
+                    return result;
+                }
+                log(`⚠️ לא נמצאו תוצאות עבור "${address}"`, 'warn');
+                return null;
+            } catch (error) {
+                if (timeoutId) clearTimeout(timeoutId);
+                log(`❌ שגיאה בשליפת קואורדינטות: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        // מציאת תעריף מהמטריצה המקומית
+        function findFallbackFare(origin, dest) {
+            log(`🔄 מחפש תעריף במטריצה המקומית...`, 'info');
+            
+            const normOrigin = normalizeText(origin);
+            const normDest = normalizeText(dest);
+            
+            // חיפוש לפי מוצא
+            for (const [city, destinations] of Object.entries(FALLBACK_FARES)) {
+                const normCity = normalizeText(city);
+                
+                // בדיקה אם המוצא תואם
+                if (normCity.includes(normOrigin) || normOrigin.includes(normCity)) {
+                    // חיפוש יעד
+                    for (const [destCity, price] of Object.entries(destinations)) {
+                        const normDestCity = normalizeText(destCity);
+                        if (normDestCity.includes(normDest) || normDest.includes(normDestCity)) {
+                            log(`✅ נמצא תעריף: ${city} → ${destCity} = ${price} ₪`, 'success');
+                            return { fare: price, matchedRoute: `${city} → ${destCity}`, type: 'fallback_matrix' };
+                        }
+                    }
+                }
+            }
+            
+            // בדיקה הפוכה (יעד → מוצא)
+            for (const [city, destinations] of Object.entries(FALLBACK_FARES)) {
+                const normCity = normalizeText(city);
+                
+                if (normCity.includes(normDest) || normDest.includes(normCity)) {
+                    for (const [destCity, price] of Object.entries(destinations)) {
+                        const normDestCity = normalizeText(destCity);
+                        if (normDestCity.includes(normOrigin) || normOrigin.includes(normDestCity)) {
+                            log(`✅ נמצא תעריף: ${destCity} ← ${city} = ${price} ₪`, 'success');
+                            return { fare: price, matchedRoute: `${destCity} ← ${city}`, type: 'fallback_matrix' };
+                        }
+                    }
+                }
+            }
+            
             return null;
         }
 
-        function isFreeProfile(profile) {
-            return FREE_PROFILES.indexOf(profile) !== -1;
-        }
-
-        function getMonthlyDiscount(profile) {
-            return MONTHLY_DISCOUNTS[profile] || 0;
-        }
-
-        // ============================================================
-        // AUTOCOMPLETE FUNCTIONALITY (UPGRADE 4)
-        // ============================================================
-        
-        // Get all city names as array
-        function getCityNames() {
-            var names = [];
-            for (var city in CITIES) {
-                names.push(city);
-            }
-            return names;
-        }
-        
-        // Filter cities by input
-        function filterCities(input, cities) {
-            if (!input || input.length < 1) return [];
-            var normalizedInput = input.trim().toLowerCase();
-            return cities.filter(function(city) {
-                return city.toLowerCase().indexOf(normalizedInput) !== -1;
-            }).slice(0, 10); // Limit to 10 results
-        }
-        
-        // Set up autocomplete for an input field
-        function setupAutocomplete(inputId, listId) {
-            var input = document.getElementById(inputId);
-            var list = document.getElementById(listId);
-            var cities = getCityNames();
-            var highlightedIndex = -1;
+        // מציאת תעריף מיוחד לפי מילות מפתח - תעריפים קבועים של משרד התחבורה
+        function findSpecialFare(origin, dest) {
+            const normOrigin = normalizeText(origin);
+            const normDest = normalizeText(dest);
+            const combined = normOrigin + ' ' + normDest;
             
-            input.addEventListener('input', function() {
-                var value = this.value.trim();
-                
-                if (value.length < 1) {
-                    list.classList.remove('active');
-                    return;
+            // טבריה - תעריף קבוע לפי משרד התחבורה
+            // (באוטובוס, המרחק האווירי לא משקף את המסלול הארוך בכבישים)
+            if (combined.includes('טבריה')) {
+                // טבריה לתל אביב/ירושלים - 41.50₪
+                if (normDest.includes('תלאביב') || normDest.includes('ירושלים')) {
+                    log(`🎯 זוהה מסלול טבריה - תעריף קבוע 41.50 ₪`, 'info');
+                    return { fare: 41.50, reason: 'מסלול טבריה - תעריף קבוע' };
                 }
-                
-                var matches = filterCities(value, cities);
-                
-                if (matches.length === 0) {
-                    list.classList.remove('active');
-                    return;
+                // טבריה לחיפה - 33.50₪
+                if (normDest.includes('חיפה')) {
+                    log(`🎯 זוהה מסלול טבריה-חיפה - תעריף 33.50 ₪`, 'info');
+                    return { fare: 33.50, reason: 'מסלול טבריה-חיפה' };
                 }
+            }
+            
+            // נהריה - תעריף קבוע לפי משרד התחבורה
+            if (combined.includes('נהריה')) {
+                // נהריה לתל אביב - 33.50₪
+                if (normDest.includes('תלאביב')) {
+                    log(`🎯 זוהה מסלול נהריה - תעריף קבוע 33.50 ₪`, 'info');
+                    return { fare: 33.50, reason: 'מסלול נהריה - תעריף קבוע' };
+                }
+                // נהריה לירושלים - 41.50₪
+                if (normDest.includes('ירושלים')) {
+                    log(`🎯 זוהה מסלול נהריה-ירושלים - תעריף 41.50 ₪`, 'info');
+                    return { fare: 41.50, reason: 'מסלול נהריה-ירושלים' };
+                }
+            }
+            
+            return null;
+        }
+
+        // שליפת תעריף מ-API ממשלתי דרך CORS Proxy
+        async function fetchGovApiFare(origin, dest) {
+            log(`🌐 פונה לפרוקסי חסין CORS (api.allorigins.win)...`, 'info');
+            
+            const query = `${origin} ${dest}`;
+            const targetUrl = `${GOV_API_URL}?resource_id=${RESOURCE_ID}&q=${encodeURIComponent(query)}`;
+            const proxyUrl = CORS_PROXY + encodeURIComponent(targetUrl);
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
                 
-                list.innerHTML = '';
-                highlightedIndex = -1;
+                const response = await fetch(proxyUrl, { signal: controller.signal });
+                clearTimeout(timeoutId);
                 
-                matches.forEach(function(city, index) {
-                    var item = document.createElement('div');
-                    item.className = 'autocomplete-item';
-                    item.textContent = city;
-                    item.setAttribute('data-index', index);
-                    item.addEventListener('click', function() {
-                        input.value = city;
-                        list.classList.remove('active');
-                        // Trigger calculation if both fields are filled
-                        if (inputId === 'origin') {
-                            var destValue = document.getElementById('dest').value;
-                            if (destValue && destValue.trim().length > 0) {
-                                // Optionally auto-calculate
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const proxyData = await response.json();
+                
+                // חילוץ הנתונים מהפרוקסי
+                if (proxyData && proxyData.contents) {
+                    const data = JSON.parse(proxyData.contents);
+                    const records = data.result?.records || [];
+                    
+                    if (records.length > 0) {
+                        // חיפוש רשומה מתאימה
+                        for (const record of records) {
+                            const recordStr = JSON.stringify(record).toLowerCase();
+                            if (normalizeText(origin).toLowerCase() in recordStr && 
+                                normalizeText(dest).toLowerCase() in recordStr) {
+                                
+                                const fare = record['תעריף_נסיעה'] || record['תעריף'] || 
+                                            record['fare'] || record['price'];
+                                if (fare) {
+                                    const fareNum = parseFloat(fare);
+                                    if (!isNaN(fareNum)) {
+                                        log(`✅ נתונים נמשכו בהצלחה ממאגר המידע הממשלתי!`, 'success');
+                                        return { fare: fareNum, source: 'gov_api' };
+                                    }
+                                }
                             }
                         }
-                    });
-                    item.addEventListener('mouseenter', function() {
-                        highlightItem(index);
-                    });
-                    list.appendChild(item);
-                });
-                
-                list.classList.add('active');
-            });
-            
-            input.addEventListener('keydown', function(e) {
-                var items = list.querySelectorAll('.autocomplete-item');
-                if (!list.classList.contains('active') || items.length === 0) return;
-                
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    highlightNext(items);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    highlightPrev(items);
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (highlightedIndex >= 0 && highlightedIndex < items.length) {
-                        input.value = items[highlightedIndex].textContent;
-                        list.classList.remove('active');
+                        
+                        // אם לא נמצאה התאמה מדויקת, נחזיר את הרשומה הראשונה עם תעריף
+                        for (const record of records.slice(0, 3)) {
+                            const fare = record['תעריף_נסיעה'] || record['תעריף'] || 
+                                        record['fare'] || record['price'];
+                            if (fare) {
+                                const fareNum = parseFloat(fare);
+                                if (!isNaN(fareNum)) {
+                                    log(`✅ נתונים נמשכו מ-API ממשלתי (משוער)`, 'success');
+                                    return { fare: fareNum, source: 'gov_api_approx' };
+                                }
+                            }
+                        }
                     }
-                } else if (e.key === 'Escape') {
-                    list.classList.remove('active');
                 }
-            });
-            
-            function highlightItem(index) {
-                var items = list.querySelectorAll('.autocomplete-item');
-                items.forEach(function(item) { item.classList.remove('highlighted'); });
-                if (index >= 0 && index < items.length) {
-                    items[index].classList.add('highlighted');
-                    highlightedIndex = index;
+                
+                log(`⚠️ ה-API לא החזיר נתונים תואמים`, 'warn');
+                return null;
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    log(`⏱️ פקיעת זמן ב-API (${API_TIMEOUT/1000} שניות)`, 'warn');
+                } else {
+                    log(`❌ שגיאת API: ${error.message}`, 'error');
                 }
+                return null;
             }
-            
-            function highlightNext(items) {
-                var newIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0;
-                highlightItem(newIndex);
-            }
-            
-            function highlightPrev(items) {
-                var items = list.querySelectorAll('.autocomplete-item');
-                var newIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1;
-                highlightItem(newIndex);
-            }
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!input.contains(e.target) && !list.contains(e.target)) {
-                    list.classList.remove('active');
-                }
-            });
         }
-        
-        // Initialize autocomplete for both inputs
-        setupAutocomplete('origin', 'origin-autocomplete');
-        setupAutocomplete('dest', 'dest-autocomplete');
-        
-        // ============================================================
-        // TRAIN CONNECTIVITY CHECK (UPGRADE 2)
-        // ============================================================
-        
-        function hasTrainConnectivity(origin, dest) {
-            // Normalize input
-            var originLower = origin.trim().toLowerCase();
-            var destLower = dest.trim().toLowerCase();
+
+        // חישוב תעריף לפי מרחק - תעריפים רשמיים של משרד התחבורה (נכון לאפריל 2025)
+        function calculateFareByDistance(distanceKm) {
+            log(`📐 מחשב תעריף לפי מרחק: ${distanceKm.toFixed(2)} ק"מ`, 'info');
             
-            // Special case: current location doesn't have train connectivity
-            if (originLower === 'המיקום הנוכחי שלי') {
+            // תעריפים רשמיים של משרד התחבורה (כולל מעבר 90 דקות לנסיעות עד 15 ק"מ)
+            if (distanceKm <= 15) {
+                return { 
+                    fare: 8.00, 
+                    daily: 17.50,
+                    monthly: 315.00,
+                    label: 'נסיעה עירונית/קצרה (עד 15 ק"מ)' 
+                };
+            } else if (distanceKm <= 40) {
+                return { 
+                    fare: 14.50, 
+                    daily: 29.00,
+                    monthly: 315.00,
+                    label: 'נסיעה בינונית (15-40 ק"מ)' 
+                };
+            } else if (distanceKm <= 75) {
+                return { 
+                    fare: 19.00, 
+                    daily: 37.50,
+                    monthly: 315.00,
+                    label: 'נסיעה ארוכה (40-75 ק"מ)' 
+                };
+            } else if (distanceKm <= 120) {
+                return { 
+                    fare: 19.00, 
+                    daily: 37.50,
+                    monthly: 315.00,
+                    label: 'נסיעה ארוכה (75-120 ק"מ)' 
+                };
+            } else if (distanceKm <= 225) {
+                return { 
+                    fare: 30.50, 
+                    daily: 60.50,
+                    monthly: 315.00,
+                    label: 'נסיעה למרחק גדול (120-225 ק"מ)' 
+                };
+            } else {
+                return { 
+                    fare: 74.00, 
+                    daily: 79.50,
+                    monthly: 684.00,
+                    label: 'נסיעה למרחק גדול מאוד (225+ ק"מ)' 
+                };
+            }
+        }
+
+        // ============================================================
+        // מערכת בדיקת זכאות לפריפריה גיאוגרפית (צדק תחבורתי)
+        // ============================================================
+        let eligibleCities = [];
+        let currentCityData = null;
+        let isPeripheryIndexLoaded = false;
+
+        // נרמול שם יישוב לקובץ השארד (עיצורים בלבד)
+        function normalizeCityName(cityName) {
+            if (!cityName) return "unknown";
+            let normalized = cityName.normalize('NFKC');
+            const hebrewMap = {
+                'א': '', 'ב': 'b', 'ג': 'g', 'ד': 'd', 'ה': '', 'ו': 'v', 'ז': 'z', 'ח': 'ch', 'ט': 't', 'י': 'y',
+                'כ': 'k', 'ך': 'k', 'ל': 'l', 'מ': 'm', 'ם': 'm', 'נ': 'n', 'ן': 'n', 'ס': 's', 'ע': 'e', 'פ': 'p',
+                'ף': 'p', 'צ': 'ts', 'ץ': 'ts', 'ק': 'q', 'ר': 'r', 'ש': 'sh', 'ת': 't'
+            };
+            let result = '';
+            for (let char of normalized) {
+                result += hebrewMap[char] !== undefined ? hebrewMap[char] : char;
+            }
+            result = result.toLowerCase().replace(/[^a-z0-9]/g, '');
+            return result.substring(0, 20) || "unknown";
+        }
+
+        // טעינת אינדקס ערי הפריפריה הזכאיות
+        async function initPeriphery() {
+            if (isPeripheryIndexLoaded) return;
+            
+            const cityLoadingEl = document.getElementById('periphery-city-loading');
+            const cityStatusEl = document.getElementById('periphery-city-status');
+            
+            if (cityLoadingEl) cityLoadingEl.style.display = 'inline-flex';
+            if (cityStatusEl) cityStatusEl.textContent = 'טוען רשימת יישובים זכאים...';
+            
+            try {
+                const response = await fetch('./data/periphery/cities_index.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                eligibleCities = data.cities || [];
+                isPeripheryIndexLoaded = true;
+                
+                // עדכון ה-Datalist של הערים
+                const datalist = document.getElementById('periphery-cities-list');
+                if (datalist) {
+                    datalist.innerHTML = '';
+                    eligibleCities.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        datalist.appendChild(option);
+                    });
+                }
+                if (cityStatusEl) {
+                    cityStatusEl.textContent = 'הזן עיר מגורים לאימות זכאות';
+                    cityStatusEl.style.color = '#7f8c8d';
+                }
+                log('✅ רשימת יישובים זכאים לפריפריה נטענה בהצלחה', 'success');
+            } catch (err) {
+                log(`⚠️ כשל בטעינת אינדקס פריפריה: ${err.message}`, 'warn');
+                if (cityStatusEl) {
+                    cityStatusEl.textContent = '⚠️ שגיאה בטעינת רשימת היישובים. בדיקת הזכאות לא פעילה כעת.';
+                    cityStatusEl.style.color = '#e74c3c';
+                }
+            } finally {
+                if (cityLoadingEl) cityLoadingEl.style.display = 'none';
+            }
+        }
+
+        // פונקציה לעדכון עיצוב וכיתוב של תגית הסטטוס (Requirement 1)
+        function updatePeripheryStatus(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            
+            el.textContent = text;
+            el.className = 'periphery-status-text'; // איפוס
+            
+            if (type) {
+                el.classList.add('periphery-badge', type);
+                el.style.color = ''; // הסרת צבע אינליין לטובת המחלקות החדשות
+            } else {
+                el.style.color = '#7f8c8d'; // אפור ברירת מחדל
+            }
+        }
+
+        // פונקציית עזר לבדיקת זכאות למספר בית ברחוב ספציפי
+        function checkHouseEligibility(houseNumStr, rule) {
+            if (!rule) return false;
+            if (rule === 'all') return true;
+            
+            // הגנה וניקוי מתווים שאינם ספרות (Requirement 2)
+            const cleanHouseNum = houseNumStr.replace(/\D/g, '');
+            const num = parseInt(cleanHouseNum, 10);
+            if (isNaN(num)) return false;
+
+            if (rule === 'odd') {
+                return num % 2 !== 0;
+            }
+            if (rule === 'even') {
+                return num % 2 === 0;
+            }
+
+            // בדיקת טווח (למשל: "1-50")
+            if (rule.includes('-')) {
+                const parts = rule.split('-');
+                const min = parseInt(parts[0].replace(/\D/g, ''), 10);
+                const max = parseInt(parts[1].replace(/\D/g, ''), 10);
+                if (!isNaN(min) && !isNaN(max)) {
+                    return num >= min && num <= max;
+                }
+            }
+
+            // בדיקת רשימת מספרים מופרדת בפסיקים (למשל "2,4,6")
+            if (rule.includes(',')) {
+                const parts = rule.split(',').map(n => parseInt(n.replace(/\D/g, ''), 10));
+                return parts.includes(num);
+            }
+
+            // בדיקת מספר בודד ספציפי (למשל "12")
+            const exactNum = parseInt(rule.replace(/\D/g, ''), 10);
+            if (!isNaN(exactNum)) {
+                return num === exactNum;
+            }
+
+            return false;
+        }
+
+        // פונקציה לחישוב זכאות נוכחית של המשתמש
+        function checkPeripheryEligibility() {
+            const city = document.getElementById('periphery-city').value.trim();
+            if (!city || !eligibleCities.includes(city)) {
                 return false;
             }
             
-            // Check if both cities are in the train network
-            var originHasTrain = TRAIN_CITIES.some(function(city) {
-                return city.toLowerCase() === originLower;
-            });
-            var destHasTrain = TRAIN_CITIES.some(function(city) {
-                return city.toLowerCase() === destLower;
-            });
-            
-            return originHasTrain && destHasTrain;
-        }
-        
-        // ============================================================
-        // EILAT VISIBILITY CHECK (UPGRADE 3)
-        // ============================================================
-        
-        function shouldShowEilatPass(origin, dest) {
-            var originLower = origin.trim().toLowerCase();
-            var destLower = dest.trim().toLowerCase();
-            var eilatLower = 'אילת'.toLowerCase();
-            
-            // Only show if Eilat is explicitly selected as origin or destination
-            return originLower === eilatLower || destLower === eilatLower;
-        }
-        
-        // ============================================================
-        // THEME TOGGLE (PREMIUM DARK MODE)
-        // ============================================================
-
-        function initTheme() {
-            var savedTheme = localStorage.getItem('theme');
-            var themeToggle = document.getElementById('theme-toggle');
-            
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                themeToggle.textContent = '☀️';
-            } else {
-                themeToggle.textContent = '🌙';
-            }
-        }
-
-        function toggleTheme() {
-            var themeToggle = document.getElementById('theme-toggle');
-            var isDark = document.body.classList.toggle('dark-mode');
-            
-            if (isDark) {
-                themeToggle.textContent = '☀️';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeToggle.textContent = '🌙';
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        document.getElementById('theme-toggle').onclick = toggleTheme;
-        initTheme();
-
-        // ============================================================
-        // RECENT SEARCHES HISTORY (LOCALSTORAGE)
-        // ============================================================
-
-        var MAX_RECENT_SEARCHES = 3;
-
-        function getRecentSearches() {
-            var searches = localStorage.getItem('recentSearches');
-            if (searches) {
-                try {
-                    return JSON.parse(searches);
-                } catch (e) {
-                    return [];
-                }
-            }
-            return [];
-        }
-
-        function saveRecentSearch(origin, dest) {
-            if (!origin || !dest || origin === 'המיקום הנוכחי שלי') return;
-            
-            var searches = getRecentSearches();
-            var newEntry = { origin: origin, dest: dest };
-            
-            searches = searches.filter(function(s) {
-                return !(s.origin === origin && s.dest === dest);
-            });
-            
-            searches.unshift(newEntry);
-            searches = searches.slice(0, MAX_RECENT_SEARCHES);
-            
-            localStorage.setItem('recentSearches', JSON.stringify(searches));
-            renderRecentSearches();
-        }
-
-        function renderRecentSearches() {
-            var container = document.getElementById('recent-searches');
-            var searches = getRecentSearches();
-            
-            container.innerHTML = '';
-            
-            searches.forEach(function(search) {
-                var chip = document.createElement('span');
-                chip.className = 'history-chip';
-                chip.innerHTML = search.origin + '<span class="arrow">←</span>' + search.dest;
-                chip.onclick = function() {
-                    document.getElementById('origin').value = search.origin;
-                    document.getElementById('dest').value = search.dest;
-                    calculateFareAndDisplay();
-                };
-                container.appendChild(chip);
-            });
-        }
-
-        renderRecentSearches();
-
-        // ============================================================
-        // PROFILE CHANGE HANDLER - Show/hide student pass option
-        // ============================================================
-        
-        function updateStudentPassVisibility() {
-            var passengerType = document.querySelector('[name="passenger"]:checked').value;
-            var studentPassContainer = document.getElementById('t-student-pass-container');
-            var isStudent = (passengerType === 'student');
-            
-            if (isStudent) {
-                studentPassContainer.style.display = 'block';
-            } else {
-                studentPassContainer.style.display = 'none';
-                // If semester/annual was selected, switch back to single
-                var semesterRadio = document.getElementById('t-semester');
-                if (semesterRadio.checked) {
-                    document.getElementById('t-single').checked = true;
-                }
-            }
-        }
-        
-        // Add event listeners to all passenger profile radios
-        var profileRadios = document.querySelectorAll('[name="passenger"]');
-        profileRadios.forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                updateStudentPassVisibility();
-            });
-        });
-        
-        // Initialize visibility on page load
-        updateStudentPassVisibility();
-
-        // ============================================================
-        // STUDENT PASS SELECTION HELPERS
-        // ============================================================
-        
-        var selectedStudentPass = 'semester'; // Default selection
-        
-        function getSelectedStudentPass() {
-            return selectedStudentPass;
-        }
-        
-        function selectStudentPass(passType) {
-            selectedStudentPass = passType;
-            updateStudentPassCards(passType);
-            // Recalculate and display the result
-            calculateFareAndDisplay();
-        }
-        
-        function updateStudentPassCards(selectedPass) {
-            var cardSemester = document.getElementById('card-semester');
-            var cardAnnual = document.getElementById('card-annual');
-            
-            if (selectedPass === 'semester') {
-                cardSemester.style.borderColor = 'var(--price-color)';
-                cardSemester.style.background = 'var(--card-bg)';
-                cardAnnual.style.borderColor = 'var(--border-color)';
-                cardAnnual.style.background = 'var(--card-bg)';
-            } else {
-                cardAnnual.style.borderColor = 'var(--price-color)';
-                cardAnnual.style.background = 'var(--card-bg)';
-                cardSemester.style.borderColor = 'var(--border-color)';
-                cardSemester.style.background = 'var(--card-bg)';
-            }
-        }
-
-        // ============================================================
-        // WHATSAPP SHARE
-        // ============================================================
-
-        var lastCalculatedResult = null;
-
-        function shareToWhatsApp() {
-            if (!lastCalculatedResult) return;
-            
-            var origin = lastCalculatedResult.origin;
-            var dest = lastCalculatedResult.dest;
-            var distance = lastCalculatedResult.distance;
-            var singlePrice = lastCalculatedResult.single;
-            var monthlyPrice = lastCalculatedResult.monthlyNational.price;
-            
-            var message = 'בדקתי מחיר נסיעה במחשבון התחבורה! 🚌 מ' + origin + ' ל' + dest + ' (' + distance.toFixed(1) + ' ק"מ). כרטיס בודד: ' + singlePrice.toFixed(2) + ' ₪, חופשי חודשי: ' + monthlyPrice.toFixed(2) + ' ₪. בדקו גם אתם: https://infinityempire.github.io/psc/index.html';
-            
-            var encodedMessage = encodeURIComponent(message);
-            var whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodedMessage;
-            
-            window.open(whatsappUrl, '_blank');
-        }
-
-        document.getElementById('whatsapp-share-btn').onclick = shareToWhatsApp;
-
-        // GEOLOCATION FUNCTIONS (UPGRADE 1)
-        // ============================================================
-        
-        function useCurrentLocation() {
-            var locationBtn = document.getElementById('location-btn');
-            var locationError = document.getElementById('location-error');
-            var originInput = document.getElementById('origin');
-            
-            // Hide any previous error
-            locationError.style.display = 'none';
-            locationError.textContent = '';
-            
-            // Check if geolocation is supported
-            if (!navigator.geolocation) {
-                locationError.textContent = 'הדפדפן שלך אינו תומך באיפיון מיקום';
-                locationError.style.display = 'block';
-                return;
+            // אם טעינת קובץ הערים נכשלה אך העיר מופיעה באינדקס הערים הזכאיות -
+            // כברירת מחדל בטוחה (Graceful Fallback), נאשר את הזכאות
+            if (!currentCityData) {
+                return true;
             }
             
-            // Disable button while getting location
-            locationBtn.disabled = true;
-            locationBtn.textContent = '...';
+            const streets = currentCityData.s || {};
+            if (Object.keys(streets).length === 0) {
+                // העיר כולה זכאית, ללא הגבלת רחובות
+                return true;
+            }
             
-            navigator.geolocation.getCurrentPosition(
-                function(position) {
-                    // Success: store coordinates
-                    currentLocationCoords = [
-                        position.coords.latitude,
-                        position.coords.longitude
-                    ];
-                    
-                    // Update input field
-                    originInput.value = 'המיקום הנוכחי שלי';
-                    
-                    // Re-enable button
-                    locationBtn.disabled = false;
-                    locationBtn.textContent = '📍 המיקום שלי';
-                },
-                function(error) {
-                    // Error: show user-friendly message
-                    var errorMessage = '';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = 'גישה למיקום נדחתה. אנא אפשר גישה למיקום בהגדרות הדפדפן.';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = 'מיקום לא זמין כרגע. נסה שוב מאוחר יותר.';
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage = 'תם הזמן לקבלת מיקום. נסה שוב.';
-                            break;
-                        default:
-                            errorMessage = 'שגיאה בקבלת המיקום. נסה שוב.';
-                    }
-                    
-                    locationError.textContent = errorMessage;
-                    locationError.style.display = 'block';
-                    
-                    // Re-enable button
-                    locationBtn.disabled = false;
-                    locationBtn.textContent = '📍 המיקום שלי';
-                    
-                    // Clear stored coordinates
-                    currentLocationCoords = null;
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-        }
-        
-        // Set up location button click handler
-        document.getElementById('location-btn').onclick = useCurrentLocation;
-
-        // ============================================================
-        // FARE RULE ENGINE
-        // ============================================================
-        
-        function determineFareZone(distance) {
-            if (distance <= FARE_RULES.yellow.maxDistance) {
-                return { zone: 'yellow', data: FARE_RULES.yellow, distance: distance };
-            } else if (distance <= FARE_RULES.green.maxDistance) {
-                return { zone: 'green', data: FARE_RULES.green, distance: distance };
-            } else if (distance <= FARE_RULES.lightblue.maxDistance) {
-                return { zone: 'lightblue', data: FARE_RULES.lightblue, distance: distance };
-            } else if (distance <= FARE_RULES.blue.maxDistance) {
-                return { zone: 'blue', data: FARE_RULES.blue, distance: distance };
-            } else if (distance <= FARE_RULES.purple.maxDistance) {
-                return { zone: 'purple', data: FARE_RULES.purple, distance: distance };
-            } else {
-                return { zone: 'gray', data: FARE_RULES.gray, distance: distance };
+            const street = document.getElementById('periphery-street').value.trim();
+            if (!streets[street]) {
+                return false;
             }
-        }
-
-        // Monthly train prices by zone (from bus.gov.il)
-        var MONTHLY_TRAIN_PRICES = {
-            yellow: 323,
-            green: 323,
-            lightblue: 464,
-            blue: 684,
-            purple: 684,
-            gray: 684
-        };
-
-        function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
-            var result = { valid: true, price: null, message: '' };
-            var originLower = origin.trim().toLowerCase();
-            var destLower = dest.trim().toLowerCase();
-
-            // FREE profiles always pay 0.00 for any ticket type
-            if (isFree) {
-                result.price = 0.00;
-                return result;
-            }
-
-            // Check required city for Eilat pass
-            if (contract.requiredCity) {
-                var requiredCityLower = contract.requiredCity.trim().toLowerCase();
-                if (originLower !== requiredCityLower && destLower !== requiredCityLower) {
-                    result.valid = false;
-                    result.message = 'לא רלוונטי';
-                    return result;
-                }
-            }
-
-            // Check invalid cities for Periphery pass
-            if (contract.invalidCities) {
-                for (var i = 0; i < contract.invalidCities.length; i++) {
-                    var invalidCityLower = contract.invalidCities[i].trim().toLowerCase();
-                    if (originLower === invalidCityLower || destLower === invalidCityLower) {
-                        result.valid = false;
-                        result.message = contract.invalidMessage;
-                        return result;
-                    }
-                }
-            }
-
-            // Check intercity condition for National+Train
-            // National+Train is only valid for intercity routes (>40km)
-            if (contract.condition === 'intercity' && 
-                (fareZone.zone === 'yellow' || fareZone.zone === 'green')) {
-                result.valid = false;
-                result.message = 'לא רלוונטי למסלול';
-                return result;
-            }
-
-            // Determine base price - National+Train uses zone-based pricing
-            var basePrice = contract.base;
-            if (contract.id === 'nationalTrain') {
-                basePrice = MONTHLY_TRAIN_PRICES[fareZone.zone] || contract.base;
-            }
-
-            // Calculate price with discount
-            result.price = Math.round(basePrice * (1 - discount) * 100) / 100;
-            return result;
-        }
-
-        function calculateFare(origin, dest, passengerType) {
-            // Check if origin is using current location
-            var isCurrentLocation = origin === 'המיקום הנוכחי שלי';
-            var oc = isCurrentLocation ? currentLocationCoords : getCoords(origin);
-            var dc = getCoords(dest);
-            var isFallback = !oc || !dc;
             
-            var distance, fareZone;
+            const rule = streets[street];
+            if (rule === 'all') {
+                return true;
+            }
             
-            if (oc && dc) {
-                distance = calculateDistance(oc[0], oc[1], dc[0], dc[1]);
-                fareZone = determineFareZone(distance);
-            } else {
-                // Fallback: assume 54km (Jerusalem-Tel Aviv average) if cities not found
-                // This would fall into the lightblue zone (40-75km)
-                distance = 54;
-                fareZone = { zone: 'lightblue', data: FARE_RULES.lightblue, distance: distance };
+            const houseNumRaw = document.getElementById('periphery-house').value.trim();
+            const houseNum = houseNumRaw.replace(/\D/g, ''); // ניקוי תווים שאינם ספרות
+            if (!houseNum) {
+                return false;
             }
-
-            var freeProfile = isFreeProfile(passengerType);
-            var monthlyDiscount = getMonthlyDiscount(passengerType);
-
-            // Calculate Single and Daily prices
-            var singlePrice = freeProfile ? 0.00 : fareZone.data.single;
-            var dailyPrice = freeProfile ? 0.00 : fareZone.data.daily;
-
-            // Evaluate all monthly contracts
-            var monthlyNational = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.national, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-            var monthlyTrain = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.nationalTrain, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-            var monthlyPeriphery = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.periphery, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-            var monthlyEilat = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.eilat, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-
-            return {
-                // Single & Daily
-                single: singlePrice,
-                daily: dailyPrice,
-                
-                // Monthly contracts
-                monthlyNational: monthlyNational,
-                monthlyTrain: monthlyTrain,
-                monthlyPeriphery: monthlyPeriphery,
-                monthlyEilat: monthlyEilat,
-                
-                // Route info
-                origin: origin,
-                dest: dest,
-                zone: fareZone.zone,
-                zoneLabel: fareZone.data.label,
-                distance: distance,
-                isFallback: isFallback
-            };
+            
+            return checkHouseEligibility(houseNum, rule);
         }
 
-        // ============================================================
-        // UI RENDERING
-        // ============================================================
-        
-        function renderPrice(elementId, value, valid) {
-            var el = document.getElementById(elementId);
-            if (valid) {
-                el.textContent = value.toFixed(2);
-                el.style.color = '';
-            } else {
-                el.textContent = value;
-                el.style.color = '#999';
-            }
-        }
+        // מאזיני אירועים להזנת כתובת פריפריה
+        function initPeripheryEventListeners() {
+            const cityInputEl = document.getElementById('periphery-city');
+            const streetGroupEl = document.getElementById('periphery-street-group');
+            const streetInputEl = document.getElementById('periphery-street');
+            const streetLoadingEl = document.getElementById('periphery-street-loading');
+            const houseGroupEl = document.getElementById('periphery-house-group');
+            const houseInputEl = document.getElementById('periphery-house');
 
-        var btn = document.getElementById('calculate-btn');
-        
-        // Main calculation function (used by button click and history chips)
-        function calculateFareAndDisplay() {
-            var origin = document.getElementById('origin').value;
-            var dest = document.getElementById('dest').value;
-            var ticketType = document.querySelector('[name="ticketType"]:checked').value;
-            var passengerType = document.querySelector('[name="passenger"]:checked').value;
-
-            if (!origin || !dest) {
-                alert('יש להזין מוצא ויעד');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = '...';
-
-            setTimeout(async function() {
-                try {
-                    var result = calculateFare(origin, dest, passengerType);
-                    
-                    // Store for WhatsApp sharing
-                    lastCalculatedResult = result;
-
-                    // Update Single & Daily prices
-                    document.getElementById('price-single').textContent = result.single.toFixed(2);
-                    document.getElementById('price-daily').textContent = result.daily.toFixed(2);
-
-                    // Update Monthly contract prices
-                    renderPrice('price-monthly-national',
-                        result.monthlyNational.price,
-                        result.monthlyNational.valid);
-                    renderPrice('price-monthly-train',
-                        result.monthlyTrain.price,
-                        result.monthlyTrain.valid);
-                    
-                    // PERIPHERY PRICING - Apply 50% discount (157.50 ₪) when periphery profile is selected
-                    var peripheryPriceEl = document.getElementById('price-monthly-periphery');
-                    var isPeripheryProfile = (passengerType === 'periphery_resident');
-                    
-                    if (isPeripheryProfile) {
-                        // Apply 50% discount: 50% of 315 ₪ = 157.50 ₪
-                        peripheryPriceEl.textContent = '157.50';
+            // שינוי בחירת פרופיל נוסע (הצגה/הסתרה של טופס כתובת ואיפוס שדות)
+            document.querySelectorAll('input[name="passenger"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const peripheryFormGroup = document.getElementById('periphery-form-group');
+                    if (e.target.value === 'periphery') {
+                        peripheryFormGroup.style.display = 'block';
+                        streetGroupEl.style.display = 'block';
+                        houseGroupEl.style.display = 'block';
+                        initPeriphery();
                     } else {
-                        // Not periphery profile - show standard pricing
-                        peripheryPriceEl.textContent =
-                            result.monthlyPeriphery.valid ?
-                                result.monthlyPeriphery.price.toFixed(2) :
-                                result.monthlyPeriphery.message;
-                        peripheryPriceEl.style.color =
-                            result.monthlyPeriphery.valid ? '' : '#c00';
-                    }
-                    
-                    document.getElementById('price-monthly-eilat').textContent =
-                        result.monthlyEilat.valid ?
-                            result.monthlyEilat.price.toFixed(2) :
-                            result.monthlyEilat.message;
-                    document.getElementById('price-monthly-eilat').style.color =
-                        result.monthlyEilat.valid ? '' : '#c00';
-
-                    // GPS Distance Display
-                    var gpsDistanceEl = document.getElementById('gps-distance');
-                    var isCurrentLocation = origin === 'המיקום הנוכחי שלי';
-                    if (isCurrentLocation && currentLocationCoords) {
-                        var destCoords = getCoords(dest);
-                        if (destCoords) {
-                            var gpsDist = calculateDistance(
-                                currentLocationCoords[0], currentLocationCoords[1],
-                                destCoords[0], destCoords[1]
-                            );
-                            gpsDistanceEl.innerHTML = '<strong>📍 מרחק GPS:</strong> ' + gpsDist.toFixed(1) + ' ק"מ';
-                            gpsDistanceEl.classList.add('active');
-                        } else {
-                            gpsDistanceEl.classList.remove('active');
-                        }
-                    } else {
-                        gpsDistanceEl.classList.remove('active');
-                    }
-
-                    // Train Pass Visibility
-                    var trainPassRow = document.getElementById('train-pass-label');
-                    var trainPassPrice = document.getElementById('train-pass-price');
-                    if (hasTrainConnectivity(origin, dest)) {
-                        trainPassRow.classList.add('active');
-                        trainPassPrice.classList.add('active');
-                    } else {
-                        trainPassRow.classList.remove('active');
-                        trainPassPrice.classList.remove('active');
-                    }
-
-                    // Eilat Pass Visibility
-                    var eilatPassRow = document.getElementById('eilat-pass-label');
-                    var eilatPassPrice = document.getElementById('eilat-pass-price');
-                    if (shouldShowEilatPass(origin, dest)) {
-                        eilatPassRow.classList.add('active');
-                        eilatPassPrice.classList.add('active');
-                    } else {
-                        eilatPassRow.classList.remove('active');
-                        eilatPassPrice.classList.remove('active');
-                    }
-
-                    // FEATURE 4: Student Extended Passes - Only show when semester/annual ticket type selected
-                    var studentPassesEl = document.getElementById('student-passes');
-                    var isStudent = (passengerType === 'student');
-                    var isSemesterTicket = (ticketType === 'semester');
-                    
-                    // Calculate student pass prices
-                    var semesterPrice = 0;
-                    var annualPrice = 0;
-                    var monthlyNationalPrice = result.monthlyNational.price;
-                    
-                    if (isStudent && result.monthlyNational.valid) {
-                        semesterPrice = Math.round(monthlyNationalPrice * 4 * 100) / 100;
-                        annualPrice = Math.round(monthlyNationalPrice * 8 * 100) / 100;
+                        peripheryFormGroup.style.display = 'none';
                         
-                        document.getElementById('price-semester').textContent = semesterPrice.toFixed(2);
-                        document.getElementById('price-annual').textContent = annualPrice.toFixed(2);
-                    }
-                    
-                    // Show student passes section only when semester/annual ticket type is selected
-                    if (isSemesterTicket && isStudent && result.monthlyNational.valid) {
-                        studentPassesEl.style.display = 'block';
-                        updateStudentPassCards('semester');
-                    } else {
-                        studentPassesEl.style.display = 'none';
-                    }
-
-                    // Update breakdown
-                    document.getElementById('r-origin').textContent = origin;
-                    document.getElementById('r-dest').textContent = dest;
-                    document.getElementById('r-distance').textContent = result.distance.toFixed(1) + ' ק"מ';
-
-
-                    // Determine the final selected price
-                    var finalPrice = 0;
-                    var typeLabel = '';
-                    var monthlyNationalPrice = result.monthlyNational.price;
-
-                    // Check if periphery profile is selected - apply 50% discount
-                    if (isPeripheryProfile) {
-                        finalPrice = 157.50;
-                        typeLabel = 'פריפריה גיאוגרפית (157.50 ₪)';
-                    } else if (ticketType === 'single') {
-                        finalPrice = result.single;
-                        typeLabel = 'נסיעה בודדת (' + result.zoneLabel + ')';
-                    } else if (ticketType === 'daily') {
-                        finalPrice = result.daily;
-                        typeLabel = 'חופשי יומי (' + result.zoneLabel + ')';
-                    } else if (ticketType === 'semester') {
-                        // Handle both semester and annual (selected via updateStudentPassCards)
-                        var selectedPass = getSelectedStudentPass();
-                        if (selectedPass === 'annual') {
-                            finalPrice = Math.round(monthlyNationalPrice * 8 * 100) / 100;
-                            typeLabel = 'מנוי חופשי שנתי (' + result.zoneLabel + ')';
-                        } else {
-                            finalPrice = Math.round(monthlyNationalPrice * 4 * 100) / 100;
-                            typeLabel = 'מנוי חופשי סמסטריאלי (' + result.zoneLabel + ')';
+                        // איפוס מוחלט של כל שדות הפריפריה וניקוי מצבי הסטטוס (Requirement 2)
+                        cityInputEl.value = '';
+                        streetInputEl.value = '';
+                        houseInputEl.value = '';
+                        
+                        streetGroupEl.style.display = 'none';
+                        houseGroupEl.style.display = 'none';
+                        
+                        currentCityData = null;
+                        
+                        updatePeripheryStatus('periphery-city-status', 'הזן עיר מגורים לאימות זכאות');
+                        updatePeripheryStatus('periphery-street-status', 'הזן רחוב מגורים לאימות זכאות');
+                        updatePeripheryStatus('periphery-house-status', 'הזן מספר בית להשלמת אימות הזכאות');
+                        
+                        // חישוב מחדש אוטומטי אם התוצאות כבר מוצגות (Requirement 2)
+                        const resultsSection = document.getElementById('results');
+                        if (resultsSection && resultsSection.classList.contains('active')) {
+                            calculateRoute();
                         }
-                    } else {
-                        finalPrice = result.monthlyNational.valid ? result.monthlyNational.price : 0;
-                        typeLabel = MONTHLY_CONTRACTS.national.name + ' (' + result.zoneLabel + ')';
                     }
+                });
+            });
 
-                    document.getElementById('r-type').textContent = typeLabel;
-                    document.getElementById('r-final').textContent = finalPrice.toFixed(2) + ' ₪';
+            // האזנה להזנת עיר
+            cityInputEl.addEventListener('input', async () => {
+                const selectedCity = cityInputEl.value.trim();
+                
+                // איפוס שדות
+                streetInputEl.value = '';
+                houseInputEl.value = '';
+                currentCityData = null;
 
-                    // Handle fallback notice
-                    var fallbackEl = document.getElementById('fallback');
-                    if (result.isFallback) {
-                        fallbackEl.style.display = 'block';
-                        fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' +
-                            FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
+                if (!eligibleCities.includes(selectedCity)) {
+                    if (selectedCity.length > 0) {
+                        updatePeripheryStatus('periphery-city-status', '❌ יישוב זה אינו נמצא ברשימת היישובים הזכאים', 'danger');
                     } else {
-                        fallbackEl.style.display = 'none';
+                        updatePeripheryStatus('periphery-city-status', 'הזן עיר מגורים לאימות זכאות');
                     }
-
-                    // FEATURE 1: Show WhatsApp Share Button
-                    document.getElementById('whatsapp-share-btn').style.display = 'flex';
-
-                    // FEATURE 2: Save to recent searches
-                    saveRecentSearch(origin, dest);
-
-                } catch (e) {
-                    // Error fallback
-                    document.getElementById('price-single').textContent =
-                        FARE_RULES.lightblue.single.toFixed(2);
-                    document.getElementById('price-daily').textContent =
-                        FARE_RULES.lightblue.daily.toFixed(2);
-                    document.getElementById('price-monthly-national').textContent =
-                        MONTHLY_CONTRACTS.national.base.toFixed(2);
-                    document.getElementById('price-monthly-train').textContent =
-                        MONTHLY_CONTRACTS.nationalTrain.base.toFixed(2);
-                    document.getElementById('price-monthly-periphery').textContent = 'שגיאה';
-                    document.getElementById('price-monthly-eilat').textContent = 'שגיאה';
-                    document.getElementById('r-final').textContent =
-                        FARE_RULES.lightblue.single.toFixed(2) + ' ₪';
-                    document.getElementById('fallback').style.display = 'block';
-                    document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
-                        FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
+                    return;
                 }
 
-                btn.disabled = false;
-                btn.textContent = '🔍 חשב תעריף';
-                document.getElementById('results').classList.add('active');
-            }, 50);
+                // טעינת שארד העיר (Lazy Fetch)
+                if (streetLoadingEl) streetLoadingEl.style.display = 'inline-flex';
+                updatePeripheryStatus('periphery-city-status', '⏳ טוען נתוני יישוב...', 'info');
+
+                try {
+                    const normalizedFilename = normalizeCityName(selectedCity);
+                    const response = await fetch(`./data/periphery/city_${normalizedFilename}.json`);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    currentCityData = await response.json();
+                    const streets = currentCityData.s || {};
+                    const streetList = Object.keys(streets);
+
+                    if (streetList.length === 0) {
+                        // היישוב כולו זכאי (Requirement 1)
+                        updatePeripheryStatus('periphery-city-status', '✅ היישוב כולו זכאי להנחת פריפריה!', 'success');
+                    } else {
+                        // נדרשת בחירת רחוב ומספר בית (Requirement 1)
+                        updatePeripheryStatus('periphery-city-status', '🔍 נא לבחור רחוב ומספר בית לאימות זכאות', 'warning');
+                        
+                        // הצגת שדה הרחוב
+                        streetGroupEl.style.display = 'block';
+                        updatePeripheryStatus('periphery-street-status', 'הזן רחוב מגורים לאימות זכאות');
+
+                        // מילוי ה-Datalist של הרחובות
+                        const streetsDatalist = document.getElementById('periphery-streets-list');
+                        if (streetsDatalist) {
+                            streetsDatalist.innerHTML = '';
+                            streetList.forEach(street => {
+                                const option = document.createElement('option');
+                                option.value = street;
+                                streetsDatalist.appendChild(option);
+                            });
+                        }
+                    }
+
+                    // חישוב מחדש אוטומטי אם תוצאות מוצגות
+                    const resultsSection = document.getElementById('results');
+                    if (resultsSection && resultsSection.classList.contains('active')) {
+                        calculateRoute();
+                    }
+                } catch (err) {
+                    log(`⚠️ שגיאה בטעינת נתוני העיר ${selectedCity}: ${err.message}`, 'warn');
+                    updatePeripheryStatus('periphery-city-status', '⚠️ שגיאה בטעינת הרחובות, אך תוכל להמשיך בחישוב (הנחה תאושר כברירת מחדל)', 'warning');
+                    // Fallback בטוח: נניח שאין מגבלת רחובות
+                    currentCityData = { c: selectedCity, s: {} };
+                    
+                    const resultsSection = document.getElementById('results');
+                    if (resultsSection && resultsSection.classList.contains('active')) {
+                        calculateRoute();
+                    }
+                } finally {
+                    if (streetLoadingEl) streetLoadingEl.style.display = 'none';
+                }
+            });
+
+            // האזנה להזנת רחוב
+            streetInputEl.addEventListener('input', () => {
+                const selectedStreet = streetInputEl.value.trim();
+                houseInputEl.value = '';
+
+                if (!currentCityData || !currentCityData.s) return;
+
+                const streets = currentCityData.s;
+                if (streets[selectedStreet] === undefined) {
+                    if (selectedStreet.length > 0) {
+                        updatePeripheryStatus('periphery-street-status', '❌ רחוב זה אינו מוכר ביישוב הנבחר', 'danger');
+                    } else {
+                        updatePeripheryStatus('periphery-street-status', 'הזן רחוב מגורים לאימות זכאות');
+                    }
+                    return;
+                }
+
+                const rule = streets[selectedStreet];
+                if (rule === 'all') {
+                    // הרחוב כולו זכאי (Requirement 1)
+                    updatePeripheryStatus('periphery-street-status', '✅ הכתובת זכאית להנחה!', 'success');
+                    
+                    // חישוב מחדש אוטומטי
+                    const resultsSection = document.getElementById('results');
+                    if (resultsSection && resultsSection.classList.contains('active')) {
+                        calculateRoute();
+                    }
+                } else {
+                    // דורש מספר בית
+                    updatePeripheryStatus('periphery-street-status', '🔍 נא לבחור מספר בית לאימות זכאות', 'warning');
+                    
+                    // הצגת מספר הבית
+                    houseGroupEl.style.display = 'block';
+                    updatePeripheryStatus('periphery-house-status', 'הזן מספר בית להשלמת אימות הזכאות');
+                }
+            });
+
+            // האזנה להזנת מספר בית
+            const checkHouseLive = () => {
+                const selectedStreet = streetInputEl.value.trim();
+                const houseNumRaw = houseInputEl.value.trim();
+                
+                if (!currentCityData || !currentCityData.s || !selectedStreet) return;
+                
+                const rule = currentCityData.s[selectedStreet];
+                if (!rule || rule === 'all') return;
+
+                const houseNum = houseNumRaw.replace(/\D/g, ''); // ניקוי (Requirement 2)
+                if (!houseNum) {
+                    updatePeripheryStatus('periphery-house-status', '✍️ נא להקליד מספר בית', 'warning');
+                    return;
+                }
+
+                const isEligible = checkHouseEligibility(houseNum, rule);
+                if (isEligible) {
+                    // הכתובת זכאית (Requirement 1)
+                    updatePeripheryStatus('periphery-house-status', '✅ הכתובת זכאית להנחה!', 'success');
+                } else {
+                    // הכתובת אינה זכאית (Requirement 1)
+                    updatePeripheryStatus('periphery-house-status', '❌ כתובת זו אינה זכאית להנחת פריפריה', 'danger');
+                }
+
+                // חישוב מחדש אוטומטי
+                const resultsSection = document.getElementById('results');
+                if (resultsSection && resultsSection.classList.contains('active')) {
+                    calculateRoute();
+                }
+            };
+
+            houseInputEl.addEventListener('input', checkHouseLive);
         }
 
-        btn.onclick = calculateFareAndDisplay;
+        // ============================================================
+        // פונקציית החישוב הראשית
+        // ============================================================
+        async function calculateRoute() {
+            const origin = document.getElementById('origin').value.trim();
+            const dest = document.getElementById('dest').value.trim();
+            const passenger = document.querySelector('input[name="passenger"]:checked').value;
+
+            // בדיקת תקינות קלט
+            if (!origin) {
+                showError('יש להזין מוצא');
+                return;
+            }
+            if (!dest) {
+                showError('יש להזין יעד');
+                return;
+            }
+
+            // איפוס תצוגה
+            hideError();
+            setLoading(true);
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('fallback-notice').style.display = 'none';
+            document.getElementById('distance-info').style.display = 'none';
+
+            log('', 'info');
+            log('═══════════════════════════════════════', 'info');
+            log(`🚌 חישוב מסלול: ${origin} → ${dest}`, 'info');
+            log(`👤 פרופיל נוסע: ${PROFILE_NAMES[passenger]}`, 'info');
+            log('═══════════════════════════════════════', 'info');
+
+            let baseFare = null;
+            let distanceKm = null;
+            let matchedRoute = '';
+            let fallbackReason = '';
+
+            try {
+                // שלב 1: ניסיון לשלוף תעריף מיוחד (טבריה/נהריה)
+                const specialFare = findSpecialFare(origin, dest);
+                if (specialFare) {
+                    baseFare = specialFare.fare;
+                    fallbackReason = specialFare.reason;
+                    log(`💰 נעשה שימוש בתעריף מיוחד: ${baseFare} ₪ (${specialFare.reason})`, 'success');
+                }
+
+                // שלב 2: אם אין תעריף מיוחד, נסה API ממשלתי
+                if (baseFare === null) {
+                    const govResult = await fetchGovApiFare(origin, dest);
+                    if (govResult) {
+                        baseFare = govResult.fare;
+                    }
+                }
+
+                // שלב 3: אם ה-API נכשל, נסה מטריצה מקומית
+                if (baseFare === null) {
+                    const matrixResult = findFallbackFare(origin, dest);
+                    if (matrixResult) {
+                        baseFare = matrixResult.fare;
+                        matchedRoute = matrixResult.matchedRoute;
+                        fallbackReason = 'ה-API הממשלתי לא הגיב - שימוש במטריצה מקומית';
+                    }
+                }
+
+                // שלב 4: אם אין התאמה במטריצה, חשב לפי מרחק
+                if (baseFare === null) {
+                    log(`📍 מחשב מרחק בין הנקודות...`, 'info');
+                    
+                    const originGeo = await getCoords(origin);
+                    const destGeo = await getCoords(dest);
+                    
+                    if (originGeo && destGeo) {
+                        // חישוב מרחק אווירי
+                        const aerialDistance = calculateHaversineDistance(
+                            originGeo.lat, originGeo.lon,
+                            destGeo.lat, destGeo.lon
+                        );
+                        
+                        // המרה למרחק כביש משוער (כביש ארוך בערך 1.35x מהמרחק האווירי)
+                        const ROAD_MULTIPLIER = 1.35;
+                        distanceKm = Math.round(aerialDistance * ROAD_MULTIPLIER);
+                        
+                        // בדיקה אם זו נסיעה קצרה/עירונית (עד ~22 ק"מ אווירי = ~30 ק"מ כביש)
+                        if (distanceKm <= 22 || normalizeText(origin) === normalizeText(dest)) {
+                            baseFare = 8.00;
+                            fallbackReason = 'נסיעה עירונית/קצרה - תעריף קבוע 8.00 ₪';
+                        } else {
+                            const distanceResult = calculateFareByDistance(distanceKm);
+                            baseFare = distanceResult.fare;
+                            fallbackReason = `חישוב לפי מרחק (~${distanceKm} ק"מ כביש) - ${distanceResult.label}`;
+                        }
+                    } else {
+                        // אם לא ניתן לחשב מרחק, השתמש בערך ברירת מחדל של ה-Fallback (8.00 ₪)
+                        baseFare = 8.00;
+                        fallbackReason = 'לא ניתן לחשב מרחק - שימוש בתעריף בסיס (Fallback)';
+                    }
+                }
+
+                // הכנת תוצאות
+                // ההנחות הן על ערך צבור ו/או חופשי יומי, לא על נסיעה בודדת
+                const multiplier = getDiscountMultiplier(passenger).multiplier;
+                let finalPrice = baseFare; // נסיעה בודדת - תמיד מחיר מלא
+                let monthlyPrice, monthlyDiscountText;
+                let isPeripheryEligible = false;
+                
+                if (passenger === 'periphery') {
+                    // 1. משך את עיר המוצא האמיתית מתוך שדה הנסיעה הראשי
+                    const originCity = document.getElementById('origin').value.trim();
+                    
+                    // 2. משך את העיר שהמשתמש הקליד ואומתה בטופס הפריפריה הדינמי
+                    const validatedCity = document.getElementById('periphery-city').value.trim();
+
+                    // 3. אימות כפול: הנחה תאושר רק אם עיר המוצא של הנסיעה היא בדיוק העיר שאומתה כזכאית
+                    if (originCity && validatedCity && normalizeText(originCity) === normalizeText(validatedCity)) {
+                        isPeripheryEligible = checkPeripheryEligibility();
+                    } else {
+                        isPeripheryEligible = false;
+                        log(`❌ הנחת פריפריה נדחתה: עיר המוצא של הנסיעה (${originCity}) אינה תואמת לעיר הפריפריה המאומתת (${validatedCity})`, 'warn');
+                    }
+                }
+
+                if (multiplier === 0) {
+                    monthlyPrice = 0;
+                    monthlyDiscountText = '<span class="free-badge">חינם!</span>';
+                } else {
+                    // סטודנט מורחב: 50% הנחה על ערך צבור וחופשי יומי
+                    // סטודנט רגיל: 33% הנחה על ערך צבור בלבד
+                    if (passenger === 'student') {
+                        monthlyPrice = null; // אין הנחה על חופשי חודשי לסטודנט רגיל
+                        monthlyDiscountText = '33% הנחה על ערך צבור בלבד';
+                    } else if (passenger === 'student_plus') {
+                        monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה על חופשי חודשי
+                        monthlyDiscountText = '50% הנחה על ערך צבור וחופשי יומי';
+                    } else if (passenger === 'young_monthly') {
+                        monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה על חופשי חודשי
+                        monthlyDiscountText = '50% הנחה על חופשי חודשי';
+                    } else if (passenger === 'senior') {
+                        monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה
+                        monthlyDiscountText = '50% הנחה על ערך צבור';
+                    } else if (passenger === 'periphery') {
+                        if (isPeripheryEligible) {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100; // 50% הנחה
+                            monthlyDiscountText = '50% הנחת פריפריה גיאוגרפית (צדק תחבורתי)';
+                        } else {
+                            monthlyPrice = 315.00;
+                            monthlyDiscountText = 'לא זכאי להנחת פריפריה (הוזנה כתובת לא זכאית)';
+                        }
+                    } else {
+                        monthlyPrice = Math.round(315.00 * multiplier * 100) / 100;
+                        monthlyDiscountText = `${Math.round((1 - multiplier) * 100)}% הנחה`;
+                    }
+                }
+
+                // עדכון התצוגה
+                document.getElementById('final-price').textContent = finalPrice.toFixed(2);
+                document.getElementById('breakdown-origin').textContent = origin;
+                document.getElementById('breakdown-dest').textContent = dest;
+                
+                if (distanceKm !== null) {
+                    document.getElementById('breakdown-distance').textContent = `${distanceKm.toFixed(2)} ק"מ`;
+                } else if (matchedRoute) {
+                    document.getElementById('breakdown-distance').textContent = matchedRoute;
+                } else {
+                    document.getElementById('breakdown-distance').textContent = fallbackReason.split(' - ')[1] || '-';
+                }
+                
+                document.getElementById('breakdown-base').textContent = `${baseFare.toFixed(2)} ₪`;
+                
+                // הנחה
+                if (multiplier === 0) {
+                    document.getElementById('breakdown-discount').innerHTML = '<span class="free-badge">חינם!</span>';
+                } else if (multiplier === 1) {
+                    if (passenger === 'periphery') {
+                        if (isPeripheryEligible) {
+                            document.getElementById('breakdown-discount').textContent = 'זכאי להנחת פריפריה (50% על חופשי חודשי בלבד)';
+                        } else {
+                            document.getElementById('breakdown-discount').textContent = 'לא זכאי להנחת פריפריה (הוזנה כתובת לא זכאית)';
+                        }
+                    } else {
+                        document.getElementById('breakdown-discount').textContent = 'ללא הנחה';
+                    }
+                } else if (passenger === 'student_plus') {
+                    document.getElementById('breakdown-discount').textContent = '50% הנחה על ערך צבור וחופשי יומי';
+                } else if (passenger === 'student') {
+                    document.getElementById('breakdown-discount').textContent = '33% הנחה על ערך צבור בלבד';
+                } else {
+                    const discountPercent = Math.round((1 - multiplier) * 100);
+                    document.getElementById('breakdown-discount').textContent = `${discountPercent}% הנחה (${PROFILE_NAMES[passenger]})`;
+                }
+                
+                document.getElementById('breakdown-final').textContent = `${finalPrice.toFixed(2)} ₪`;
+                
+                // עדכון מחיר חופשי חודשי
+                const monthlyCard = document.querySelector('.monthly-card');
+                const monthlyEl = document.getElementById('monthly-price');
+                const monthlyNoteEl = document.getElementById('monthly-note');
+                if (monthlyCard) {
+                    if (monthlyPrice === null || passenger === 'student') {
+                        monthlyCard.style.display = 'none'; // סטודנט רגיל: אין הנחה על חופשי חודשי
+                    } else {
+                        monthlyCard.style.display = 'block';
+                        monthlyEl.textContent = `${monthlyPrice.toFixed(2)} ₪`;
+                        monthlyNoteEl.innerHTML = monthlyDiscountText;
+                    }
+                }
+
+                // הודעת Fallback
+                if (fallbackReason) {
+                    document.getElementById('fallback-reason').textContent = fallbackReason;
+                    document.getElementById('fallback-notice').style.display = 'block';
+                }
+
+                // מידע על המסלול
+                if (distanceKm !== null) {
+                    document.getElementById('distance-info-text').textContent = 
+                        `מרחק אווירי: ${distanceKm.toFixed(2)} ק"מ`;
+                    document.getElementById('distance-info').style.display = 'block';
+                }
+
+                setLoading(false);
+                showResults();
+
+            } catch (error) {
+                log(`⚠️ שגיאה בחישוב המסלול: ${error.message}. מעבר אוטומטי ל-Fallback.`, 'warn');
+                
+                // הגדרת ערכי Fallback חלק במקרה של שגיאה או כשל של API/Config
+                baseFare = 8.00;
+                fallbackReason = 'שגיאה בחישוב המסלול - מעבר אוטומטי לתעריף בסיס (8.00 ₪)';
+                
+                try {
+                    const multiplier = (typeof getDiscountMultiplier === 'function') 
+                        ? getDiscountMultiplier(passenger).multiplier 
+                        : 1.0;
+                    
+                    let finalPrice = baseFare; // נסיעה בודדת - תמיד מחיר מלא
+                    let monthlyPrice = null;
+                    let monthlyDiscountText = '';
+                    let isPeripheryEligible = false;
+                    
+                    if (passenger === 'periphery') {
+                        // 1. משך את עיר המוצא האמיתית מתוך שדה הנסיעה הראשי
+                        const originCity = document.getElementById('origin').value.trim();
+                        
+                        // 2. משך את העיר שהמשתמש הקליד ואומתה בטופס הפריפריה הדינמי
+                        const validatedCity = document.getElementById('periphery-city').value.trim();
+
+                        // 3. אימות כפול: הנחה תאושר רק אם עיר המוצא של הנסיעה היא בדיוק העיר שאומתה כזכאית
+                        if (originCity && validatedCity && normalizeText(originCity) === normalizeText(validatedCity)) {
+                            isPeripheryEligible = checkPeripheryEligibility();
+                        } else {
+                            isPeripheryEligible = false;
+                            log(`❌ הנחת פריפריה נדחתה: עיר המוצא של הנסיעה (${originCity}) אינה תואמת לעיר הפריפריה המאומתת (${validatedCity})`, 'warn');
+                        }
+                    }
+                    
+                    if (multiplier === 0) {
+                        monthlyPrice = 0;
+                        monthlyDiscountText = '<span class="free-badge">חינם!</span>';
+                    } else {
+                        if (passenger === 'student') {
+                            monthlyPrice = null;
+                            monthlyDiscountText = '33% הנחה על ערך צבור בלבד';
+                        } else if (passenger === 'student_plus') {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                            monthlyDiscountText = '50% הנחה על ערך צבור וחופשי יומי';
+                        } else if (passenger === 'young_monthly') {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                            monthlyDiscountText = '50% הנחה על חופשי חודשי';
+                        } else if (passenger === 'senior') {
+                            monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                            monthlyDiscountText = '50% הנחה על ערך צבור';
+                        } else if (passenger === 'periphery') {
+                            if (isPeripheryEligible) {
+                                monthlyPrice = Math.round(315.00 * 0.5 * 100) / 100;
+                                monthlyDiscountText = '50% הנחת פריפריה גיאוגרפית (צדק תחבורתי)';
+                            } else {
+                                monthlyPrice = 315.00;
+                                monthlyDiscountText = 'לא זכאי להנחת פריפריה (הוזנה כתובת לא זכאית)';
+                            }
+                        } else {
+                            monthlyPrice = Math.round(315.00 * multiplier * 100) / 100;
+                            monthlyDiscountText = `${Math.round((1 - multiplier) * 100)}% הנחה`;
+                        }
+                    }
+
+                    // עדכון התצוגה
+                    const finalPriceEl = document.getElementById('final-price');
+                    if (finalPriceEl) finalPriceEl.textContent = finalPrice.toFixed(2);
+                    
+                    const breakdownOriginEl = document.getElementById('breakdown-origin');
+                    if (breakdownOriginEl) breakdownOriginEl.textContent = origin || 'לא ידוע';
+                    
+                    const breakdownDestEl = document.getElementById('breakdown-dest');
+                    if (breakdownDestEl) breakdownDestEl.textContent = dest || 'לא ידוע';
+                    
+                    const breakdownDistanceEl = document.getElementById('breakdown-distance');
+                    if (breakdownDistanceEl) breakdownDistanceEl.textContent = 'שגיאה בחישוב';
+                    
+                    const breakdownBaseEl = document.getElementById('breakdown-base');
+                    if (breakdownBaseEl) breakdownBaseEl.textContent = `${baseFare.toFixed(2)} ₪`;
+                    
+                    const breakdownDiscountEl = document.getElementById('breakdown-discount');
+                    if (breakdownDiscountEl) {
+                        if (multiplier === 0) {
+                            breakdownDiscountEl.innerHTML = '<span class="free-badge">חינם!</span>';
+                        } else if (multiplier === 1) {
+                            if (passenger === 'periphery') {
+                                if (isPeripheryEligible) {
+                                    breakdownDiscountEl.textContent = 'זכאי להנחה (50% על חופשי חודשי בלבד)';
+                                } else {
+                                    breakdownDiscountEl.textContent = 'לא זכאי להנחה (הוזנה כתובת לא זכאית)';
+                                }
+                            } else {
+                                breakdownDiscountEl.textContent = 'ללא הנחה';
+                            }
+                        } else if (passenger === 'student_plus') {
+                            breakdownDiscountEl.textContent = '50% הנחה על ערך צבור וחופשי יומי';
+                        } else if (passenger === 'student') {
+                            breakdownDiscountEl.textContent = '33% הנחה על ערך צבור בלבד';
+                        } else {
+                            const discountPercent = Math.round((1 - multiplier) * 100);
+                            const profileName = (typeof PROFILE_NAMES !== 'undefined' && PROFILE_NAMES[passenger]) ? PROFILE_NAMES[passenger] : passenger;
+                            breakdownDiscountEl.textContent = `${discountPercent}% הנחה (${profileName})`;
+                        }
+                    }
+                    
+                    const breakdownFinalEl = document.getElementById('breakdown-final');
+                    if (breakdownFinalEl) breakdownFinalEl.textContent = `${finalPrice.toFixed(2)} ₪`;
+                    
+                    const monthlyCard = document.querySelector('.monthly-card');
+                    const monthlyEl = document.getElementById('monthly-price');
+                    const monthlyNoteEl = document.getElementById('monthly-note');
+                    if (monthlyCard) {
+                        if (monthlyPrice === null || passenger === 'student') {
+                            monthlyCard.style.display = 'none';
+                        } else {
+                            monthlyCard.style.display = 'block';
+                            if (monthlyEl) monthlyEl.textContent = `${monthlyPrice.toFixed(2)} ₪`;
+                            if (monthlyNoteEl) monthlyNoteEl.innerHTML = monthlyDiscountText;
+                        }
+                    }
+
+                    const fallbackReasonEl = document.getElementById('fallback-reason');
+                    const fallbackNoticeEl = document.getElementById('fallback-notice');
+                    if (fallbackReasonEl && fallbackNoticeEl) {
+                        fallbackReasonEl.textContent = fallbackReason;
+                        fallbackNoticeEl.style.display = 'block';
+                    }
+
+                    setLoading(false);
+                    showResults();
+                } catch (fallbackError) {
+                    log(`❌ שגיאה משנית ב-Fallback: ${fallbackError.message}`, 'error');
+                    setLoading(false);
+                    try {
+                        const finalPriceEl = document.getElementById('final-price');
+                        if (finalPriceEl) finalPriceEl.textContent = "8.00";
+                        const breakdownFinalEl = document.getElementById('breakdown-final');
+                        if (breakdownFinalEl) breakdownFinalEl.textContent = "8.00 ₪";
+                        showResults();
+                    } catch (e) {
+                        log(`❌ שגיאה חמורה ביותר: ${e.message}`, 'error');
+                    }
+                }
+            }
+        }
+
+        // פונקציות עזר לתצוגה
+        function setLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+            document.querySelector('.form-section').style.display = show ? 'none' : 'block';
+        }
+
+        // showError
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            document.getElementById('error-text').textContent = message;
+            errorDiv.classList.add('active');
+            document.querySelector('.form-section').style.display = 'none';
+            log(`❌ שגיאה: ${message}`, 'error');
+        }
+
+        // hideError
+        function hideError() {
+            document.getElementById('error-message').classList.remove('active');
+        }
+
+        // showResults
+        function showResults() {
+            document.getElementById('results').classList.add('active');
+        }
+
+        // תמיכה במקש Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateRoute();
+            }
+        });
+
+        // הודעת התחלה
+        log('✅ מחשבון תעריפי תחבורה ציבורית נטען בהצלחה!', 'success');
+        log('📅 טוען תצורת תעריפים...', 'info');
+        
+        // טעינת תצורה דינמית
+        loadDynamicConfig();
+
+        // אתחול מאזיני אירועים לפריפריה
+        initPeripheryEventListeners();
+        
+        // טעינת אינדקס פריפריה על דף הבית (Phase 1: On Page Load)
+        initPeriphery();
+        
+        log('📍 הזן מוצא ויעד כדי להתחיל', 'info');
     </script>
 </body>
 </html>
