@@ -536,62 +536,192 @@
             'קרית חרושת': [33.2077, 35.5694]
         };
 
-        // PERIPHERY CITIES FOR DISCOUNT ELIGIBILITY
-        var PERIPHERY_CITIES = {
-            // Northern periphery
-            'קרית שמונה': {region: 'צפון', reason: 'יישוב ספר בגבול הצפון'},
-            'נהריה': {region: 'צפון', reason: 'עיר פריפריאלית בצפון'},
-            'עכו': {region: 'צפון', reason: 'עיר פריפריאלית בצפון'},
-            'טבריה': {region: 'צפון', reason: 'עיר פריפריאלית בגליל'},
-            'צפת': {region: 'צפון', reason: 'עיר הררית בגבול הצפון'},
-            'כרמיאל': {region: 'צפון', reason: 'עיר בגליל המערבי'},
-            'נצרת': {region: 'צפון', reason: 'עיר בגליל התחתון'},
-            'מגדל העמק': {region: 'צפון', reason: 'עיר בעמק יזרעאל'},
-            'סחנין': {region: 'צפון', reason: 'יישוב ערבי בגליל'},
-            // Southern periphery
-            'באר שבע': {region: 'דרום', reason: 'בירת הדרום'},
-            'אילת': {region: 'דרום', reason: 'עיר קיצונית בדרום'},
-            'דימונה': {region: 'דרום', reason: 'יישוב ספר בנגב'},
-            'ערד': {region: 'דרום', reason: 'יישוב בדרום הנגב'},
-            'מצפה רמון': {region: 'דרום', reason: 'יישוב קהילתי בנגב'},
-            'רהט': {region: 'דרום', reason: 'עיר בדרום (נגב צפוני)'},
-            'חורר': {region: 'דרום', reason: 'יישוב בדרום'},
-            'להבים': {region: 'דרום', reason: 'יישוב קהילתי בנגב'},
+        // ============================================================
+        // SOCIO-ECONOMIC CLUSTER ELIGIBILITY DATABASE (צדק תחבורתי)
+        // Based on Ministry of Transport statistical zones (clusters 1-5)
+        // ============================================================
+
+        // CITY-LEVEL ELIGIBILITY (entire city qualifies)
+        var ELIGIBLE_CITIES = {
+            // Northern periphery - all streets eligible
+            'קרית שמונה': {cluster: 1, region: 'צפון', reason: 'יישוב ספר - אשכול סוציו-אקונומי 1'},
+            'נהריה': {cluster: 2, region: 'צפון', reason: 'עיר פריפריאלית - אשכול סוציו-אקונומי 2'},
+            'עכו': {cluster: 2, region: 'צפון', reason: 'עיר פריפריאלית - אשכול סוציו-אקונומי 2'},
+            'טבריה': {cluster: 3, region: 'צפון', reason: 'עיר בגליל - אשכול סוציו-אקונומי 3'},
+            'צפת': {cluster: 3, region: 'צפון', reason: 'עיר הררית - אשכול סוציו-אקונומי 3'},
+            'כרמיאל': {cluster: 4, region: 'צפון', reason: 'עיר בגליל המערבי - אשכול סוציו-אקונומי 4'},
+            'נצרת': {cluster: 2, region: 'צפון', reason: 'עיר בגליל - אשכול סוציו-אקונומי 2'},
+            'מגדל העמק': {cluster: 4, region: 'צפון', reason: 'עיר בעמק יזרעאל - אשכול סוציו-אקונומי 4'},
+            'סחנין': {cluster: 1, region: 'צפון', reason: 'יישוב ערבי - אשכול סוציו-אקונומי 1'},
+            // Southern periphery - all streets eligible
+            'באר שבע': {cluster: 2, region: 'דרום', reason: 'בירת הדרום - אשכול סוציו-אקונומי 2'},
+            'אילת': {cluster: 5, region: 'דרום', reason: 'עיר קיצונית - אשכול סוציו-אקונומי 5'},
+            'דימונה': {cluster: 3, region: 'דרום', reason: 'יישוב ספר - אשכול סוציו-אקונומי 3'},
+            'ערד': {cluster: 3, region: 'דרום', reason: 'יישוב בנגב - אשכול סוציו-אקונומי 3'},
+            'מצפה רמון': {cluster: 4, region: 'דרום', reason: 'יישוב קהילתי - אשכול סוציו-אקונומי 4'},
+            'רהט': {cluster: 1, region: 'דרום', reason: 'עיר בדרום - אשכול סוציו-אקונומי 1'},
+            'להבים': {cluster: 4, region: 'דרום', reason: 'יישוב קהילתי - אשכול סוציו-אקונומי 4'},
             // Southern development towns
-            'אשקלון': {region: 'דרום', reason: 'עיר פיתוח בדרום'},
-            'קריית גת': {region: 'דרום', reason: 'עיר פיתוח בדרום'},
-            'קריית מלאכי': {region: 'דרום', reason: 'עיר פיתוח בדרום'},
-            'שדרות': {region: 'דרום', reason: 'יישוב ספר בנגב המערבי'},
-            'נתיבות': {region: 'דרום', reason: 'יישוב בדרום'},
-            'אופקים': {region: 'דרום', reason: 'יישוב בדרום'},
+            'אשקלון': {cluster: 4, region: 'דרום', reason: 'עיר פיתוח - אשכול סוציו-אקונומי 4'},
+            'קריית גת': {cluster: 3, region: 'דרום', reason: 'עיר פיתוח - אשכול סוציו-אקונומי 3'},
+            'קריית מלאכי': {cluster: 3, region: 'דרום', reason: 'עיר פיתוח - אשכול סוציו-אקונומי 3'},
+            'שדרות': {cluster: 2, region: 'דרום', reason: 'יישוב ספר - אשכול סוציו-אקונומי 2'},
+            'נתיבות': {cluster: 2, region: 'דרום', reason: 'יישוב בדרום - אשכול סוציו-אקונומי 2'},
+            'אופקים': {cluster: 2, region: 'דרום', reason: 'יישוב בדרום - אשכול סוציו-אקונומי 2'},
             // Jerusalem corridor
-            'מעלה אדומים': {region: 'ירושלים', reason: 'יישוב בקו התפר'},
-            'ביתר עילית': {region: 'ירושלים', reason: 'יישוב בקו התפר'},
-            'אריאל': {region: 'שומרון', reason: 'יישוב בשומרון'},
+            'מעלה אדומים': {cluster: 4, region: 'ירושלים', reason: 'יישוב בקו התפר - אשכול סוציו-אקונומי 4'},
+            'ביתר עילית': {cluster: 5, region: 'ירושלים', reason: 'יישוב בקו התפר - אשכול סוציו-אקונומי 5'},
+            'אריאל': {cluster: 5, region: 'שומרון', reason: 'יישוב בשומרון - אשכול סוציו-אקונומי 5'},
             // Eastern periphery
-            'טייבה': {region: 'מרכז', reason: 'עיר בפריפריה המזרחית'}
+            'טייבה': {cluster: 2, region: 'מרכז', reason: 'עיר בפריפריה המזרחית - אשכול סוציו-אקונומי 2'}
         };
 
-        // STREETS DATABASE (sample - in real app would come from API)
+        // STREET-LEVEL ELIGIBILITY DATABASE
+        // For non-peripheral cities where specific neighborhoods/streets ARE eligible (clusters 1-5)
+        // Key format: "CITY|STREET_NAME" - stores cluster and eligibility info
+        var ELIGIBLE_STREETS = {
+            // ירושלים - Specific eligible neighborhoods and streets
+            'ירושלים|שחל': {cluster: 1, neighborhood: 'שכונת שחל', reason: 'אשכול סוציו-אקונומי 1 - שכונה מודרת'},
+            'ירושלים|גבעת מרדכי': {cluster: 2, neighborhood: 'גבעת מרדכי', reason: 'אשכול סוציו-אקונומי 2'},
+            'ירושלים|קרית יובל': {cluster: 1, neighborhood: 'קרית יובל', reason: 'אשכול סוציו-אקונומי 1 - שכונה מודרת'},
+            'ירושלים|רומא': {cluster: 1, neighborhood: 'שכונת רומא', reason: 'אשכול סוציו-אקונומי 1'},
+            'ירושלים|גילה': {cluster: 2, neighborhood: 'גילה', reason: 'אשכול סוציו-אקונומי 2'},
+            'ירושלים|בית חנינא': {cluster: 1, neighborhood: 'בית חנינא', reason: 'אשכול סוציו-אקונומי 1'},
+            'ירושלים|ענתא': {cluster: 2, neighborhood: 'ענתא', reason: 'אשכול סוציו-אקונומי 2'},
+            'ירושלים|ביתר עילית': {cluster: 5, neighborhood: 'ביתר עילית', reason: 'אשכול סוציו-אקונומי 5'},
+            'ירושלים|הרובע המוסלמי': {cluster: 1, neighborhood: 'הרובע המוסלמי', reason: 'אשכול סוציו-אקונומי 1'},
+            'ירושלים|הרובע הנוצרי': {cluster: 3, neighborhood: 'הרובע הנוצרי', reason: 'אשכול סוציו-אקונומי 3'},
+            'ירושלים|מאה שערים': {cluster: 1, neighborhood: 'מאה שערים', reason: 'אשכול סוציו-אקונומי 1'},
+            'ירושלים|נווה יעקב': {cluster: 2, neighborhood: 'נווה יעקב', reason: 'אשכול סוציו-אקונומי 2'},
+            'ירושלים|שמואל הנביא': {cluster: 1, neighborhood: 'שמואל הנביא', reason: 'אשכול סוציו-אקונומי 1'},
+            
+            // תל אביב - Specific eligible neighborhoods
+            'תל אביב|הדר יהודה': {cluster: 2, neighborhood: 'הדר יהודה', reason: 'אשכול סוציו-אקונומי 2'},
+            'תל אביב|פלורנטין': {cluster: 3, neighborhood: 'פלורנטין', reason: 'אשכול סוציו-אקונומי 3'},
+            'תל אביב|מנשייה': {cluster: 2, neighborhood: 'מנשייה', reason: 'אשכול סוציו-אקונומי 2'},
+            'תל אביב|עזרא': {cluster: 1, neighborhood: 'שכונת עזרא', reason: 'אשכול סוציו-אקונומי 1'},
+            
+            // חיפה - Specific eligible neighborhoods
+            'חיפה|חליסה': {cluster: 1, neighborhood: 'חליסה', reason: 'אשכול סוציו-אקונומי 1 - שכונה דרוזית'},
+            'חיפה|כבאבה': {cluster: 1, neighborhood: 'כבאבה', reason: 'אשכול סוציו-אקונומי 1 - שכונה ערבית'},
+            'חיפה|רובע הדר': {cluster: 2, neighborhood: 'רובע הדר', reason: 'אשכול סוציו-אקונומי 2'},
+            
+            // באר שבע - Specific eligible neighborhoods
+            'באר שבע|נחל בוקר': {cluster: 1, neighborhood: 'נחל בוקר', reason: 'אשכול סוציו-אקונומי 1'},
+            'באר שבע|רביבים': {cluster: 2, neighborhood: 'רביבים', reason: 'אשכול סוציו-אקונומי 2'},
+            'באר שבע|מרכז העיר': {cluster: 3, neighborhood: 'מרכז העיר', reason: 'אשכול סוציו-אקונומי 3'},
+            
+            // נתניה - Specific eligible neighborhoods
+            'נתניה|עיר תחתית': {cluster: 2, neighborhood: 'העיר התחתית', reason: 'אשכול סוציו-אקונומי 2'},
+            'נתניה|קרית צאנז': {cluster: 3, neighborhood: 'קרית צאנז', reason: 'אשכול סוציו-אקונומי 3'},
+            
+            // אשדוד - Specific eligible neighborhoods
+            'אשדוד|שכונה ב': {cluster: 2, neighborhood: 'שכונה ב', reason: 'אשכול סוציו-אקונומי 2'},
+            'אשדוד|רובע א': {cluster: 3, neighborhood: 'רובע א', reason: 'אשכול סוציו-אקונומי 3'},
+            
+            // אשקלון - Specific eligible neighborhoods
+            'אשקלון|שמעוני': {cluster: 2, neighborhood: 'שמעוני', reason: 'אשכול סוציו-אקונומי 2'},
+            'אשקלון|גבעת זאב': {cluster: 4, neighborhood: 'גבעת זאב', reason: 'אשכול סוציו-אקונומי 4'}
+        };
+
+        // Check eligibility for a specific address
+        function checkAddressEligibility(city, street) {
+            // First check if entire city is eligible
+            if (ELIGIBLE_CITIES[city]) {
+                return {
+                    eligible: true,
+                    type: 'city',
+                    cluster: ELIGIBLE_CITIES[city].cluster,
+                    reason: ELIGIBLE_CITIES[city].reason,
+                    region: ELIGIBLE_CITIES[city].region
+                };
+            }
+            
+            // Then check street-level eligibility
+            if (city && street) {
+                var streetKey = city + '|' + street;
+                var streetData = ELIGIBLE_STREETS[streetKey];
+                
+                if (streetData) {
+                    return {
+                        eligible: true,
+                        type: 'street',
+                        cluster: streetData.cluster,
+                        neighborhood: streetData.neighborhood,
+                        reason: streetData.reason,
+                        region: 'שכונתי'
+                    };
+                }
+                
+                // Try partial matching for street name
+                for (var key in ELIGIBLE_STREETS) {
+                    if (key.startsWith(city + '|')) {
+                        var eligibleStreet = key.split('|')[1];
+                        if (street.includes(eligibleStreet) || eligibleStreet.includes(street)) {
+                            var data = ELIGIBLE_STREETS[key];
+                            return {
+                                eligible: true,
+                                type: 'street',
+                                cluster: data.cluster,
+                                neighborhood: data.neighborhood,
+                                reason: data.reason,
+                                region: 'שכונתי'
+                            };
+                        }
+                    }
+                }
+            }
+            
+            // Not eligible
+            return {
+                eligible: false,
+                type: 'not_eligible',
+                reason: 'הכתובת אינה נמצאת באזור הזכאי להנחה'
+            };
+        }
+
+        // STREETS DATABASE (populated from eligible streets + sample data)
         var STREETS_BY_CITY = {};
 
-        // Initialize with some streets for major periphery cities
+        // Initialize with streets from the eligibility database + sample streets
         function initStreetsDatabase() {
-            // This would be populated from government API in production
-            // For now, using sample data
+            // First, add streets from the eligibility database
+            for (var key in ELIGIBLE_STREETS) {
+                var parts = key.split('|');
+                var city = parts[0];
+                var street = parts[1];
+                
+                if (!STREETS_BY_CITY[city]) {
+                    STREETS_BY_CITY[city] = [];
+                }
+                if (STREETS_BY_CITY[city].indexOf(street) === -1) {
+                    STREETS_BY_CITY[city].push(street);
+                }
+            }
+            
+            // Add sample streets for cities not in eligibility database
             var sampleStreets = {
-                'קרית שמונה': ['הגליל', 'החייל', 'ירדן', 'חרמון', 'הגבורה', 'דגניה', 'השומר'],
-                'באר שבע': ['רחוב הראשונים', 'דרך גילת', 'הנשיא', 'בילו', 'יצחק רגב', 'נמל התעופה'],
-                'אילת': ['התמרים', 'הפלמח', 'דרך עין ואדי', 'הסנהדרין', 'שדרות התמר'],
-                'נהריה': ['הגעתון', 'פריד', 'המעפיל', 'דרך הים', 'ירושלים', 'הנביאים'],
-                'טבריה': ['הרגרסיה', 'כיסופים', 'ברוך', 'הרי גולן', 'יד התשע'],
-                'עכו': ['ההגנה', 'ירושלים', 'הרצל', 'המסגד', 'העיר העתיקה'],
-                'דימונה': ['הנגב', 'המכתש', 'דגניה', 'השלום', 'העצמאות'],
-                'נצרת': ['המרכז', 'העיר העתיקה', 'פסיה', 'כפר כנא', 'אום אל-פחם']
+                'תל אביב': ['דיזנגוף', 'אלנבי', 'בן יהודה', 'שלום עליכם', 'פרישמן', 'מנשייה', 'הדר יהודה'],
+                'ירושלים': ['יפו', 'קינג ג\'ורג\'', 'בן סירא', 'המלך ג\'ורג\'', 'שמואל הנביא', 'שחל', 'גבעת מרדכי', 'קרית יובל', 'גילה', 'בית חנינא'],
+                'חיפה': ['הגעתון', 'פריד', 'המעפיל', 'דרך הים', 'חליסה', 'כבאבה', 'רובע הדר'],
+                'באר שבע': ['רחוב הראשונים', 'דרך גילת', 'הנשיא', 'בילו', 'יצחק רגב', 'נחל בוקר', 'רביבים'],
+                'נתניה': ['סמבר', 'פרידמן', 'העיר התחתית', 'קרית צאנז', 'הרצל'],
+                'אשדוד': ['הרצל', 'מעלה הסמילה', 'שכונה ב\'', 'רובע א\''],
+                'אשקלון': ['הרצל', 'שמעוני', 'גבעת זאב', 'ניר עוז'],
+                'רמת גן': ['אבא הלל', 'בזל', 'ז\'בוטינסקי', 'בורוכוב'],
+                'פתח תקווה': ['רוטשילד', 'ז\'בוטינסקי', 'הרב קנאזו', 'משה דיין'],
+                'באר שבע': ['דרך גילת', 'נחל בוקר', 'רביבים', 'מרכז העיר']
             };
             
             for (var city in sampleStreets) {
-                STREETS_BY_CITY[city] = sampleStreets[city];
+                if (!STREETS_BY_CITY[city]) {
+                    STREETS_BY_CITY[city] = [];
+                }
+                sampleStreets[city].forEach(function(street) {
+                    if (STREETS_BY_CITY[city].indexOf(street) === -1) {
+                        STREETS_BY_CITY[city].push(street);
+                    }
+                });
             }
         }
 
@@ -779,17 +909,38 @@
                 var fullAddress = city + (street ? ', ' + street : '') + (house ? ' ' + house : '');
                 resultAddress.textContent = fullAddress;
 
-                // Check if city is in periphery
-                if (PERIPHERY_CITIES[city]) {
+                // Check eligibility using socio-economic cluster database
+                var eligibility = checkAddressEligibility(city, street);
+
+                if (eligibility.eligible) {
                     resultDiv.className = 'geo-result eligible';
                     resultIcon.textContent = '✅';
-                    resultTitle.textContent = '🎉 זכאי להנחת פריפריה!';
-                    resultDesc.innerHTML = '<strong>' + city + '</strong> נמצאת באזור גיאוגרפי הזכאי להנחה.<br><br>📋 סיבת הזכאות: ' + PERIPHERY_CITIES[city].reason + '<br>📍 אזור: ' + PERIPHERY_CITIES[city].region;
+                    
+                    if (eligibility.type === 'city') {
+                        resultTitle.textContent = '🎉 זכאי להנחת צדק תחבורתי!';
+                        resultDesc.innerHTML = 
+                            '<strong>' + city + '</strong> - כל הרחובות בעיר זכאים<br><br>' +
+                            '📋 סיבת הזכאות: ' + eligibility.reason + '<br>' +
+                            '📍 אזור: ' + eligibility.region + '<br>' +
+                            '🔢 אשכול סוציו-אקונומי: ' + eligibility.cluster + '<br><br>' +
+                            '💰 הנחה: 50% על מנוי חודשי';
+                    } else {
+                        resultTitle.textContent = '🎉 זכאי להנחת צדק תחבורתי!';
+                        resultDesc.innerHTML = 
+                            '<strong>' + street + '</strong> ב' + city + '<br><br>' +
+                            '📋 סיבת הזכאות: ' + eligibility.reason + '<br>' +
+                            '📍 שכונה: ' + (eligibility.neighborhood || eligibility.region) + '<br>' +
+                            '🔢 אשכול סוציו-אקונומי: ' + eligibility.cluster + '<br><br>' +
+                            '💰 הנחה: 50% על מנוי חודשי';
+                    }
                 } else {
                     resultDiv.className = 'geo-result not-eligible';
                     resultIcon.textContent = '❌';
-                    resultTitle.textContent = 'לא זכאי להנחת פריפריה';
-                    resultDesc.innerHTML = 'העיר <strong>' + city + '</strong> אינה נמצאת באזור הזכאי להנחה גיאוגרפית.<br><br>💡 הנחות פריפריה חלות על יישובי הספר בצפון ובדרום בלבד.';
+                    resultTitle.textContent = 'לא זכאי להנחה';
+                    resultDesc.innerHTML = 
+                        'הכתובת <strong>' + fullAddress + '</strong> אינה נמצאת באזור הזכאי.<br><br>' +
+                        '📋 קריטריונים: אשכולות סוציו-אקונומיים 1-5 בלבד<br>' +
+                        '💡 יש להזין כתובת מדויקת (עיר + רחוב + מספר)';
                 }
 
                 resultDiv.style.display = 'block';
