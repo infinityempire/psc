@@ -43,6 +43,14 @@
             --history-chip-text: #1565c0;
             --student-pass-bg: #fff8e1;
             --student-pass-border: #ffc107;
+            /* Geographic Eligibility Section */
+            --geo-card-bg: #f0f4f8;
+            --geo-card-border: #3498db;
+            --geo-card-header-bg: linear-gradient(135deg,#1e3a5f,#2c5282);
+            --geo-step-active: #3498db;
+            --geo-step-done: #27ae60;
+            --geo-result-eligible: #27ae60;
+            --geo-result-not-eligible: #e74c3c;
         }
 
         /* Dark Mode Colors */
@@ -78,6 +86,14 @@
             --history-chip-text: #90caf9;
             --student-pass-bg: #3a3520;
             --student-pass-border: #ffc107;
+            /* Geographic Eligibility Section */
+            --geo-card-bg: #1a2a3a;
+            --geo-card-border: #64b5f6;
+            --geo-card-header-bg: linear-gradient(135deg,#1a1a2e,#2d2d44);
+            --geo-step-active: #64b5f6;
+            --geo-step-done: #66bb6a;
+            --geo-result-eligible: #66bb6a;
+            --geo-result-not-eligible: #ef5350;
         }
 
         /* ============================================================ */
@@ -107,14 +123,15 @@
         .location-btn:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(52,152,219,0.3)}
         .location-btn:disabled{background:var(--btn-location-disabled);cursor:not-allowed;transform:none}
         .location-error{color:#e74c3c;font-size:0.85em;margin-top:5px;display:none}
-        
+        .gps-distance{background:var(--gps-distance-bg);color:var(--gps-distance-text);padding:10px 15px;border-radius:10px;margin-top:8px;font-size:0.9em;display:none}
+
         /* Recent Searches History */
         .recent-searches{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
         .recent-searches:empty{display:none}
         .history-chip{display:inline-flex;align-items:center;padding:8px 14px;background:var(--history-chip-bg);border:1px solid var(--history-chip-border);border-radius:20px;font-size:0.85em;color:var(--history-chip-text);cursor:pointer;transition:all 0.2s ease}
         .history-chip:hover{transform:scale(1.05);box-shadow:0 2px 8px rgba(0,0,0,0.15)}
         .history-chip .arrow{margin:0 6px;color:var(--text-secondary)}
-        
+
         .ticket-type-section{background:var(--ticket-section-bg);border-radius:15px;padding:20px;margin-bottom:25px;border:2px solid var(--ticket-section-border);transition:all 0.3s ease}
         .ticket-type-section h3{color:var(--text-primary);margin-bottom:15px}
         .ticket-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
@@ -144,7 +161,7 @@
         .breakdown-item.highlight span:first-child{font-weight:600;color:var(--highlight-text)}
         .fallback-notice{background:var(--fallback-bg);border-radius:10px;padding:15px;margin-top:15px}
         .disclaimer{margin-top:20px;padding:15px;background:var(--disclaimer-bg);border-radius:8px;font-size:0.85em;color:var(--text-secondary);transition:background 0.3s ease}
-        
+
         /* Autocomplete styles */
         .autocomplete-wrapper{position:relative;width:100%}
         .autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--autocomplete-bg);border:2px solid var(--autocomplete-border);border-top:none;border-radius:0 0 12px 12px;max-height:250px;overflow-y:auto;z-index:1000;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.15);transition:background 0.3s ease,border-color 0.3s ease}
@@ -153,142 +170,117 @@
         .autocomplete-item:last-child{border-bottom:none}
         .autocomplete-item:hover{background:var(--highlight-bg)}
         .autocomplete-item.highlighted{background:var(--highlight-bg)}
-        
-        /* GPS Distance Display */
-        .gps-distance{background:var(--gps-distance-bg);border-radius:10px;padding:10px 15px;margin-top:10px;font-size:0.95em;color:var(--gps-distance-text);display:none;transition:background 0.3s ease,color 0.3s ease}
-        .gps-distance.active{display:block}
-        .gps-distance strong{color:var(--highlight-text)}
-        
-        /* Train Pass Row Styling */
-        .train-pass-row{display:none}
-        .train-pass-row.active{display:flex;flex-direction:column}
-        
-        /* Eilat Pass Row Styling */
-        .eilat-pass-row{display:none}
-        .eilat-pass-row.active{display:flex;flex-direction:column}
-        
+
         /* WhatsApp Share Button */
-        .whatsapp-share-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 24px;background:linear-gradient(var(--whatsapp-green),var(--whatsapp-green-dark));color:#fff;border:none;border-radius:12px;font-size:1.1em;font-weight:bold;cursor:pointer;margin-top:20px;transition:all 0.3s ease;text-decoration:none}
-        .whatsapp-share-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(37,211,102,0.4)}
-        .whatsapp-share-btn:active{transform:translateY(0)}
+        .whatsapp-share-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 24px;background:var(--whatsapp-green);color:#fff;border:none;border-radius:12px;font-size:1.1em;font-weight:bold;cursor:pointer;margin-top:15px;transition:all 0.3s ease}
+        .whatsapp-share-btn:hover{background:var(--whatsapp-green-dark);transform:translateY(-2px)}
         .whatsapp-share-btn svg{width:24px;height:24px;fill:#fff}
+
+        /* Student Extended Passes */
+        .student-passes{margin-top:20px;padding:20px;background:var(--student-pass-bg);border:2px solid var(--student-pass-border);border-radius:15px}
+        .student-passes h4{color:var(--text-primary);margin-bottom:10px}
+
+        /* ============================================================ */
+        /* GEOGRAPHIC ELIGIBILITY SECTION */
+        /* ============================================================ */
+        .geo-eligibility-section{margin-top:25px;border-top:2px dashed var(--border-color);padding-top:25px}
         
-        /* Student Passes Styling */
-        .student-passes{display:none;background:var(--student-pass-bg);border:2px solid var(--student-pass-border);border-radius:12px;padding:15px;margin-top:15px;transition:all 0.3s ease}
-        .student-passes.active{display:block}
-        .student-passes h4{color:var(--text-primary);margin-bottom:12px;font-size:1em;display:flex;align-items:center;gap:8px}
-        .student-pass-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--border-color);color:var(--text-primary)}
-        .student-pass-item:last-child{border-bottom:none}
-        .student-pass-item span:first-child{font-weight:600}
-        .student-pass-item span:last-child{color:var(--price-color);font-weight:bold}
+        .geo-card{background:var(--geo-card-bg);border:2px solid var(--geo-card-border);border-radius:16px;overflow:hidden;transition:all 0.3s ease}
         
-        /* Mobile Responsive Styles */
+        .geo-card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:var(--geo-card-header-bg);color:#fff;cursor:pointer;transition:all 0.3s ease}
+        .geo-card-header:hover{filter:brightness(1.1)}
+        .geo-card-title{display:flex;align-items:center;gap:12px;font-size:1.15em;font-weight:600}
+        .geo-card-title .icon{font-size:1.3em}
+        .geo-toggle-icon{font-size:1.5em;transition:transform 0.3s ease}
+        .geo-card.expanded .geo-toggle-icon{transform:rotate(180deg)}
+        
+        .geo-card-content{padding:0;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease}
+        .geo-card.expanded .geo-card-content{padding:20px;max-height:800px}
+        
+        .geo-steps{display:flex;justify-content:space-between;margin-bottom:20px;position:relative}
+        .geo-steps::before{content:'';position:absolute;top:18px;left:10%;right:10%;height:3px;background:var(--border-color);z-index:0}
+        .geo-step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;flex:1}
+        .geo-step-num{width:36px;height:36px;border-radius:50%;background:var(--bg-secondary);border:3px solid var(--border-color);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1em;color:var(--text-secondary);transition:all 0.3s ease}
+        .geo-step.active .geo-step-num{border-color:var(--geo-step-active);color:var(--geo-step-active);background:var(--highlight-bg)}
+        .geo-step.done .geo-step-num{border-color:var(--geo-step-done);background:var(--geo-step-done);color:#fff}
+        .geo-step-label{font-size:0.8em;color:var(--text-secondary);margin-top:8px;text-align:center;transition:color 0.3s ease}
+        .geo-step.active .geo-step-label{color:var(--geo-step-active);font-weight:600}
+        .geo-step.done .geo-step-label{color:var(--geo-step-done)}
+        
+        .geo-field-group{margin-bottom:15px}
+        .geo-field-group label{display:block;font-size:0.9em;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
+        .geo-field-wrapper{position:relative}
+        .geo-field-wrapper input{width:100%;padding:12px 15px;padding-right:40px;border:2px solid var(--border-color);border-radius:10px;font-size:1em;background:var(--bg-secondary);color:var(--text-primary);transition:all 0.3s ease}
+        .geo-field-wrapper input:focus{border-color:var(--geo-step-active);outline:none;box-shadow:0 0 0 3px rgba(52,152,219,0.2)}
+        .geo-field-wrapper input:disabled{background:var(--fare-breakdown-bg);cursor:not-allowed;opacity:0.7}
+        .geo-field-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:1.1em;opacity:0.6}
+        .geo-field-wrapper .autocomplete-list{top:calc(100% + 4px);border-radius:10px;border-top:2px solid var(--geo-step-active)}
+        
+        .geo-check-btn{width:100%;padding:14px;background:var(--geo-card-header-bg);color:#fff;border:none;border-radius:10px;font-size:1.1em;font-weight:600;cursor:pointer;transition:all 0.3s ease;margin-top:10px}
+        .geo-check-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+        .geo-check-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+        .geo-check-btn.loading{position:relative;color:transparent}
+        .geo-check-btn.loading::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
+        
+        @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+        
+        .geo-result{margin-top:20px;padding:20px;border-radius:12px;text-align:center;display:none;animation:fadeIn 0.3s ease}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+        .geo-result.eligible{background:linear-gradient(135deg,rgba(39,174,96,0.15),rgba(46,204,113,0.15));border:2px solid var(--geo-result-eligible)}
+        .geo-result.not-eligible{background:linear-gradient(135deg,rgba(231,76,60,0.15),rgba(192,57,43,0.15));border:2px solid var(--geo-result-not-eligible)}
+        .geo-result-icon{font-size:3em;margin-bottom:10px}
+        .geo-result-title{font-size:1.3em;font-weight:bold;margin-bottom:8px}
+        .geo-result.eligible .geo-result-title{color:var(--geo-result-eligible)}
+        .geo-result.not-eligible .geo-result-title{color:var(--geo-result-not-eligible)}
+        .geo-result-desc{font-size:0.95em;color:var(--text-secondary);line-height:1.6}
+        .geo-result-desc strong{color:var(--text-primary)}
+
+        /* ============================================================ */
+        /* RESPONSIVE STYLES */
+        /* ============================================================ */
         @media (max-width: 600px) {
-            body {
-                padding: 15px 10px;
-            }
-            .container {
-                padding: 15px;
-                max-width: 100%;
-                border-radius: 15px;
-            }
-            .header {
-                padding: 25px 15px;
-                border-radius: 15px 15px 0 0;
-            }
-            .header h1 {
-                font-size: 1.4em;
-            }
-            .theme-toggle {
-                padding: 8px 10px;
-                font-size: 1em;
-            }
+            body{padding:15px 10px}
+            .container{padding:15px;border-radius:15px}
+            .header{padding:25px 15px;border-radius:15px 15px 0 0}
+            .header h1{font-size:1.4em}
+            .theme-toggle{padding:8px 10px;font-size:1em}
             .form-section,
-            .results-section {
-                padding: 20px;
-            }
-            .input-group input {
-                padding: 12px;
-                font-size: 1em;
-            }
-            .input-with-btn {
-                flex-direction: column;
-            }
-            .input-with-btn input {
-                width: 100%;
-            }
-            .location-btn {
-                width: 100%;
-                padding: 12px;
-            }
+            .results-section{padding:20px}
+            .input-group input{padding:12px;font-size:1em}
+            .input-with-btn{flex-direction:column}
+            .input-with-btn input{width:100%}
+            .location-btn{width:100%;padding:12px}
             .ticket-type-grid,
-            .profile-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
+            .profile-grid{grid-template-columns:repeat(2,1fr);gap:8px}
             .ticket-type-option+label,
-            .profile-option+label {
-                padding: 10px 8px;
-                font-size: 0.85em;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-                hyphens: auto;
-            }
-            .results-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-            .result-card .price {
-                font-size: 2em;
-            }
-            .breakdown-item {
-                padding: 10px 0;
-                font-size: 0.9em;
-            }
-            .autocomplete-list {
-                max-height: 200px;
-            }
-            .whatsapp-share-btn {
-                padding: 14px 20px;
-                font-size: 1em;
-            }
-            .history-chip {
-                padding: 6px 12px;
-                font-size: 0.8em;
-            }
-            .student-passes .result-card {
-                padding: 12px 8px;
-            }
-            .student-passes .result-card .price {
-                font-size: 1.3em;
-            }
+            .profile-option+label{padding:10px 8px;font-size:0.85em;word-wrap:break-word;overflow-wrap:break-word;hyphens:auto}
+            .results-grid{grid-template-columns:1fr;gap:12px}
+            .result-card .price{font-size:2em}
+            .breakdown-item{padding:10px 0;font-size:0.9em}
+            .autocomplete-list{max-height:200px}
+            .whatsapp-share-btn{padding:14px 20px;font-size:1em}
+            .history-chip{padding:6px 12px;font-size:0.8em}
+            .student-passes .result-card{padding:12px 8px}
+            .student-passes .result-card .price{font-size:1.3em}
+            
+            /* Geographic Section Mobile */
+            .geo-steps{gap:5px}
+            .geo-step-num{width:30px;height:30px;font-size:0.9em}
+            .geo-step-label{font-size:0.7em}
         }
         
         @media (max-width: 400px) {
-            .profile-grid {
-                grid-template-columns: 1fr;
-            }
-            .ticket-type-grid {
-                grid-template-columns: 1fr;
-            }
+            .profile-grid{grid-template-columns:1fr}
+            .ticket-type-grid{grid-template-columns:1fr}
             .ticket-type-option+label,
-            .profile-option+label {
-                padding: 12px 10px;
-                font-size: 0.9em;
-            }
-            .student-passes > div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
+            .profile-option+label{padding:12px 10px;font-size:0.9em}
+            .student-passes>div[style*="grid-template-columns"]{grid-template-columns:1fr!important}
         }
         
         /* Tablet styles */
         @media (min-width: 601px) and (max-width: 900px) {
-            .profile-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            .results-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .profile-grid{grid-template-columns:repeat(3,1fr)}
+            .results-grid{grid-template-columns:repeat(2,1fr)}
         }
 
     </style>
@@ -346,6 +338,73 @@
                 </div>
             </div>
             <button id="calculate-btn">🔍 חשב תעריף</button>
+
+            <!-- Geographic Eligibility Check Section -->
+            <div class="geo-eligibility-section">
+                <div class="geo-card" id="geo-card">
+                    <div class="geo-card-header" onclick="toggleGeoCard()">
+                        <div class="geo-card-title">
+                            <span class="icon">🔍</span>
+                            <span>בדיקת זכאות גיאוגרפית</span>
+                        </div>
+                        <span class="geo-toggle-icon">▼</span>
+                    </div>
+                    <div class="geo-card-content">
+                        <div class="geo-steps">
+                            <div class="geo-step active" id="geo-step-1">
+                                <div class="geo-step-num">1</div>
+                                <div class="geo-step-label">עיר</div>
+                            </div>
+                            <div class="geo-step" id="geo-step-2">
+                                <div class="geo-step-num">2</div>
+                                <div class="geo-step-label">רחוב</div>
+                            </div>
+                            <div class="geo-step" id="geo-step-3">
+                                <div class="geo-step-num">3</div>
+                                <div class="geo-step-label">מספר</div>
+                            </div>
+                        </div>
+                        
+                        <div class="geo-field-group">
+                            <label for="geo-city">🏙️ עיר מגורים:</label>
+                            <div class="geo-field-wrapper">
+                                <span class="geo-field-icon">📍</span>
+                                <input type="text" id="geo-city" placeholder="הקלד שם עיר..." autocomplete="off">
+                                <div id="geo-city-list" class="autocomplete-list"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="geo-field-group">
+                            <label for="geo-street">🛣️ רחוב:</label>
+                            <div class="geo-field-wrapper">
+                                <span class="geo-field-icon">🏠</span>
+                                <input type="text" id="geo-street" placeholder="הקלד שם רחוב..." autocomplete="off" disabled>
+                                <div id="geo-street-list" class="autocomplete-list"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="geo-field-group">
+                            <label for="geo-house">🏡 מספר בית:</label>
+                            <div class="geo-field-wrapper">
+                                <span class="geo-field-icon">#️⃣</span>
+                                <input type="text" id="geo-house" placeholder="הקלד מספר..." autocomplete="off" disabled>
+                            </div>
+                        </div>
+                        
+                        <button class="geo-check-btn" id="geo-check-btn" onclick="checkGeographicEligibility()">
+                            🔍 בדוק זכאות
+                        </button>
+                        
+                        <div class="geo-result" id="geo-result">
+                            <div class="geo-result-icon" id="geo-result-icon">✅</div>
+                            <div class="geo-result-title" id="geo-result-title">זכאי להנחת פריפריה!</div>
+                            <div class="geo-result-desc" id="geo-result-desc">
+                                כתובתך <strong id="geo-result-address"></strong> נמצאת באזור גיאוגרפי הזכאי להנחה.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="results-section" id="results">
             <div class="results-grid" id="results-grid">
@@ -387,7 +446,7 @@
                 שתף תוצאה ב-WhatsApp
             </button>
             
-            <!-- Student Extended Passes - Only visible when semester/annual ticket type selected -->
+            <!-- Student Extended Passes -->
             <div class="student-passes" id="student-passes" style="display:none;">
                 <h4>🎓 בחר מנוי אקדמי:</h4>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
@@ -412,20 +471,9 @@
     </div>
     <script>
         // ============================================================
-        // ISRAELI MINISTRY OF TRANSPORT FARE RULE ENGINE
-        // Structured Client-Side Rule Engine based on official fare clusters
-        // ============================================================
-
-        // ============================================================
-        // CITY DATABASE WITH COORDINATES (Extended Israeli Localities)
+        // CITY DATABASE WITH COORDINATES
         // ============================================================
         var CITIES = {
-            // ============================================================
-            // COMPREHENSIVE ISRAELI LOCALITIES DATABASE
-            // Including cities, towns, moshavim, kibbutzim, and regional areas
-            // ============================================================
-            
-            // Major Cities
             'תל אביב': [32.0853, 34.7818],
             'ירושלים': [31.7683, 35.2137],
             'חיפה': [32.794, 34.9896],
@@ -448,485 +496,339 @@
             'עכו': [32.9277, 35.0822],
             'קרית שמונה': [33.2077, 35.5694],
             'אילת': [29.5581, 34.9512],
-            'טבריה': [32.7940, 35.5314],
-            'צפת': [32.9658, 35.4983],
-            'כרמיאל': [32.9176, 35.2969],
+            'טבריה': [32.794, 35.531],
+            'צפת': [32.9658, 35.498],
+            'כרמיאל': [32.9186, 35.297],
             'נצרת': [32.7021, 35.2978],
-            'עפולה': [32.6080, 35.2896],
-            'מגדל העמק': [32.6776, 35.2397],
-            'ראש פינה': [32.9696, 35.5422],
-            
-            // Central District
+            'טייבה': [32.2643, 35.0091],
+            'רהט': [31.3928, 34.7611],
+            'דימונה': [31.0681, 34.8931],
+            'מעלה אדומים': [31.7813, 35.3108],
+            'קריית גת': [31.6061, 34.7642],
+            'קריית מלאכי': [31.7314, 34.7461],
+            'קריית ביאליק': [32.8308, 35.0833],
+            'קריית ים': [32.8403, 35.0689],
+            'קריית מוצקין': [32.8403, 35.0833],
+            'קריית אתא': [32.8014, 35.1111],
+            'גבעתיים': [32.0678, 34.8128],
+            'יהוד': [32.033, 34.878],
+            'אור יהודה': [32.033, 34.878],
+            'סחנין': [32.7583, 35.1697],
+            'מגדל העמק': [32.675, 35.2397],
+            'בית שמש': [31.7467, 34.9881],
+            'רמת השרון': [32.1461, 34.8461],
             'הרצליה': [32.1656, 34.8467],
             'כפר סבא': [32.1783, 34.9067],
-            'גבעתיים': [32.0681, 34.8111],
-            'קרית אונו': [32.0631, 34.8556],
-            'גני תקווה': [32.0628, 34.8747],
-            'שוהם': [31.8797, 34.9644],
-            'יבנה': [31.8747, 34.7372],
-            'גדרה': [31.8136, 34.7761],
-            'מזכרת בתיה': [31.8533, 34.8311],
-            'ראש העין': [32.0953, 34.9564],
-            'אור יהודה': [32.0317, 34.8517],
-            'יהוד': [32.0333, 34.8833],
-            'סביון': [32.0494, 34.8739],
-            'שדרות': [31.5244, 34.5964],
-            'נתיבות': [31.4206, 34.5919],
-            'אופקים': [31.3153, 34.6231],
-            'קרית גת': [31.6053, 34.7642],
-            'קרית מלאכי': [31.7317, 34.7461],
-            'ירוחון': [30.9897, 34.9300],
-            'שדה בוקר': [30.8925, 34.7825],
-            'ניר עציון': [31.7167, 34.7333],
-            'משגב עם': [31.7833, 34.7667],
-            'בית שמש': [31.7466, 34.9881],
-            'להבים': [31.3747, 34.7997],
-            'מיתר': [31.2803, 34.9306],
-            'חורה': [31.2897, 34.9358],
-            'באר גנים': [31.2889, 34.7847],
-            'עזתה': [31.6647, 34.5731],
-            'מבטחים': [31.5667, 34.5667],
-            'כרמיה': [31.6167, 34.5833],
-            
-            // Northern Region - Cities
-            'קרית ביאליק': [32.8302, 35.0833],
-            'קרית מוצקין': [32.8403, 35.0779],
-            'קרית אתא': [32.8023, 35.1059],
-            'קרית ים': [32.8448, 35.0694],
-            'קרית טבעון': [32.7717, 35.1158],
-            'נוף הגליל': [32.7011, 35.3283],
-            'ראש הנקרה': [33.0855, 35.1104],
-            'דלית אל כרמל': [32.6935, 34.9758],
-            'בית השיטה': [32.7133, 35.1825],
-            'כפר מנחם': [31.7333, 34.7833],
-            
-            // Northern Region - Towns
-            'מעלה אפרים': [31.6667, 35.0833],
-            'קדומים': [32.1842, 35.1678],
-            'שלומי': [33.0744, 35.1428],
-            'מעלות': [33.0172, 35.2717],
-            'כפר ורדים': [32.9972, 35.2728],
-            'חצור': [32.9633, 35.5439],
-            'צור': [33.0353, 35.1756],
-            'גשר': [33.0294, 35.5425],
-            'דן': [33.2311, 35.6514],
-            'בית העמק': [32.9333, 35.0833],
-            'כרכור': [32.7494, 34.9667],
-            'זכרון יעקב': [32.5708, 34.9561],
-            'בנימינה': [32.5181, 34.9508],
-            'חרושת': [32.4833, 34.9500],
-            'מעגן מיכאל': [32.5581, 34.9225],
-            'גבעת עוז': [32.5833, 35.0500],
-            'עתלית': [32.7006, 34.9439],
-            'חדרה': [32.6742, 35.1089],
-            'פרדס חנה': [32.6367, 34.9528],
-            'ברעם': [33.0328, 35.2458],
-            'אביאל': [32.6833, 35.0833],
-            'אלונים': [32.6833, 35.0500],
-            'בוסתן אל מרג\' עמאר': [32.7667, 35.0833],
-            'גבע': [32.7167, 35.1333],
-            'הושעיה': [32.7167, 35.1833],
-            'כפר חוג הים': [32.7833, 35.0500],
-            'רכסים': [32.7333, 35.0833],
-            'עין המפרץ': [32.8833, 35.0500],
-            'מטולה': [33.2772, 35.5719],
-            'קדש ברנע': [33.0819, 35.2769],
-            'שער הגולן': [33.2667, 35.7667],
-            'בועיינה א נג\'יד': [32.7500, 35.2667],
-            'כפר כנא': [32.7667, 35.3333],
-            'דמייפה': [32.7167, 35.3500],
-            'ג\'סר א זרקא': [32.9167, 35.2167],
-            'עיילבוניה': [32.9333, 35.3833],
-            'רומאנה': [32.9667, 35.3500],
-            'סאג\'ור': [32.9500, 35.3167],
-            'עמוקה': [33.0167, 35.5333],
-            'צבעון': [33.0333, 35.4333],
-            'פקיעין': [33.0333, 35.2833],
-            'ביריה': [32.9167, 35.5167],
-            'חוסן': [32.9667, 35.2167],
-            'עין קיניה': [33.0167, 35.4833],
-            'הררית': [32.9167, 35.4000],
-            'כפר חנניה': [32.9500, 35.4000],
-            'לפיד': [33.1500, 35.1833],
-            'מנחת': [33.1833, 35.7500],
-            'נוב': [33.2667, 35.8000],
-            'קצרין': [32.9900, 35.6928],
-            'בוקעתא': [33.2500, 35.7667],
-            'אודים': [32.6667, 35.0500],
-            'גבת': [32.7000, 35.1167],
-            'דבוריה': [32.6833, 35.3667],
-            'יפיע': [32.7000, 35.3167],
-            'כעביה טבאש': [32.7667, 35.3833],
-            'משהד': [32.7500, 35.2667],
-            
-            // Haifa District
-            'נשר': [32.7667, 35.0333],
-            'טירת כרמל': [32.7667, 34.9667],
-            'רכס': [32.7167, 34.9667],
-            'אור עקיבא': [32.6100, 34.9211],
-            'קרית חיים': [32.8167, 35.0833],
-            
-            // Sharon Region
-            'רמת השרון': [32.1461, 34.8367],
-            'תל מונד': [32.2500, 34.9167],
-            'אבן יהודה': [32.2833, 34.8833],
-            'כפר יונה': [32.3167, 34.9167],
-            'קדימה': [32.2833, 34.8833],
-            'צורן': [32.2833, 34.9167],
-            'פרדסיה': [32.2667, 34.8833],
-            'בית יהושע': [32.3167, 34.8500],
-            'בצרה': [32.3333, 34.8333],
-            'חרות': [32.3500, 34.8667],
-            'כפר ביל"ו': [32.2833, 34.8167],
-            'געש': [32.2667, 34.8167],
-            'גבעת כ\"ס': [32.2500, 34.8333],
-            'רמות השרון': [32.1667, 34.8500],
-            'שערי תקווה': [32.0833, 34.8833],
-            'יד חנה': [32.1833, 34.8833],
-            'אלישמע': [32.1333, 34.9333],
-            'כפר שמריהו': [32.1833, 34.8000],
-            'בני דר': [32.1167, 34.8833],
-            'גבעת שמואל': [32.0833, 34.8500],
-            
-            // Jerusalem District
-            'מבשרת ציון': [31.7961, 35.1494],
-            'הר אדר': [31.8417, 35.0667],
-            'קרית ענבים': [31.8056, 35.1253],
-            'טלביה': [31.7781, 35.2086],
-            'אבו גוש': [31.8061, 35.1086],
-            'שכם': [32.2225, 35.2544],
-            'קרית ארבע': [31.5275, 35.1194],
-            'עצמונה': [32.1681, 35.1719],
-            'שקד': [32.1972, 35.1814],
-            'תל קטינה': [31.5667, 35.1167],
-            'חווארג': [31.9333, 35.2167],
-            'איתמר': [32.1731, 35.1586],
-            'אלקנה': [32.1622, 35.1869],
-            'לטרון': [31.8500, 34.9667],
-            'ביתר עילית': [31.7000, 35.1167],
-            'מעלה אדומים': [31.7833, 35.3000],
-            'אריאל': [32.1069, 35.1667],
-            'קלנסווה': [32.3167, 35.0500],
-            'ג\'נין': [32.4667, 35.3000],
-            'טול כרם': [32.2833, 35.0333],
-            'קלקיליה': [32.3167, 35.0833],
-            'ראמאללה': [31.9000, 35.2000],
-            'בית לחם': [31.7054, 35.2022],
-            'חברון': [31.5327, 35.0954],
-            'נפתלי': [32.1500, 35.1833],
-            'עפרה': [31.9500, 35.2167],
-            'כוכב יעקב': [31.8500, 35.2500],
-            'גבע בנימין': [31.8667, 35.2333],
-            'אפרת': [31.6667, 35.1333],
-            'בית אל': [31.9500, 35.2333],
-            'עלי': [32.0333, 35.2167],
-            
-            // Southern Region - Additional
-            'דימונה': [31.0681, 35.0331],
-            'ערד': [31.2581, 35.2131],
-            'מצפה רמון': [30.6108, 34.8017],
-            'רהט': [31.3833, 34.7583],
-            'חורין': [31.4500, 34.8000],
-            'לקיה': [31.3333, 34.7667],
-            'שסטל': [31.3000, 34.8000],
-            'בית קמה': [31.4667, 34.7333],
-            'בית גודר': [31.5000, 34.7167],
-            'גילת': [31.5333, 34.6833],
-            'כרמי קטיף': [31.4500, 34.6500],
-            'ענבל': [31.4833, 34.7167],
-            'צאלים': [31.5500, 34.5167],
-            'פרי גנים': [31.6000, 34.5833],
-            'ישע': [31.6000, 34.5167],
-            
-            // Eilat Region
-            'אילות': [29.5667, 34.9167],
-            'נוער': [29.5000, 34.9500],
-            'קיבוץ אילות': [29.5500, 34.9000],
-            'עין אלכסנדר': [29.5167, 34.9500],
-            'טב בוש': [29.5333, 34.9667],
-            
-            // Dead Sea & Kineret Region
-            'עין גדי': [31.4667, 35.3833],
-            'מצפה שלם': [31.5167, 35.3667],
-            'נאות הכיכר': [31.5333, 35.4000],
-            'אלמוג': [31.5667, 35.5333],
-            'קליוט': [31.6000, 35.5667],
-            'עין פשח': [31.6333, 35.5833],
-            'גלגל': [32.6833, 35.5333],
-            'עין גב': [32.7333, 35.5333],
-            'כנרת': [32.7167, 35.5667],
-            'מגדל': [32.6833, 35.5167],
-            'דגניה א': [32.7167, 35.5667],
-            'דגניה ב': [32.7000, 35.5333],
-            'אפיקים': [32.6667, 35.5167],
-            'שפר': [32.6500, 35.5000],
-            'חמת גדר': [32.7167, 35.6167],
-            'רמת הגולן': [32.9667, 35.6833],
-            'מסעדה': [33.2167, 35.7667],
-            
-            // Additional Regional Areas
-            'מעלה החרמון': [33.2833, 35.7667],
-            'שפרעם': [32.9667, 35.1700],
-            'טמרה': [32.8500, 35.2000],
-            'סח\'נין': [32.8667, 35.3000],
-            'מגאר': [32.7000, 35.2500],
-            'ערערה': [32.5000, 35.0833],
-            'זרזיר': [32.7333, 35.0833],
-            'ג\'וליס': [32.9833, 35.1500],
-            'בית דגן': [32.0100, 34.8200],
-            'גני הדרום': [31.8000, 34.7000],
-            'נחל עוז': [31.6500, 34.6000],
-            'אורות': [31.7333, 34.6500],
-            'צוחר': [31.5500, 34.6167],
-            'פדויים': [31.5500, 34.6500],
-            'כיסופים': [31.6000, 34.5833],
-            'מפלסים': [31.6167, 34.5333],
-            'שדי אברהם': [31.6167, 34.5667],
-            'אוהד': [31.6333, 34.6000],
-            'טנטורה': [31.6500, 34.6333],
-            'ניר ישראל': [31.6667, 34.6667],
-            'גבים': [31.6833, 34.6167],
-            'חצבה': [31.3500, 34.7833],
-            'נאות הסיני': [30.8833, 34.8000],
-            'פארן': [30.4500, 35.1833],
-            'חמד גד': [31.3167, 34.9333],
-            'רביבים': [31.6167, 34.7833],
-            'לכיש': [31.5500, 34.8167],
-            'אמציה': [31.5667, 34.7667],
-            'שגב שלום': [31.2167, 34.7833],
-            'עין יהב': [30.7167, 35.2167],
-            'צין': [30.5500, 35.0500],
-            'חרוצים': [31.3500, 34.6500],
-            'קוממיות': [31.6333, 34.5833],
-            'שדמות מחולה': [31.6500, 34.5333],
-            'מירב': [31.6000, 34.6167],
-            'חלץ': [31.5833, 34.7000],
-            'נען': [31.9167, 34.8667],
-            'כפר סתויות': [31.8667, 34.8500],
-            'גבעת השלושה': [31.9000, 34.8000],
-            'קרית עקרון': [31.8500, 34.8167],
-            'גזר': [31.7833, 34.9500],
-            'מחסירים': [31.7333, 34.9667],
-            'בית עבריה': [31.7667, 35.0000],
-            'טירת צבי': [32.4500, 35.0500],
-            'כפר רופין': [32.4333, 35.0500],
-            'אליקים': [32.4667, 35.0333],
-            'מרחביה': [32.5667, 35.1500],
-            'גיניגר': [32.5833, 35.2000],
-            'עין דור': [32.5000, 35.1167],
-            'שדה נחמיה': [32.6833, 35.5333],
-            'שדה אליהו': [32.6333, 35.4500],
-            'כפר גלים': [31.7500, 34.7167],
-            'גבעת וושינגטון': [31.7667, 34.7500],
-            'אבשבוס': [31.6667, 34.6833],
-            'קיסריה': [32.5000, 34.9111],
-            'גבעת זאב': [31.8833, 35.1500],
-            'הר ברכה': [31.8167, 35.1667],
-            'כפר אדומים': [31.8167, 35.2500],
-            'ג\'סר א זרקא': [32.9167, 35.2167],
-            
-            // More Northern Communities
-            'מעלה גלעד': [33.2500, 35.5500],
-            'מנרה': [33.0333, 35.3667],
-            'כפר גלעדי': [33.2333, 35.6167],
-            'חספין': [32.7833, 35.4500],
-            'בר אילן': [32.9167, 35.4833],
-            'כפר ברא': [32.9667, 35.5167],
-            'שאר ישוב': [32.9500, 35.4000],
-            'קשת': [32.9500, 35.3833],
-            'אושה': [32.9333, 35.4000],
-            'חולית': [32.7500, 35.5000],
-            'מירון': [32.9833, 35.4500],
-            'פקוף': [32.9667, 35.3667],
-            'כרוכים': [32.9667, 35.3500],
-            'זרזיר': [32.7333, 35.0833],
-            'שעב': [32.8833, 35.1833],
-            'דייר אל אסד': [32.8500, 35.2333],
-            'דייר מנס': [32.8667, 35.2500],
-            'רומלה': [32.9333, 35.2167],
-            'פורדיס': [32.5000, 35.0667],
-            'כפר קרע': [32.5000, 35.0833],
-            'ג\'ור': [32.9667, 35.2167],
-            'ריינה': [32.7167, 35.2833],
-            'סבביה': [32.7000, 35.3000],
-            'מרכז שפירא': [31.7500, 34.7333],
-            'כפר הנגיד': [31.7833, 34.7167],
-            'גבעת וושינגטון': [31.7667, 34.7500],
-            'מעש': [31.7333, 34.7667],
-            'שדה יואב': [31.6333, 34.5833],
-            'תל עדשים': [31.7333, 34.8000],
-            'אדורה': [31.7167, 34.8500],
-            'בית ניר': [31.7167, 34.8167],
-            'כפר אביב': [31.8000, 34.8500],
-            'גבעת שלום': [31.7833, 34.8000],
-            'רווחה': [31.7333, 34.7833],
-            'משמר הנגב': [31.2833, 34.7167],
-            'ניר עציון': [31.7167, 34.7333],
-            'פדד': [31.7167, 34.7000],
-            'כרם שלום': [31.7167, 34.6500],
-            'בארות יצחק': [31.7333, 34.6167],
-            'שדה בוקר': [30.8925, 34.7825],
-            'חצב': [31.7333, 34.8167],
-            'קרית מלאכי': [31.7317, 34.7461],
-            'גבעתיים': [32.0681, 34.8111],
-            'גני תקווה': [32.0628, 34.8747],
-            'אופקים': [31.3153, 34.6231],
-            'שדרות': [31.5244, 34.5964],
-            'נתיבות': [31.4206, 34.5919],
-            'קרית גת': [31.6053, 34.7642],
-            'ירוחון': [30.9897, 34.9300],
-            'חורה': [31.2897, 34.9358],
-            'להבים': [31.3747, 34.7997],
-            'מיתר': [31.2803, 34.9306],
-            'באר גנים': [31.2889, 34.7847],
-            'עזתה': [31.6647, 34.5731]
+            'רעננה': [32.1847, 34.8708],
+            'אופקים': [31.3153, 34.6233],
+            'שדרות': [31.5244, 34.5967],
+            'נתיבות': [31.4206, 34.5917],
+            'אריאל': [32.1069, 35.1658],
+            'ביתר עילית': [31.6942, 35.1211],
+            'קרית שמונה': [33.2077, 35.5694],
+            'ערד': [31.2522, 35.2111],
+            'מצפה רמון': [30.6111, 34.8011],
+            'סביון': [32.0464, 34.8511],
+            'שוהם': [31.9447, 34.9744],
+            'גבעת שמואל': [32.0808, 34.8508],
+            'להבים': [31.3836, 34.7828],
+            'מעלה אפרים': [32.1161, 35.3336],
+            'קרית חרושת': [33.2077, 35.5694]
         };
 
-        // Cities that invalidate Periphery pass
-        var GUSH_DAN_CITIES = ['תל אביב', 'רמת גן'];
-        
-        // Cities with train connectivity (Israel Railways network)
-        var TRAIN_CITIES = [
-            'תל אביב', 'ירושלים', 'חיפה', 'באר שבע', 'נתניה', 'אשדוד', 'אשקלון',
-            'רמת גן', 'פתח תקווה', 'ראשון לציון', 'חולון', 'בת ים', 'הרצליה',
-            'הוד השרון', 'רמלה', 'לוד', 'מודיעין', 'בית שמש', 'רחובות',
-            'קרית גת', 'שדרות', 'נתיבות', 'אופקים', 'קרית מלאכי', 'גבעתיים',
-            'יבנה', 'גדרה', 'שוהם', 'קרית ביאליק', 'קרית מוצקין', 'קרית אתא',
-            'קרית ים', 'כרמיאל', 'נהריה', 'עכו', 'מגדל העמק', 'נוף הגליל',
-            'טבריה', 'כפר מנחם', 'בית השיטה'
-        ];
+        // PERIPHERY CITIES FOR DISCOUNT ELIGIBILITY
+        var PERIPHERY_CITIES = {
+            // Northern periphery
+            'קרית שמונה': {region: 'צפון', reason: 'יישוב ספר בגבול הצפון'},
+            'נהריה': {region: 'צפון', reason: 'עיר פריפריאלית בצפון'},
+            'עכו': {region: 'צפון', reason: 'עיר פריפריאלית בצפון'},
+            'טבריה': {region: 'צפון', reason: 'עיר פריפריאלית בגליל'},
+            'צפת': {region: 'צפון', reason: 'עיר הררית בגבול הצפון'},
+            'כרמיאל': {region: 'צפון', reason: 'עיר בגליל המערבי'},
+            'נצרת': {region: 'צפון', reason: 'עיר בגליל התחתון'},
+            'מגדל העמק': {region: 'צפון', reason: 'עיר בעמק יזרעאל'},
+            'סחנין': {region: 'צפון', reason: 'יישוב ערבי בגליל'},
+            // Southern periphery
+            'באר שבע': {region: 'דרום', reason: 'בירת הדרום'},
+            'אילת': {region: 'דרום', reason: 'עיר קיצונית בדרום'},
+            'דימונה': {region: 'דרום', reason: 'יישוב ספר בנגב'},
+            'ערד': {region: 'דרום', reason: 'יישוב בדרום הנגב'},
+            'מצפה רמון': {region: 'דרום', reason: 'יישוב קהילתי בנגב'},
+            'רהט': {region: 'דרום', reason: 'עיר בדרום (נגב צפוני)'},
+            'חורר': {region: 'דרום', reason: 'יישוב בדרום'},
+            'להבים': {region: 'דרום', reason: 'יישוב קהילתי בנגב'},
+            // Southern development towns
+            'אשקלון': {region: 'דרום', reason: 'עיר פיתוח בדרום'},
+            'קריית גת': {region: 'דרום', reason: 'עיר פיתוח בדרום'},
+            'קריית מלאכי': {region: 'דרום', reason: 'עיר פיתוח בדרום'},
+            'שדרות': {region: 'דרום', reason: 'יישוב ספר בנגב המערבי'},
+            'נתיבות': {region: 'דרום', reason: 'יישוב בדרום'},
+            'אופקים': {region: 'דרום', reason: 'יישוב בדרום'},
+            // Jerusalem corridor
+            'מעלה אדומים': {region: 'ירושלים', reason: 'יישוב בקו התפר'},
+            'ביתר עילית': {region: 'ירושלים', reason: 'יישוב בקו התפר'},
+            'אריאל': {region: 'שומרון', reason: 'יישוב בשומרון'},
+            // Eastern periphery
+            'טייבה': {region: 'מרכז', reason: 'עיר בפריפריה המזרחית'}
+        };
 
-        // ============================================================
-        // FARE RULES - Official Ministry of Transport fare zones
-        // Source: bus.gov.il - Official fare table
-        // ============================================================
+        // STREETS DATABASE (sample - in real app would come from API)
+        var STREETS_BY_CITY = {};
+
+        // Initialize with some streets for major periphery cities
+        function initStreetsDatabase() {
+            // This would be populated from government API in production
+            // For now, using sample data
+            var sampleStreets = {
+                'קרית שמונה': ['הגליל', 'החייל', 'ירדן', 'חרמון', 'הגבורה', 'דגניה', 'השומר'],
+                'באר שבע': ['רחוב הראשונים', 'דרך גילת', 'הנשיא', 'בילו', 'יצחק רגב', 'נמל התעופה'],
+                'אילת': ['התמרים', 'הפלמח', 'דרך עין ואדי', 'הסנהדרין', 'שדרות התמר'],
+                'נהריה': ['הגעתון', 'פריד', 'המעפיל', 'דרך הים', 'ירושלים', 'הנביאים'],
+                'טבריה': ['הרגרסיה', 'כיסופים', 'ברוך', 'הרי גולן', 'יד התשע'],
+                'עכו': ['ההגנה', 'ירושלים', 'הרצל', 'המסגד', 'העיר העתיקה'],
+                'דימונה': ['הנגב', 'המכתש', 'דגניה', 'השלום', 'העצמאות'],
+                'נצרת': ['המרכז', 'העיר העתיקה', 'פסיה', 'כפר כנא', 'אום אל-פחם']
+            };
+            
+            for (var city in sampleStreets) {
+                STREETS_BY_CITY[city] = sampleStreets[city];
+            }
+        }
+
+        // Train cities
+        var TRAIN_CITIES = ['תל אביב', 'ירושלים', 'חיפה', 'באר שבע', 'נתניה', 'ראשון לציון', 'פתח תקווה', 'מודיעין', 'הרצליה', 'רעננה', 'כפר סבא', 'בני ברק', 'רמת גן', 'חולון', 'בת ים'];
+
+        // FARE RULES
         var FARE_RULES = {
-            yellow: {       // 0-15 km
-                maxDistance: 15,
-                single: 8.00,
-                daily: 17.50,
-                label: 'צהוב (0-15 ק"מ)'
-            },
-            green: {        // 15-40 km
-                maxDistance: 40,
-                single: 14.50,
-                daily: 29.00,
-                label: 'ירוק (15-40 ק"מ)'
-            },
-            lightblue: {    // 40-75 km
-                maxDistance: 75,
-                single: 19.00,
-                daily: 37.50,
-                label: 'תכלת (40-75 ק"מ)'
-            },
-            blue: {         // 75-120 km
-                maxDistance: 120,
-                single: 19.00,
-                daily: 37.50,
-                label: 'כחול (75-120 ק"מ)'
-            },
-            purple: {       // 120-225 km
-                maxDistance: 225,
-                single: 30.50,
-                daily: 60.50,
-                label: 'סגול (120-225 ק"מ)'
-            },
-            gray: {         // 225+ km
-                maxDistance: Infinity,
-                single: 74.00,
-                daily: 79.50,
-                label: 'אפור (225+ ק"מ)'
-            }
+            'lightblue': {single: 5.50, daily: 13.50},  // Up to 15km
+            'blue': {single: 6.50, daily: 16.50},       // 15-25km
+            'red': {single: 8.00, daily: 22.00},        // 25-40km
+            'orange': {single: 12.00, daily: 29.00},     // 40-75km
+            'purple': {single: 16.00, daily: 39.00},     // 75-100km
+            'green': {single: 22.00, daily: 52.00},      // 100-150km
+            'yellow': {single: 30.00, daily: 72.00},     // 150-200km
+            'dark': {single: 40.00, daily: 96.00}        // Over 200km
         };
 
-        // ============================================================
-        // MONTHLY CONTRACTS (Official Reform Passes)
-        // ============================================================
         var MONTHLY_CONTRACTS = {
-            national: {
-                id: 'national',
-                name: 'חופשי חודשי ארצי',
-                base: 18.07,
-                label: 'בינעירוני ארצי'
-            },
-            nationalTrain: {
-                id: 'nationalTrain',
-                name: 'חופשי ארצי משולב רכבת',
-                base: 464.00, // Default, overridden by zone in evaluateMonthlyContract
-                label: 'משולב רכבת',
-                condition: 'intercity' // Only for distance > 40km
-            },
-            periphery: {
-                id: 'periphery',
-                name: 'חופשי חודשי פריפריה',
-                base: 133.00,
-                label: 'פריפריה',
-                invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
-                invalidMessage: 'לא תקף במסלול זה'
-            },
-            eilat: {
-                id: 'eilat',
-                name: 'חופשי חודשי אילת',
-                base: 114.50,
-                label: 'אילת',
-                requiredCity: 'אילת'
+            'national': {base: 630, train: 690, periphery: 415},
+            'nationalTrain': {base: 690, train: 0, periphery: 455},
+            'periphery': {base: 415, train: 455, periphery: 280},
+            'eilat': {base: 690, train: 0, periphery: 0}
+        };
+
+        // ============================================================
+        // GEOGRAPHIC ELIGIBILITY CHECK FUNCTIONS
+        // ============================================================
+
+        function toggleGeoCard() {
+            var card = document.getElementById('geo-card');
+            card.classList.toggle('expanded');
+        }
+
+        function updateGeoSteps(currentStep) {
+            for (var i = 1; i <= 3; i++) {
+                var step = document.getElementById('geo-step-' + i);
+                step.classList.remove('active', 'done');
+                if (i < currentStep) {
+                    step.classList.add('done');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                }
             }
-        };
+        }
+
+        function setupGeoAutocomplete(inputId, listId, dataSource, onSelect) {
+            var input = document.getElementById(inputId);
+            var list = document.getElementById(listId);
+            var highlightedIndex = -1;
+
+            input.addEventListener('input', function() {
+                var value = this.value.trim();
+                if (value.length < 1) {
+                    list.classList.remove('active');
+                    return;
+                }
+
+                var matches = dataSource(value);
+                if (matches.length === 0) {
+                    list.classList.remove('active');
+                    return;
+                }
+
+                list.innerHTML = '';
+                highlightedIndex = -1;
+
+                matches.forEach(function(item, index) {
+                    var itemEl = document.createElement('div');
+                    itemEl.className = 'autocomplete-item';
+                    itemEl.textContent = typeof item === 'string' ? item : item.name;
+                    itemEl.setAttribute('data-index', index);
+                    itemEl.addEventListener('click', function() {
+                        input.value = typeof item === 'string' ? item : item.name;
+                        list.classList.remove('active');
+                        onSelect(item);
+                    });
+                    list.appendChild(itemEl);
+                });
+
+                list.classList.add('active');
+            });
+
+            input.addEventListener('keydown', function(e) {
+                var items = list.querySelectorAll('.autocomplete-item');
+                if (!list.classList.contains('active') || items.length === 0) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightedIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0;
+                    items.forEach(function(item) { item.classList.remove('highlighted'); });
+                    items[highlightedIndex].classList.add('highlighted');
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightedIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1;
+                    items.forEach(function(item) { item.classList.remove('highlighted'); });
+                    items[highlightedIndex].classList.add('highlighted');
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (highlightedIndex >= 0) {
+                        items[highlightedIndex].click();
+                    }
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.remove('active');
+                }
+            });
+        }
+
+        // City autocomplete source
+        function filterCitiesForGeo(input) {
+            if (!input || input.length < 1) return [];
+            var normalizedInput = input.trim().toLowerCase();
+            var cities = [];
+            for (var city in CITIES) {
+                cities.push(city);
+            }
+            return cities.filter(function(city) {
+                return city.toLowerCase().indexOf(normalizedInput) !== -1;
+            }).slice(0, 10);
+        }
+
+        // Street autocomplete source
+        function filterStreetsForGeo(input, city) {
+            if (!input || input.length < 1 || !city) return [];
+            var normalizedInput = input.trim().toLowerCase();
+            var streets = STREETS_BY_CITY[city] || [];
+            return streets.filter(function(street) {
+                return street.toLowerCase().indexOf(normalizedInput) !== -1;
+            }).slice(0, 10);
+        }
+
+        var selectedCity = null;
+        var selectedStreet = null;
+
+        // Initialize geographic autocomplete
+        function initGeoAutocomplete() {
+            initStreetsDatabase();
+            
+            setupGeoAutocomplete('geo-city', 'geo-city-list', filterCitiesForGeo, function(city) {
+                selectedCity = city;
+                document.getElementById('geo-street').disabled = false;
+                updateGeoSteps(2);
+                document.getElementById('geo-street').focus();
+            });
+
+            setupGeoAutocomplete('geo-street', 'geo-street-list', function(input) {
+                return filterStreetsForGeo(input, selectedCity);
+            }, function(street) {
+                selectedStreet = street;
+                document.getElementById('geo-house').disabled = false;
+                updateGeoSteps(3);
+                document.getElementById('geo-house').focus();
+            });
+        }
+
+        function checkGeographicEligibility() {
+            var city = document.getElementById('geo-city').value.trim();
+            var street = document.getElementById('geo-street').value.trim();
+            var house = document.getElementById('geo-house').value.trim();
+
+            if (!city) {
+                alert('יש להזין עיר');
+                return;
+            }
+
+            var btn = document.getElementById('geo-check-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            // Simulate API call
+            setTimeout(function() {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+
+                var resultDiv = document.getElementById('geo-result');
+                var resultIcon = document.getElementById('geo-result-icon');
+                var resultTitle = document.getElementById('geo-result-title');
+                var resultDesc = document.getElementById('geo-result-desc');
+                var resultAddress = document.getElementById('geo-result-address');
+
+                var fullAddress = city + (street ? ', ' + street : '') + (house ? ' ' + house : '');
+                resultAddress.textContent = fullAddress;
+
+                // Check if city is in periphery
+                if (PERIPHERY_CITIES[city]) {
+                    resultDiv.className = 'geo-result eligible';
+                    resultIcon.textContent = '✅';
+                    resultTitle.textContent = '🎉 זכאי להנחת פריפריה!';
+                    resultDesc.innerHTML = '<strong>' + city + '</strong> נמצאת באזור גיאוגרפי הזכאי להנחה.<br><br>📋 סיבת הזכאות: ' + PERIPHERY_CITIES[city].reason + '<br>📍 אזור: ' + PERIPHERY_CITIES[city].region;
+                } else {
+                    resultDiv.className = 'geo-result not-eligible';
+                    resultIcon.textContent = '❌';
+                    resultTitle.textContent = 'לא זכאי להנחת פריפריה';
+                    resultDesc.innerHTML = 'העיר <strong>' + city + '</strong> אינה נמצאת באזור הזכאי להנחה גיאוגרפית.<br><br>💡 הנחות פריפריה חלות על יישובי הספר בצפון ובדרום בלבד.';
+                }
+
+                resultDiv.style.display = 'block';
+            }, 800);
+        }
 
         // ============================================================
-        // PASSENGER PROFILES & DISCOUNT RULES
+        // DISTANCE CALCULATION
         // ============================================================
-        var FREE_PROFILES = ['soldier', 'national_service', 'pre_military', 'blind', 'senior_75'];
 
-        // Monthly pass discounts by profile
-        var MONTHLY_DISCOUNTS = {
-            adult: 0,
-            youth: 0.50,        // Youth under 18 - 50% off
-            youth_18_26: 0.33, // Young adults 18-26 - 33% off
-            senior: 0.50,      // Senior - 50% off
-            student: 0.33,     // Student - 33% off
-            disabled: 0.50     // Disabled - 50% off
-        };
-
-        // ============================================================
-        // UTILITY FUNCTIONS
-        // ============================================================
-        
-        // Current location coordinates (set when user uses geolocation)
-        var currentLocationCoords = null;
-        
-        // Haversine distance calculation
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            var R = 6371; // Earth radius in km
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            var R = 6371;
             var dLat = (lat2 - lat1) * Math.PI / 180;
             var dLon = (lon2 - lon1) * Math.PI / 180;
             var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
         }
 
-        function getCoords(cityName) {
-            cityName = cityName.trim().toLowerCase();
-            for (var city in CITIES) {
-                if (city.trim().toLowerCase() === cityName) return CITIES[city];
-            }
-            return null;
+        function getDistance(origin, dest) {
+            var originCoords = CITIES[origin];
+            var destCoords = CITIES[dest];
+            if (!originCoords || !destCoords) return null;
+            return haversineDistance(originCoords[0], originCoords[1], destCoords[0], destCoords[1]);
         }
 
-        function isFreeProfile(profile) {
-            return FREE_PROFILES.indexOf(profile) !== -1;
+        function getFareZone(distance) {
+            if (distance <= 15) return 'lightblue';
+            if (distance <= 25) return 'blue';
+            if (distance <= 40) return 'red';
+            if (distance <= 75) return 'orange';
+            if (distance <= 100) return 'purple';
+            if (distance <= 150) return 'green';
+            if (distance <= 200) return 'yellow';
+            return 'dark';
         }
 
-        function getMonthlyDiscount(profile) {
-            return MONTHLY_DISCOUNTS[profile] || 0;
-        }
-
-        // ============================================================
-        // AUTOCOMPLETE FUNCTIONALITY (UPGRADE 4)
-        // ============================================================
-        
-        // Get all city names as array
         function getCityNames() {
             var names = [];
             for (var city in CITIES) {
@@ -934,41 +836,39 @@
             }
             return names;
         }
-        
-        // Filter cities by input
-        function filterCities(input, cities) {
+
+        // ============================================================
+        // AUTOCOMPLETE SETUP
+        // ============================================================
+
+        function filterCities(input) {
             if (!input || input.length < 1) return [];
             var normalizedInput = input.trim().toLowerCase();
+            var cities = getCityNames();
             return cities.filter(function(city) {
                 return city.toLowerCase().indexOf(normalizedInput) !== -1;
-            }).slice(0, 10); // Limit to 10 results
+            }).slice(0, 10);
         }
-        
-        // Set up autocomplete for an input field
+
         function setupAutocomplete(inputId, listId) {
             var input = document.getElementById(inputId);
             var list = document.getElementById(listId);
             var cities = getCityNames();
             var highlightedIndex = -1;
-            
+
             input.addEventListener('input', function() {
                 var value = this.value.trim();
-                
                 if (value.length < 1) {
                     list.classList.remove('active');
                     return;
                 }
-                
-                var matches = filterCities(value, cities);
-                
+                var matches = filterCities(value);
                 if (matches.length === 0) {
                     list.classList.remove('active');
                     return;
                 }
-                
                 list.innerHTML = '';
                 highlightedIndex = -1;
-                
                 matches.forEach(function(city, index) {
                     var item = document.createElement('div');
                     item.className = 'autocomplete-item';
@@ -977,7 +877,6 @@
                     item.addEventListener('click', function() {
                         input.value = city;
                         list.classList.remove('active');
-                        // Trigger calculation if both fields are filled
                         if (inputId === 'origin') {
                             var destValue = document.getElementById('dest').value;
                             if (destValue && destValue.trim().length > 0) {
@@ -985,28 +884,27 @@
                             }
                         }
                     });
-                    item.addEventListener('mouseenter', function() {
-                        highlightItem(index);
-                    });
                     list.appendChild(item);
                 });
-                
                 list.classList.add('active');
             });
-            
+
             input.addEventListener('keydown', function(e) {
                 var items = list.querySelectorAll('.autocomplete-item');
                 if (!list.classList.contains('active') || items.length === 0) return;
-                
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
-                    highlightNext(items);
+                    highlightedIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0;
+                    items.forEach(function(item) { item.classList.remove('highlighted'); });
+                    items[highlightedIndex].classList.add('highlighted');
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
-                    highlightPrev(items);
+                    highlightedIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1;
+                    items.forEach(function(item) { item.classList.remove('highlighted'); });
+                    items[highlightedIndex].classList.add('highlighted');
                 } else if (e.key === 'Enter') {
                     e.preventDefault();
-                    if (highlightedIndex >= 0 && highlightedIndex < items.length) {
+                    if (highlightedIndex >= 0) {
                         input.value = items[highlightedIndex].textContent;
                         list.classList.remove('active');
                     }
@@ -1014,85 +912,48 @@
                     list.classList.remove('active');
                 }
             });
-            
-            function highlightItem(index) {
-                var items = list.querySelectorAll('.autocomplete-item');
-                items.forEach(function(item) { item.classList.remove('highlighted'); });
-                if (index >= 0 && index < items.length) {
-                    items[index].classList.add('highlighted');
-                    highlightedIndex = index;
-                }
-            }
-            
-            function highlightNext(items) {
-                var newIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0;
-                highlightItem(newIndex);
-            }
-            
-            function highlightPrev(items) {
-                var items = list.querySelectorAll('.autocomplete-item');
-                var newIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1;
-                highlightItem(newIndex);
-            }
-            
-            // Close dropdown when clicking outside
+
             document.addEventListener('click', function(e) {
                 if (!input.contains(e.target) && !list.contains(e.target)) {
                     list.classList.remove('active');
                 }
             });
         }
-        
-        // Initialize autocomplete for both inputs
+
         setupAutocomplete('origin', 'origin-autocomplete');
         setupAutocomplete('dest', 'dest-autocomplete');
-        
+
         // ============================================================
-        // TRAIN CONNECTIVITY CHECK (UPGRADE 2)
+        // TRAIN CONNECTIVITY CHECK
         // ============================================================
-        
+
         function hasTrainConnectivity(origin, dest) {
-            // Normalize input
             var originLower = origin.trim().toLowerCase();
             var destLower = dest.trim().toLowerCase();
-            
-            // Special case: current location doesn't have train connectivity
-            if (originLower === 'המיקום הנוכחי שלי') {
-                return false;
-            }
-            
-            // Check if both cities are in the train network
+            if (originLower === 'המיקום הנוכחי שלי') return false;
             var originHasTrain = TRAIN_CITIES.some(function(city) {
                 return city.toLowerCase() === originLower;
             });
             var destHasTrain = TRAIN_CITIES.some(function(city) {
                 return city.toLowerCase() === destLower;
             });
-            
             return originHasTrain && destHasTrain;
         }
-        
-        // ============================================================
-        // EILAT VISIBILITY CHECK (UPGRADE 3)
-        // ============================================================
-        
+
         function shouldShowEilatPass(origin, dest) {
             var originLower = origin.trim().toLowerCase();
             var destLower = dest.trim().toLowerCase();
             var eilatLower = 'אילת'.toLowerCase();
-            
-            // Only show if Eilat is explicitly selected as origin or destination
             return originLower === eilatLower || destLower === eilatLower;
         }
-        
+
         // ============================================================
-        // THEME TOGGLE (PREMIUM DARK MODE)
+        // THEME TOGGLE
         // ============================================================
 
         function initTheme() {
             var savedTheme = localStorage.getItem('theme');
             var themeToggle = document.getElementById('theme-toggle');
-            
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
                 themeToggle.textContent = '☀️';
@@ -1102,52 +963,39 @@
         }
 
         function toggleTheme() {
+            var body = document.body;
             var themeToggle = document.getElementById('theme-toggle');
-            var isDark = document.body.classList.toggle('dark-mode');
-            
-            if (isDark) {
-                themeToggle.textContent = '☀️';
+            body.classList.toggle('dark-mode');
+            if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
             } else {
-                themeToggle.textContent = '🌙';
                 localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
             }
         }
 
-        document.getElementById('theme-toggle').onclick = toggleTheme;
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
         initTheme();
 
         // ============================================================
-        // RECENT SEARCHES HISTORY (LOCALSTORAGE)
+        // RECENT SEARCHES
         // ============================================================
 
-        var MAX_RECENT_SEARCHES = 3;
-
         function getRecentSearches() {
-            var searches = localStorage.getItem('recentSearches');
-            if (searches) {
-                try {
-                    return JSON.parse(searches);
-                } catch (e) {
-                    return [];
-                }
+            try {
+                return JSON.parse(localStorage.getItem('recentSearches') || '[]');
+            } catch (e) {
+                return [];
             }
-            return [];
         }
 
         function saveRecentSearch(origin, dest) {
-            if (!origin || !dest || origin === 'המיקום הנוכחי שלי') return;
-            
             var searches = getRecentSearches();
-            var newEntry = { origin: origin, dest: dest };
-            
-            searches = searches.filter(function(s) {
-                return !(s.origin === origin && s.dest === dest);
-            });
-            
-            searches.unshift(newEntry);
-            searches = searches.slice(0, MAX_RECENT_SEARCHES);
-            
+            var key = origin + '→' + dest;
+            searches = searches.filter(function(s) { return s.key !== key; });
+            searches.unshift({key: key, origin: origin, dest: dest, time: Date.now()});
+            searches = searches.slice(0, 5);
             localStorage.setItem('recentSearches', JSON.stringify(searches));
             renderRecentSearches();
         }
@@ -1155,18 +1003,15 @@
         function renderRecentSearches() {
             var container = document.getElementById('recent-searches');
             var searches = getRecentSearches();
-            
             container.innerHTML = '';
-            
             searches.forEach(function(search) {
                 var chip = document.createElement('span');
                 chip.className = 'history-chip';
-                chip.innerHTML = search.origin + '<span class="arrow">←</span>' + search.dest;
-                chip.onclick = function() {
+                chip.innerHTML = search.origin + '<span class="arrow">→</span>' + search.dest;
+                chip.addEventListener('click', function() {
                     document.getElementById('origin').value = search.origin;
                     document.getElementById('dest').value = search.dest;
-                    calculateFareAndDisplay();
-                };
+                });
                 container.appendChild(chip);
             });
         }
@@ -1174,531 +1019,189 @@
         renderRecentSearches();
 
         // ============================================================
-        // PROFILE CHANGE HANDLER - Show/hide student pass option
-        // ============================================================
-        
-        function updateStudentPassVisibility() {
-            var passengerType = document.querySelector('[name="passenger"]:checked').value;
-            var studentPassContainer = document.getElementById('t-student-pass-container');
-            var isStudent = (passengerType === 'student');
-            
-            if (isStudent) {
-                studentPassContainer.style.display = 'block';
-            } else {
-                studentPassContainer.style.display = 'none';
-                // If semester/annual was selected, switch back to single
-                var semesterRadio = document.getElementById('t-semester');
-                if (semesterRadio.checked) {
-                    document.getElementById('t-single').checked = true;
-                }
-            }
-        }
-        
-        // Add event listeners to all passenger profile radios
-        var profileRadios = document.querySelectorAll('[name="passenger"]');
-        profileRadios.forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                updateStudentPassVisibility();
-            });
-        });
-        
-        // Initialize visibility on page load
-        updateStudentPassVisibility();
-
-        // ============================================================
-        // STUDENT PASS SELECTION HELPERS
-        // ============================================================
-        
-        var selectedStudentPass = 'semester'; // Default selection
-        
-        function getSelectedStudentPass() {
-            return selectedStudentPass;
-        }
-        
-        function selectStudentPass(passType) {
-            selectedStudentPass = passType;
-            updateStudentPassCards(passType);
-            // Recalculate and display the result
-            calculateFareAndDisplay();
-        }
-        
-        function updateStudentPassCards(selectedPass) {
-            var cardSemester = document.getElementById('card-semester');
-            var cardAnnual = document.getElementById('card-annual');
-            
-            if (selectedPass === 'semester') {
-                cardSemester.style.borderColor = 'var(--price-color)';
-                cardSemester.style.background = 'var(--card-bg)';
-                cardAnnual.style.borderColor = 'var(--border-color)';
-                cardAnnual.style.background = 'var(--card-bg)';
-            } else {
-                cardAnnual.style.borderColor = 'var(--price-color)';
-                cardAnnual.style.background = 'var(--card-bg)';
-                cardSemester.style.borderColor = 'var(--border-color)';
-                cardSemester.style.background = 'var(--card-bg)';
-            }
-        }
-
-        // ============================================================
-        // WHATSAPP SHARE
+        // GPS LOCATION
         // ============================================================
 
-        var lastCalculatedResult = null;
-
-        function shareToWhatsApp() {
-            if (!lastCalculatedResult) return;
-            
-            var origin = lastCalculatedResult.origin;
-            var dest = lastCalculatedResult.dest;
-            var distance = lastCalculatedResult.distance;
-            var singlePrice = lastCalculatedResult.single;
-            var monthlyPrice = lastCalculatedResult.monthlyNational.price;
-            
-            var message = 'בדקתי מחיר נסיעה במחשבון התחבורה! 🚌 מ' + origin + ' ל' + dest + ' (' + distance.toFixed(1) + ' ק"מ). כרטיס בודד: ' + singlePrice.toFixed(2) + ' ₪, חופשי חודשי: ' + monthlyPrice.toFixed(2) + ' ₪. בדקו גם אתם: https://infinityempire.github.io/psc/index.html';
-            
-            var encodedMessage = encodeURIComponent(message);
-            var whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodedMessage;
-            
-            window.open(whatsappUrl, '_blank');
-        }
-
-        document.getElementById('whatsapp-share-btn').onclick = shareToWhatsApp;
-
-        // GEOLOCATION FUNCTIONS (UPGRADE 1)
-        // ============================================================
-        
-        function useCurrentLocation() {
+        function getLocation() {
             var locationBtn = document.getElementById('location-btn');
             var locationError = document.getElementById('location-error');
-            var originInput = document.getElementById('origin');
-            
-            // Hide any previous error
+            var gpsDistance = document.getElementById('gps-distance');
+
+            locationBtn.disabled = true;
             locationError.style.display = 'none';
-            locationError.textContent = '';
-            
-            // Check if geolocation is supported
+            gpsDistance.style.display = 'none';
+
             if (!navigator.geolocation) {
-                locationError.textContent = 'הדפדפן שלך אינו תומך באיפיון מיקום';
+                locationError.textContent = 'הדפדפן לא תומך במיקום';
                 locationError.style.display = 'block';
+                locationBtn.disabled = false;
                 return;
             }
-            
-            // Disable button while getting location
-            locationBtn.disabled = true;
-            locationBtn.textContent = '...';
-            
+
             navigator.geolocation.getCurrentPosition(
                 function(position) {
-                    // Success: store coordinates
-                    currentLocationCoords = [
-                        position.coords.latitude,
-                        position.coords.longitude
-                    ];
-                    
-                    // Update input field
-                    originInput.value = 'המיקום הנוכחי שלי';
-                    
-                    // Re-enable button
+                    var userLat = position.coords.latitude;
+                    var userLon = position.coords.longitude;
+                    var minDist = Infinity;
+                    var nearestCity = null;
+
+                    for (var city in CITIES) {
+                        var dist = haversineDistance(userLat, userLon, CITIES[city][0], CITIES[city][1]);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            nearestCity = city;
+                        }
+                    }
+
+                    if (nearestCity && minDist < 50) {
+                        document.getElementById('origin').value = nearestCity;
+                        gpsDistance.innerHTML = '📍 המיקום שלך: ' + nearestCity + ' (כ-' + Math.round(minDist) + ' ק"מ)';
+                        gpsDistance.style.display = 'block';
+                    } else {
+                        locationError.textContent = 'לא נמצא יישוב קרוב';
+                        locationError.style.display = 'block';
+                    }
+
                     locationBtn.disabled = false;
-                    locationBtn.textContent = '📍 המיקום שלי';
                 },
                 function(error) {
-                    // Error: show user-friendly message
-                    var errorMessage = '';
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage = 'גישה למיקום נדחתה. אנא אפשר גישה למיקום בהגדרות הדפדפן.';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage = 'מיקום לא זמין כרגע. נסה שוב מאוחר יותר.';
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage = 'תם הזמן לקבלת מיקום. נסה שוב.';
-                            break;
-                        default:
-                            errorMessage = 'שגיאה בקבלת המיקום. נסה שוב.';
-                    }
-                    
-                    locationError.textContent = errorMessage;
+                    locationError.textContent = 'שגיאה בקבלת מיקום: ' + (error.message || 'לא ניתן לאתר');
                     locationError.style.display = 'block';
-                    
-                    // Re-enable button
                     locationBtn.disabled = false;
-                    locationBtn.textContent = '📍 המיקום שלי';
-                    
-                    // Clear stored coordinates
-                    currentLocationCoords = null;
                 },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
+                {timeout: 10000}
             );
         }
-        
-        // Set up location button click handler
-        document.getElementById('location-btn').onclick = useCurrentLocation;
+
+        document.getElementById('location-btn').addEventListener('click', getLocation);
 
         // ============================================================
-        // FARE RULE ENGINE
+        // STUDENT PASS VISIBILITY
         // ============================================================
-        
-        function determineFareZone(distance) {
-            if (distance <= FARE_RULES.yellow.maxDistance) {
-                return { zone: 'yellow', data: FARE_RULES.yellow, distance: distance };
-            } else if (distance <= FARE_RULES.green.maxDistance) {
-                return { zone: 'green', data: FARE_RULES.green, distance: distance };
-            } else if (distance <= FARE_RULES.lightblue.maxDistance) {
-                return { zone: 'lightblue', data: FARE_RULES.lightblue, distance: distance };
-            } else if (distance <= FARE_RULES.blue.maxDistance) {
-                return { zone: 'blue', data: FARE_RULES.blue, distance: distance };
-            } else if (distance <= FARE_RULES.purple.maxDistance) {
-                return { zone: 'purple', data: FARE_RULES.purple, distance: distance };
+
+        function updateStudentPassVisibility() {
+            var passenger = document.querySelector('input[name="passenger"]:checked').value;
+            var studentContainer = document.getElementById('t-student-pass-container');
+            if (passenger === 'student') {
+                studentContainer.style.display = 'block';
             } else {
-                return { zone: 'gray', data: FARE_RULES.gray, distance: distance };
+                studentContainer.style.display = 'none';
             }
         }
 
-        // Monthly train prices by zone (from bus.gov.il)
-        var MONTHLY_TRAIN_PRICES = {
-            yellow: 323,
-            green: 323,
-            lightblue: 464,
-            blue: 684,
-            purple: 684,
-            gray: 684
-        };
-
-        function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
-            var result = { valid: true, price: null, message: '' };
-            var originLower = origin.trim().toLowerCase();
-            var destLower = dest.trim().toLowerCase();
-
-            // FREE profiles always pay 0.00 for any ticket type
-            if (isFree) {
-                result.price = 0.00;
-                return result;
-            }
-
-            // Check required city for Eilat pass
-            if (contract.requiredCity) {
-                var requiredCityLower = contract.requiredCity.trim().toLowerCase();
-                if (originLower !== requiredCityLower && destLower !== requiredCityLower) {
-                    result.valid = false;
-                    result.message = 'לא רלוונטי';
-                    return result;
-                }
-            }
-
-            // Check invalid cities for Periphery pass
-            if (contract.invalidCities) {
-                for (var i = 0; i < contract.invalidCities.length; i++) {
-                    var invalidCityLower = contract.invalidCities[i].trim().toLowerCase();
-                    if (originLower === invalidCityLower || destLower === invalidCityLower) {
-                        result.valid = false;
-                        result.message = contract.invalidMessage;
-                        return result;
-                    }
-                }
-            }
-
-            // Check intercity condition for National+Train
-            // National+Train is only valid for intercity routes (>40km)
-            if (contract.condition === 'intercity' && 
-                (fareZone.zone === 'yellow' || fareZone.zone === 'green')) {
-                result.valid = false;
-                result.message = 'לא רלוונטי למסלול';
-                return result;
-            }
-
-            // Determine base price - National+Train uses zone-based pricing
-            var basePrice = contract.base;
-            if (contract.id === 'nationalTrain') {
-                basePrice = MONTHLY_TRAIN_PRICES[fareZone.zone] || contract.base;
-            }
-
-            // Calculate price with discount
-            result.price = Math.round(basePrice * (1 - discount) * 100) / 100;
-            return result;
-        }
-
-        function calculateFare(origin, dest, passengerType) {
-            // Check if origin is using current location
-            var isCurrentLocation = origin === 'המיקום הנוכחי שלי';
-            var oc = isCurrentLocation ? currentLocationCoords : getCoords(origin);
-            var dc = getCoords(dest);
-            var isFallback = !oc || !dc;
-            
-            var distance, fareZone;
-            
-            if (oc && dc) {
-                distance = calculateDistance(oc[0], oc[1], dc[0], dc[1]);
-                fareZone = determineFareZone(distance);
-            } else {
-                // Fallback: assume 54km (Jerusalem-Tel Aviv average) if cities not found
-                // This would fall into the lightblue zone (40-75km)
-                distance = 54;
-                fareZone = { zone: 'lightblue', data: FARE_RULES.lightblue, distance: distance };
-            }
-
-            var freeProfile = isFreeProfile(passengerType);
-            var monthlyDiscount = getMonthlyDiscount(passengerType);
-
-            // Calculate Single and Daily prices
-            var singlePrice = freeProfile ? 0.00 : fareZone.data.single;
-            var dailyPrice = freeProfile ? 0.00 : fareZone.data.daily;
-
-            // Evaluate all monthly contracts
-            var monthlyNational = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.national, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-            var monthlyTrain = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.nationalTrain, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-            var monthlyPeriphery = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.periphery, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-            var monthlyEilat = evaluateMonthlyContract(
-                MONTHLY_CONTRACTS.eilat, fareZone, origin, dest, monthlyDiscount, freeProfile
-            );
-
-            return {
-                // Single & Daily
-                single: singlePrice,
-                daily: dailyPrice,
-                
-                // Monthly contracts
-                monthlyNational: monthlyNational,
-                monthlyTrain: monthlyTrain,
-                monthlyPeriphery: monthlyPeriphery,
-                monthlyEilat: monthlyEilat,
-                
-                // Route info
-                origin: origin,
-                dest: dest,
-                zone: fareZone.zone,
-                zoneLabel: fareZone.data.label,
-                distance: distance,
-                isFallback: isFallback
-            };
-        }
+        document.querySelectorAll('input[name="passenger"]').forEach(function(input) {
+            input.addEventListener('change', updateStudentPassVisibility);
+        });
 
         // ============================================================
-        // UI RENDERING
+        // FARE CALCULATION
         // ============================================================
-        
-        function renderPrice(elementId, value, valid) {
-            var el = document.getElementById(elementId);
-            if (valid) {
-                el.textContent = value.toFixed(2);
-                el.style.color = '';
-            } else {
-                el.textContent = value;
-                el.style.color = '#999';
-            }
-        }
 
-        var btn = document.getElementById('calculate-btn');
-        
-        // Main calculation function (used by button click and history chips)
         function calculateFareAndDisplay() {
-            var origin = document.getElementById('origin').value;
-            var dest = document.getElementById('dest').value;
-            var ticketType = document.querySelector('[name="ticketType"]:checked').value;
-            var passengerType = document.querySelector('[name="passenger"]:checked').value;
+            var btn = document.getElementById('calculate-btn');
+            var origin = document.getElementById('origin').value.trim();
+            var dest = document.getElementById('dest').value.trim();
+            var passenger = document.querySelector('input[name="passenger"]:checked').value;
+            var ticketType = document.querySelector('input[name="ticketType"]:checked').value;
 
-            if (!origin || !dest) {
-                alert('יש להזין מוצא ויעד');
+            if (!origin) {
+                alert('יש להזין מוצא');
+                return;
+            }
+            if (!dest) {
+                alert('יש להזין יעד');
+                return;
+            }
+            if (origin === dest) {
+                alert('מוצא ויעד לא יכולים להיות זהים');
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = '...';
+            btn.textContent = '🔄 מחשב...';
 
-            setTimeout(async function() {
-                try {
-                    var result = calculateFare(origin, dest, passengerType);
-                    
-                    // Store for WhatsApp sharing
-                    lastCalculatedResult = result;
+            setTimeout(function() {
+                var distance = getDistance(origin, dest);
+                var zone = getFareZone(distance);
+                var baseFare = FARE_RULES[zone].single;
+                var dailyFare = FARE_RULES[zone].daily;
+                var hasTrain = hasTrainConnectivity(origin, dest);
+                var showEilat = shouldShowEilatPass(origin, dest);
+                var isPeripheryResident = (passenger === 'periphery_resident');
 
-                    // Update Single & Daily prices
-                    document.getElementById('price-single').textContent = result.single.toFixed(2);
-                    document.getElementById('price-daily').textContent = result.daily.toFixed(2);
-
-                    // Update Monthly contract prices
-                    renderPrice('price-monthly-national',
-                        result.monthlyNational.price,
-                        result.monthlyNational.valid);
-                    renderPrice('price-monthly-train',
-                        result.monthlyTrain.price,
-                        result.monthlyTrain.valid);
-                    
-                    // PERIPHERY PRICING - Apply 50% discount (157.50 ₪) when periphery profile is selected
-                    var peripheryPriceEl = document.getElementById('price-monthly-periphery');
-                    var isPeripheryProfile = (passengerType === 'periphery_resident');
-                    
-                    if (isPeripheryProfile) {
-                        // Apply 50% discount: 50% of 315 ₪ = 157.50 ₪
-                        peripheryPriceEl.textContent = '157.50';
-                    } else {
-                        // Not periphery profile - show standard pricing
-                        peripheryPriceEl.textContent =
-                            result.monthlyPeriphery.valid ?
-                                result.monthlyPeriphery.price.toFixed(2) :
-                                result.monthlyPeriphery.message;
-                        peripheryPriceEl.style.color =
-                            result.monthlyPeriphery.valid ? '' : '#c00';
-                    }
-                    
-                    document.getElementById('price-monthly-eilat').textContent =
-                        result.monthlyEilat.valid ?
-                            result.monthlyEilat.price.toFixed(2) :
-                            result.monthlyEilat.message;
-                    document.getElementById('price-monthly-eilat').style.color =
-                        result.monthlyEilat.valid ? '' : '#c00';
-
-                    // GPS Distance Display
-                    var gpsDistanceEl = document.getElementById('gps-distance');
-                    var isCurrentLocation = origin === 'המיקום הנוכחי שלי';
-                    if (isCurrentLocation && currentLocationCoords) {
-                        var destCoords = getCoords(dest);
-                        if (destCoords) {
-                            var gpsDist = calculateDistance(
-                                currentLocationCoords[0], currentLocationCoords[1],
-                                destCoords[0], destCoords[1]
-                            );
-                            gpsDistanceEl.innerHTML = '<strong>📍 מרחק GPS:</strong> ' + gpsDist.toFixed(1) + ' ק"מ';
-                            gpsDistanceEl.classList.add('active');
-                        } else {
-                            gpsDistanceEl.classList.remove('active');
-                        }
-                    } else {
-                        gpsDistanceEl.classList.remove('active');
-                    }
-
-                    // Train Pass Visibility
-                    var trainPassRow = document.getElementById('train-pass-label');
-                    var trainPassPrice = document.getElementById('train-pass-price');
-                    if (hasTrainConnectivity(origin, dest)) {
-                        trainPassRow.classList.add('active');
-                        trainPassPrice.classList.add('active');
-                    } else {
-                        trainPassRow.classList.remove('active');
-                        trainPassPrice.classList.remove('active');
-                    }
-
-                    // Eilat Pass Visibility
-                    var eilatPassRow = document.getElementById('eilat-pass-label');
-                    var eilatPassPrice = document.getElementById('eilat-pass-price');
-                    if (shouldShowEilatPass(origin, dest)) {
-                        eilatPassRow.classList.add('active');
-                        eilatPassPrice.classList.add('active');
-                    } else {
-                        eilatPassRow.classList.remove('active');
-                        eilatPassPrice.classList.remove('active');
-                    }
-
-                    // FEATURE 4: Student Extended Passes - Only show when semester/annual ticket type selected
-                    var studentPassesEl = document.getElementById('student-passes');
-                    var isStudent = (passengerType === 'student');
-                    var isSemesterTicket = (ticketType === 'semester');
-                    
-                    // Calculate student pass prices
-                    var semesterPrice = 0;
-                    var annualPrice = 0;
-                    var monthlyNationalPrice = result.monthlyNational.price;
-                    
-                    if (isStudent && result.monthlyNational.valid) {
-                        semesterPrice = Math.round(monthlyNationalPrice * 4 * 100) / 100;
-                        annualPrice = Math.round(monthlyNationalPrice * 8 * 100) / 100;
-                        
-                        document.getElementById('price-semester').textContent = semesterPrice.toFixed(2);
-                        document.getElementById('price-annual').textContent = annualPrice.toFixed(2);
-                    }
-                    
-                    // Show student passes section only when semester/annual ticket type is selected
-                    if (isSemesterTicket && isStudent && result.monthlyNational.valid) {
-                        studentPassesEl.style.display = 'block';
-                        updateStudentPassCards('semester');
-                    } else {
-                        studentPassesEl.style.display = 'none';
-                    }
-
-                    // Update breakdown
-                    document.getElementById('r-origin').textContent = origin;
-                    document.getElementById('r-dest').textContent = dest;
-                    document.getElementById('r-distance').textContent = result.distance.toFixed(1) + ' ק"מ';
-
-
-                    // Determine the final selected price
-                    var finalPrice = 0;
-                    var typeLabel = '';
-                    var monthlyNationalPrice = result.monthlyNational.price;
-
-                    // Check if periphery profile is selected - apply 50% discount
-                    if (isPeripheryProfile) {
-                        finalPrice = 157.50;
-                        typeLabel = 'פריפריה גיאוגרפית (157.50 ₪)';
-                    } else if (ticketType === 'single') {
-                        finalPrice = result.single;
-                        typeLabel = 'נסיעה בודדת (' + result.zoneLabel + ')';
-                    } else if (ticketType === 'daily') {
-                        finalPrice = result.daily;
-                        typeLabel = 'חופשי יומי (' + result.zoneLabel + ')';
-                    } else if (ticketType === 'semester') {
-                        // Handle both semester and annual (selected via updateStudentPassCards)
-                        var selectedPass = getSelectedStudentPass();
-                        if (selectedPass === 'annual') {
-                            finalPrice = Math.round(monthlyNationalPrice * 8 * 100) / 100;
-                            typeLabel = 'מנוי חופשי שנתי (' + result.zoneLabel + ')';
-                        } else {
-                            finalPrice = Math.round(monthlyNationalPrice * 4 * 100) / 100;
-                            typeLabel = 'מנוי חופשי סמסטריאלי (' + result.zoneLabel + ')';
-                        }
-                    } else {
-                        finalPrice = result.monthlyNational.valid ? result.monthlyNational.price : 0;
-                        typeLabel = MONTHLY_CONTRACTS.national.name + ' (' + result.zoneLabel + ')';
-                    }
-
-                    document.getElementById('r-type').textContent = typeLabel;
-                    document.getElementById('r-final').textContent = finalPrice.toFixed(2) + ' ₪';
-
-                    // Handle fallback notice
-                    var fallbackEl = document.getElementById('fallback');
-                    if (result.isFallback) {
-                        fallbackEl.style.display = 'block';
-                        fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' +
-                            FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
-                    } else {
-                        fallbackEl.style.display = 'none';
-                    }
-
-                    // FEATURE 1: Show WhatsApp Share Button
-                    document.getElementById('whatsapp-share-btn').style.display = 'flex';
-
-                    // FEATURE 2: Save to recent searches
-                    saveRecentSearch(origin, dest);
-
-                } catch (e) {
-                    // Error fallback
-                    document.getElementById('price-single').textContent =
-                        FARE_RULES.lightblue.single.toFixed(2);
-                    document.getElementById('price-daily').textContent =
-                        FARE_RULES.lightblue.daily.toFixed(2);
-                    document.getElementById('price-monthly-national').textContent =
-                        MONTHLY_CONTRACTS.national.base.toFixed(2);
-                    document.getElementById('price-monthly-train').textContent =
-                        MONTHLY_CONTRACTS.nationalTrain.base.toFixed(2);
-                    document.getElementById('price-monthly-periphery').textContent = 'שגיאה';
-                    document.getElementById('price-monthly-eilat').textContent = 'שגיאה';
-                    document.getElementById('r-final').textContent =
-                        FARE_RULES.lightblue.single.toFixed(2) + ' ₪';
-                    document.getElementById('fallback').style.display = 'block';
-                    document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
-                        FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
+                // Calculate discounts
+                var discountMultiplier = 1;
+                if (passenger === 'youth' || passenger === 'senior' || passenger === 'disabled') {
+                    discountMultiplier = 0.5;
+                } else if (passenger === 'youth_18_26') {
+                    discountMultiplier = 0.67;
+                } else if (passenger === 'student') {
+                    discountMultiplier = 0.67;
                 }
+
+                var finalSingle = Math.round(baseFare * discountMultiplier * 100) / 100;
+                var finalDaily = Math.round(dailyFare * discountMultiplier * 100) / 100;
+
+                // Update prices
+                document.getElementById('price-single').textContent = finalSingle.toFixed(2);
+                document.getElementById('price-daily').textContent = finalDaily.toFixed(2);
+
+                // Monthly prices
+                var monthlyNational = MONTHLY_CONTRACTS.national.base;
+                var monthlyTrain = MONTHLY_CONTRACTS.nationalTrain.base;
+                var monthlyPeriphery = isPeripheryResident ? MONTHLY_CONTRACTS.periphery.base : '-';
+
+                document.getElementById('price-monthly-national').textContent = monthlyNational.toFixed(2);
+                document.getElementById('price-monthly-train').textContent = hasTrain ? monthlyTrain.toFixed(2) : '-';
+
+                var peripheryRow = document.getElementById('price-monthly-periphery');
+                peripheryRow.textContent = monthlyPeriphery;
+
+                var eilatPassRow = document.getElementById('price-monthly-eilat');
+                eilatPassRow.textContent = showEilat ? MONTHLY_CONTRACTS.eilat.base.toFixed(2) : '-';
+
+                // Show/hide train pass
+                var trainPassRow = document.querySelectorAll('.train-pass-row');
+                trainPassRow.forEach(function(el) {
+                    el.style.display = hasTrain ? 'block' : 'none';
+                });
+
+                // Show/hide Eilat pass
+                var eilatPassLabels = document.querySelectorAll('.eilat-pass-row');
+                eilatPassLabels.forEach(function(el) {
+                    el.style.display = showEilat ? 'block' : 'none';
+                });
+
+                // Update breakdown
+                document.getElementById('r-origin').textContent = origin;
+                document.getElementById('r-dest').textContent = dest;
+                document.getElementById('r-distance').textContent = distance ? distance.toFixed(1) + ' ק"מ' : 'לא נמצא';
+                document.getElementById('r-type').textContent = document.querySelector('label[for="' + document.querySelector('input[name="ticketType"]:checked').id + '"]').textContent.trim();
+                document.getElementById('r-final').textContent = finalSingle.toFixed(2) + ' ₪';
+
+                // Update WhatsApp button
+                var whatsappBtn = document.getElementById('whatsapp-share-btn');
+                whatsappBtn.style.display = 'block';
+                whatsappBtn.onclick = function() {
+                    var text = '🚌 מחשבון תעריפי תחבורה\n\n';
+                    text += '📍 מוצא: ' + origin + '\n';
+                    text += '🎯 יעד: ' + dest + '\n';
+                    text += '📏 מרחק: ' + (distance ? distance.toFixed(1) + ' ק"מ' : 'לא נמצא') + '\n';
+                    text += '💰 מחיר נסיעה בודדת: ' + finalSingle.toFixed(2) + ' ₪';
+                    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+                };
+
+                // Update student passes
+                if (passenger === 'student') {
+                    document.getElementById('student-passes').style.display = 'block';
+                    document.getElementById('price-semester').textContent = '1,690';
+                    document.getElementById('price-annual').textContent = '2,890';
+                } else {
+                    document.getElementById('student-passes').style.display = 'none';
+                }
+
+                // Save to recent searches
+                saveRecentSearch(origin, dest);
 
                 btn.disabled = false;
                 btn.textContent = '🔍 חשב תעריף';
@@ -1706,7 +1209,17 @@
             }, 50);
         }
 
-        btn.onclick = calculateFareAndDisplay;
+        document.getElementById('calculate-btn').onclick = calculateFareAndDisplay;
+
+        // Initialize geographic autocomplete on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initGeoAutocomplete();
+        });
+
+        // Run immediately if DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initGeoAutocomplete();
+        }
     </script>
 </body>
 </html>
