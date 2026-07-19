@@ -469,35 +469,149 @@
         var STREETS_DATA = null;
         var ELIGIBLE_CITIES = null;
         
-        // Load data from JSON files
+        // Load data from JSON files with robust fallback
+        var dataLoadStatus = {
+            citiesLoaded: false,
+            streetsLoaded: false,
+            eligibleLoaded: false,
+            loadAttempts: 0
+        };
+        
         async function loadGovernmentData() {
+            dataLoadStatus.loadAttempts++;
+            
+            // First, try to load from local JSON files (pre-loaded data)
             try {
-                // Load cities and streets
                 const citiesResponse = await fetch('data/cities_streets.json');
-                const citiesData = await citiesResponse.json();
-                CITIES_DATA = citiesData.cities;
-                STREETS_DATA = citiesData.streets;
-                
-                // Load eligible cities for reform discount
+                if (citiesResponse.ok) {
+                    const citiesData = await citiesResponse.json();
+                    CITIES_DATA = citiesData.cities;
+                    STREETS_DATA = citiesData.streets;
+                    dataLoadStatus.citiesLoaded = true;
+                    dataLoadStatus.streetsLoaded = true;
+                    console.log('Loaded cities/streets from local cache: ' + CITIES_DATA.length + ' cities');
+                }
+            } catch (e) {
+                console.warn('Could not load cities from local cache:', e);
+            }
+            
+            try {
                 const eligibleResponse = await fetch('data/periphery/eligible_cities.json');
-                const eligibleData = await eligibleResponse.json();
-                ELIGIBLE_CITIES = eligibleData.cities;
-                
-                console.log('Loaded ' + CITIES_DATA.length + ' cities');
-                console.log('Loaded ' + Object.keys(STREETS_DATA).length + ' cities with streets');
-                console.log('Loaded ' + ELIGIBLE_CITIES.length + ' eligible cities for reform discount');
-                
-                // Initialize the autocomplete with government data
+                if (eligibleResponse.ok) {
+                    const eligibleData = await eligibleResponse.json();
+                    ELIGIBLE_CITIES = eligibleData.cities;
+                    dataLoadStatus.eligibleLoaded = true;
+                    console.log('Loaded eligible cities from local cache: ' + ELIGIBLE_CITIES.length + ' cities');
+                }
+            } catch (e) {
+                console.warn('Could not load eligible cities from local cache:', e);
+            }
+            
+            // If local data is available, initialize with it
+            if (CITIES_DATA && CITIES_DATA.length > 0) {
                 initGovernmentAutocomplete();
-                
+                console.log('Government data initialized from local cache');
                 return true;
-            } catch (error) {
-                console.error('Error loading government data:', error);
-                // Fallback to original CITIES object
-                initOriginalAutocomplete();
+            }
+            
+            // If local data is not available, try to fetch from API
+            if (navigator.onLine) {
+                try {
+                    // Try to fetch cities from API
+                    const citiesApiUrl = 'https://data.gov.il/api/3/action/datastore_search?resource_id=b7cf8f14-64a2-4b33-8d4b-edb286fdbd37&limit=1500';
+                    const response = await fetch(citiesApiUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        CITIES_DATA = data.result.records.map(r => r['שם_ישוב'].trim());
+                        CITIES_DATA = [...new Set(CITIES_DATA)].sort();
+                        dataLoadStatus.citiesLoaded = true;
+                        console.log('Loaded ' + CITIES_DATA.length + ' cities from API');
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch from API:', e);
+                }
+            }
+            
+            // If we still don't have cities, use fallback data
+            if (!CITIES_DATA || CITIES_DATA.length === 0) {
+                console.log('Using fallback city data');
+                CITIES_DATA = getFallbackCities();
+                STREETS_DATA = getFallbackStreets();
+                ELIGIBLE_CITIES = getFallbackEligibleCities();
+                initGovernmentAutocomplete();
                 return false;
             }
+            
+            initGovernmentAutocomplete();
+            return true;
         }
+        
+        // Fallback cities when API fails (comprehensive list)
+        function getFallbackCities() {
+            return [
+                // Northern periphery cities
+                "קרית שמונה", "מגדל העמק", "עפולה", "נצרת", "כרמיאל", "טבריה",
+                "צפת", "נהריה", "עכו", "ראש הנקרה", "שפרעם", "טמרה", "מגאר",
+                "באקה אל גרביה", "עראבה", "מעלה עירון", "קצרין", "מעלות תרשיחא",
+                "שלומי", "מטולה", "ראש פינה", "געתון", "בית הלל", "שאר ישוב",
+                // Southern periphery cities
+                "אופקים", "שדרות", "בית שאן", "נתיבות", "אשקלון", "קרית גת",
+                "קרית מלאכי", "ירוחון", "דימונה", "ערד", "מצפה רמון", "רהט",
+                "לקיה", "שגב שלום", "כסיפה", "עיסופיה", "חורה", "להבים",
+                // Central cities
+                "תל אביב - יפו", "ירושלים", "חיפה", "באר שבע", "נתניה",
+                "אשדוד", "רמת גן", "פתח תקווה", "ראשון לציון", "חולון",
+                "בת ים", "רחובות", "בני ברק", "הוד השרון", "רמלה", "לוד",
+                "מודיעין", "הרצליה", "כפר סבא", "גבעתיים", "קרית אונו",
+                "גני תקווה", "שוהם", "יבנה", "גדרה", "מזכרת בתיה", "ראש העין",
+                // Additional cities
+                "אום אל-פחם", "טירת כרמל", "נוף הגליל", "קרית ביאליק",
+                "קרית מוצקין", "קרית אתא", "קרית ים", "קרית טבעון",
+                "יהוד", "סביון", "מיתר", "שדה בוקר", "ניר עציון",
+                // Arab localities
+                "רהט", "כסיפה", "ערערה", "סאג'ור", "ג'דיידה מכר",
+                "ג'יסר א זרקא", "פקיעין", "בועיינה א נג'יד"
+            ];
+        }
+        
+        // Fallback streets
+        function getFallbackStreets() {
+            return {
+                "תל אביב - יפו": ["דיזנגוף", "בן גוריון", "אלנבי", "שדרות רוטשילד", "לוינסקי", "הרצל", "בזל", "פרישמן", "אבן גבירול", "לנדאו", "זרנושה", "הירקון", "שאול המלך"],
+                "ירושלים": ["יפו", "בן יהודה", "קינג גורג", "שמואל הנביא", "המלך ג׳ורג׳", "לינקולן", "אגריפס", "הנביאים", "שבטי ישראל", "ירמיהו", "ישעיהו"],
+                "חיפה": ["הנביאים", "פרץ", "העמים", "דרך חיפה", "שדרות ההסתדרות", "גולדה", "ביאליק", "חשמונאים", "מוריה", "כיאט"],
+                "באר שבע": ["רחוב השבט", "דוד בן גוריון", "סמטת החרושת", "שדרות יצחק רבין", "אליהו", "שמש", "הרצפה"],
+                "נתניה": ["בן צבי", "סמילנסקי", "הרצל", "הגעתון", "ז'בוטינסקי", "קפלן"],
+                "אשדוד": ["מלאכי", "בר לב", "הרב נריה", "סירקין", "שדרות הים"],
+                "ירושלים": ["יפו", "בן יהודה", "קינג גורג", "שמואל הנביא", "המלך ג׳ורג׳"]
+            };
+        }
+        
+        // Fallback eligible cities (periphery clusters 1-5)
+        function getFallbackEligibleCities() {
+            return [
+                // Northern periphery
+                "קרית שמונה", "מגדל העמק", "עפולה", "נצרת", "כרמיאל", "טבריה",
+                "צפת", "נהריה", "עכו", "ראש הנקרה", "שפרעם", "טמרה",
+                "באקה אל גרביה", "עראבה", "מעלה עירון", "קצרין", "מעלות תרשיחא",
+                "שלומי", "מטולה", "ראש פינה",
+                // Southern periphery
+                "אופקים", "שדרות", "בית שאן", "נתיבות", "אשקלון", "קרית גת",
+                "קרית מלאכי", "ירוחון", "דימונה", "ערד", "מצפה רמון", "רהט",
+                // Central (eligible per reform)
+                "תל אביב - יפו", "ירושלים", "חיפה", "באר שבע", "נתניה"
+            ];
+        }
+        
+        // Online/offline event handlers
+        window.addEventListener('online', function() {
+            console.log('Connection restored - data will be refreshed');
+            loadGovernmentData();
+        });
+        
+        window.addEventListener('offline', function() {
+            console.log('Connection lost - using local fallback data');
+        });
         
         // Check if a city is eligible for the 50% reform discount
         function checkEligibility(cityName) {

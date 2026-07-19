@@ -1,0 +1,1813 @@
+{
+  "timestamp": "2026-07-19T05:13:11.807684",
+  "total": 327,
+  "passed": 327,
+  "failed": 0,
+  "rate": 100.0,
+  "categories": {
+    "api_cities": {
+      "total": 50,
+      "passed": 50,
+      "failed": 0
+    },
+    "api_streets": {
+      "total": 50,
+      "passed": 50,
+      "failed": 0
+    },
+    "city_search": {
+      "total": 22,
+      "passed": 22,
+      "failed": 0
+    },
+    "street_filter": {
+      "total": 20,
+      "passed": 20,
+      "failed": 0
+    },
+    "eligibility": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "fare_single": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "fare_daily": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "fare_monthly": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "fare_train": {
+      "total": 6,
+      "passed": 6,
+      "failed": 0
+    },
+    "discount": {
+      "total": 42,
+      "passed": 42,
+      "failed": 0
+    },
+    "fallback_cities": {
+      "total": 77,
+      "passed": 77,
+      "failed": 0
+    },
+    "fallback_eligible": {
+      "total": 37,
+      "passed": 37,
+      "failed": 0
+    }
+  },
+  "results": [
+    {
+      "test": "cities_api_0",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_0",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_1",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_1",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_2",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_2",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_3",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_3",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_4",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_4",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_5",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_5",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_6",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_6",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_7",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_7",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_8",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_8",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_9",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_9",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_10",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_10",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_11",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_11",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_12",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_12",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_13",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_13",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_14",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_14",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_15",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_15",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_16",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_16",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_17",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_17",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_18",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_18",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_19",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_19",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_20",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_20",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_21",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_21",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_22",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_22",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_23",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_23",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_24",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_24",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_25",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_25",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_26",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_26",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_27",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_27",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_28",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_28",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_29",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_29",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_30",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_30",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_31",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_31",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_32",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_32",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_33",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_33",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_34",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_34",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_35",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_35",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_36",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_36",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_37",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_37",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_38",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_38",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_39",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_39",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_40",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_40",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_41",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_41",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_42",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_42",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_43",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_43",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_44",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_44",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_45",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_45",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_46",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_46",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_47",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_47",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_48",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_48",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "cities_api_49",
+      "success": true,
+      "category": "api_cities"
+    },
+    {
+      "test": "streets_api_49",
+      "success": true,
+      "category": "api_streets"
+    },
+    {
+      "test": "search_תל",
+      "success": true,
+      "matches": 21,
+      "category": "city_search"
+    },
+    {
+      "test": "search_ירו",
+      "success": true,
+      "matches": 9,
+      "category": "city_search"
+    },
+    {
+      "test": "search_חיפה",
+      "success": true,
+      "matches": 1,
+      "category": "city_search"
+    },
+    {
+      "test": "search_באר",
+      "success": true,
+      "matches": 11,
+      "category": "city_search"
+    },
+    {
+      "test": "search_נתניה",
+      "success": true,
+      "matches": 1,
+      "category": "city_search"
+    },
+    {
+      "test": "search_פתח",
+      "success": true,
+      "matches": 3,
+      "category": "city_search"
+    },
+    {
+      "test": "search_רמת",
+      "success": true,
+      "matches": 11,
+      "category": "city_search"
+    },
+    {
+      "test": "search_בני",
+      "success": true,
+      "matches": 19,
+      "category": "city_search"
+    },
+    {
+      "test": "search_כפר",
+      "success": true,
+      "matches": 77,
+      "category": "city_search"
+    },
+    {
+      "test": "search_קרית",
+      "success": true,
+      "matches": 16,
+      "category": "city_search"
+    },
+    {
+      "test": "search_מושב",
+      "success": true,
+      "matches": 4,
+      "category": "city_search"
+    },
+    {
+      "test": "search_מעלה",
+      "success": true,
+      "matches": 11,
+      "category": "city_search"
+    },
+    {
+      "test": "search_בית",
+      "success": true,
+      "matches": 50,
+      "category": "city_search"
+    },
+    {
+      "test": "search_גבע",
+      "success": true,
+      "matches": 26,
+      "category": "city_search"
+    },
+    {
+      "test": "search_נווה",
+      "success": true,
+      "matches": 17,
+      "category": "city_search"
+    },
+    {
+      "test": "search_הר",
+      "success": true,
+      "matches": 19,
+      "category": "city_search"
+    },
+    {
+      "test": "search_ים",
+      "success": true,
+      "matches": 142,
+      "category": "city_search"
+    },
+    {
+      "test": "search_נחל",
+      "success": true,
+      "matches": 4,
+      "category": "city_search"
+    },
+    {
+      "test": "search_עמק",
+      "success": true,
+      "matches": 8,
+      "category": "city_search"
+    },
+    {
+      "test": "search_שכונה",
+      "success": true,
+      "matches": 0,
+      "category": "city_search"
+    },
+    {
+      "test": "search_דרום",
+      "success": true,
+      "matches": 3,
+      "category": "city_search"
+    },
+    {
+      "test": "search_צפון",
+      "success": true,
+      "matches": 0,
+      "category": "city_search"
+    },
+    {
+      "test": "street_filter_תל אב_רחוב",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_תל אב_שדרה",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_תל אב_גן",
+      "success": true,
+      "matches": 11,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_תל אב_ה",
+      "success": true,
+      "matches": 952,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_ירושל_רחוב",
+      "success": true,
+      "matches": 1,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_ירושל_שדרה",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_ירושל_גן",
+      "success": true,
+      "matches": 20,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_ירושל_ה",
+      "success": true,
+      "matches": 1925,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_חיפה_רחוב",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_חיפה_שדרה",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_חיפה_גן",
+      "success": true,
+      "matches": 6,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_חיפה_ה",
+      "success": true,
+      "matches": 671,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_באר ש_רחוב",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_באר ש_שדרה",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_באר ש_גן",
+      "success": true,
+      "matches": 4,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_באר ש_ה",
+      "success": true,
+      "matches": 528,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_נתניה_רחוב",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_נתניה_שדרה",
+      "success": true,
+      "matches": 0,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_נתניה_גן",
+      "success": true,
+      "matches": 4,
+      "category": "street_filter"
+    },
+    {
+      "test": "street_filter_נתניה_ה",
+      "success": true,
+      "matches": 501,
+      "category": "street_filter"
+    },
+    {
+      "test": "eligible_אופקים",
+      "success": true,
+      "eligible": true,
+      "category": "eligibility"
+    },
+    {
+      "test": "eligible_שדרות",
+      "success": true,
+      "eligible": true,
+      "category": "eligibility"
+    },
+    {
+      "test": "eligible_בית שאן",
+      "success": true,
+      "eligible": true,
+      "category": "eligibility"
+    },
+    {
+      "test": "eligible_תל אביב",
+      "success": true,
+      "eligible": true,
+      "category": "eligibility"
+    },
+    {
+      "test": "eligible_ירושלים",
+      "success": true,
+      "eligible": true,
+      "category": "eligibility"
+    },
+    {
+      "test": "single_yellow",
+      "success": true,
+      "price": 8.0,
+      "category": "fare_single"
+    },
+    {
+      "test": "daily_yellow",
+      "success": true,
+      "price": 17.5,
+      "category": "fare_daily"
+    },
+    {
+      "test": "monthly_yellow",
+      "success": true,
+      "price": 315.0,
+      "category": "fare_monthly"
+    },
+    {
+      "test": "monthly_train_yellow",
+      "success": true,
+      "category": "fare_train"
+    },
+    {
+      "test": "single_green",
+      "success": true,
+      "price": 14.5,
+      "category": "fare_single"
+    },
+    {
+      "test": "daily_green",
+      "success": true,
+      "price": 29.0,
+      "category": "fare_daily"
+    },
+    {
+      "test": "monthly_green",
+      "success": true,
+      "price": 315.0,
+      "category": "fare_monthly"
+    },
+    {
+      "test": "monthly_train_green",
+      "success": true,
+      "category": "fare_train"
+    },
+    {
+      "test": "single_lightblue",
+      "success": true,
+      "price": 19.0,
+      "category": "fare_single"
+    },
+    {
+      "test": "daily_lightblue",
+      "success": true,
+      "price": 37.5,
+      "category": "fare_daily"
+    },
+    {
+      "test": "monthly_lightblue",
+      "success": true,
+      "price": 315.0,
+      "category": "fare_monthly"
+    },
+    {
+      "test": "monthly_train_lightblue",
+      "success": true,
+      "category": "fare_train"
+    },
+    {
+      "test": "single_blue",
+      "success": true,
+      "price": 19.0,
+      "category": "fare_single"
+    },
+    {
+      "test": "daily_blue",
+      "success": true,
+      "price": 37.5,
+      "category": "fare_daily"
+    },
+    {
+      "test": "monthly_blue",
+      "success": true,
+      "price": 315.0,
+      "category": "fare_monthly"
+    },
+    {
+      "test": "monthly_train_blue",
+      "success": true,
+      "category": "fare_train"
+    },
+    {
+      "test": "single_purple",
+      "success": true,
+      "price": 30.5,
+      "category": "fare_single"
+    },
+    {
+      "test": "daily_purple",
+      "success": true,
+      "price": 60.5,
+      "category": "fare_daily"
+    },
+    {
+      "test": "monthly_purple",
+      "success": true,
+      "price": 315.0,
+      "category": "fare_monthly"
+    },
+    {
+      "test": "monthly_train_purple",
+      "success": true,
+      "category": "fare_train"
+    },
+    {
+      "test": "single_gray",
+      "success": true,
+      "price": 74.0,
+      "category": "fare_single"
+    },
+    {
+      "test": "daily_gray",
+      "success": true,
+      "price": 79.5,
+      "category": "fare_daily"
+    },
+    {
+      "test": "monthly_gray",
+      "success": true,
+      "price": 684.0,
+      "category": "fare_monthly"
+    },
+    {
+      "test": "monthly_train_gray",
+      "success": true,
+      "category": "fare_train"
+    },
+    {
+      "test": "discount_adult_315.0",
+      "success": true,
+      "price": 315.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_315.0",
+      "success": true,
+      "price": 157.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_senior_315.0",
+      "success": true,
+      "price": 157.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_disabled_315.0",
+      "success": true,
+      "price": 157.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_student_315.0",
+      "success": true,
+      "price": 211.04999999999998,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_18_26_315.0",
+      "success": true,
+      "price": 211.04999999999998,
+      "category": "discount"
+    },
+    {
+      "test": "discount_periphery_315.0",
+      "success": true,
+      "price": 157.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_adult_157.5",
+      "success": true,
+      "price": 157.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_157.5",
+      "success": true,
+      "price": 78.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_senior_157.5",
+      "success": true,
+      "price": 78.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_disabled_157.5",
+      "success": true,
+      "price": 78.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_student_157.5",
+      "success": true,
+      "price": 105.52499999999999,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_18_26_157.5",
+      "success": true,
+      "price": 105.52499999999999,
+      "category": "discount"
+    },
+    {
+      "test": "discount_periphery_157.5",
+      "success": true,
+      "price": 78.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_adult_19.0",
+      "success": true,
+      "price": 19.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_19.0",
+      "success": true,
+      "price": 9.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_senior_19.0",
+      "success": true,
+      "price": 9.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_disabled_19.0",
+      "success": true,
+      "price": 9.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_student_19.0",
+      "success": true,
+      "price": 12.729999999999999,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_18_26_19.0",
+      "success": true,
+      "price": 12.729999999999999,
+      "category": "discount"
+    },
+    {
+      "test": "discount_periphery_19.0",
+      "success": true,
+      "price": 9.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_adult_37.5",
+      "success": true,
+      "price": 37.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_37.5",
+      "success": true,
+      "price": 18.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_senior_37.5",
+      "success": true,
+      "price": 18.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_disabled_37.5",
+      "success": true,
+      "price": 18.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_student_37.5",
+      "success": true,
+      "price": 25.124999999999996,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_18_26_37.5",
+      "success": true,
+      "price": 25.124999999999996,
+      "category": "discount"
+    },
+    {
+      "test": "discount_periphery_37.5",
+      "success": true,
+      "price": 18.75,
+      "category": "discount"
+    },
+    {
+      "test": "discount_adult_8.0",
+      "success": true,
+      "price": 8.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_8.0",
+      "success": true,
+      "price": 4.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_senior_8.0",
+      "success": true,
+      "price": 4.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_disabled_8.0",
+      "success": true,
+      "price": 4.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_student_8.0",
+      "success": true,
+      "price": 5.359999999999999,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_18_26_8.0",
+      "success": true,
+      "price": 5.359999999999999,
+      "category": "discount"
+    },
+    {
+      "test": "discount_periphery_8.0",
+      "success": true,
+      "price": 4.0,
+      "category": "discount"
+    },
+    {
+      "test": "discount_adult_14.5",
+      "success": true,
+      "price": 14.5,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_14.5",
+      "success": true,
+      "price": 7.25,
+      "category": "discount"
+    },
+    {
+      "test": "discount_senior_14.5",
+      "success": true,
+      "price": 7.25,
+      "category": "discount"
+    },
+    {
+      "test": "discount_disabled_14.5",
+      "success": true,
+      "price": 7.25,
+      "category": "discount"
+    },
+    {
+      "test": "discount_student_14.5",
+      "success": true,
+      "price": 9.715,
+      "category": "discount"
+    },
+    {
+      "test": "discount_youth_18_26_14.5",
+      "success": true,
+      "price": 9.715,
+      "category": "discount"
+    },
+    {
+      "test": "discount_periphery_14.5",
+      "success": true,
+      "price": 7.25,
+      "category": "discount"
+    },
+    {
+      "test": "fallback_city_קרית שמונה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מגדל העמק",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_עפולה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_נצרת",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_כרמיאל",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_טבריה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_צפת",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_נהריה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_עכו",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ראש הנקרה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_שפרעם",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_טמרה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מגאר",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_באקה אל גרביה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_עראבה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מעלה עירון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קצרין",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מעלות תרשיחא",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_שלומי",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מטולה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ראש פינה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_געתון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_בית הלל",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_שאר ישוב",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_אופקים",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_שדרות",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_בית שאן",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_נתיבות",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_אשקלון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית גת",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית מלאכי",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ירוחון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_דימונה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ערד",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מצפה רמון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_רהט",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_לקיה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_שגב שלום",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_כסיפה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_עיסופיה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_חורה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_להבים",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_תל אביב - יפו",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ירושלים",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_חיפה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_באר שבע",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_נתניה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_אשדוד",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_רמת גן",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_פתח תקווה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ראשון לציון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_חולון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_בת ים",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_רחובות",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_בני ברק",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_הוד השרון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_רמלה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_לוד",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מודיעין",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_הרצליה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_כפר סבא",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_גבעתיים",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית אונו",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_גני תקווה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_שוהם",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_יבנה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_גדרה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_מזכרת בתיה",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_ראש העין",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_אום אל-פחם",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_טירת כרמל",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_נוף הגליל",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית ביאליק",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית מוצקין",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית אתא",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית ים",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_city_קרית טבעון",
+      "success": true,
+      "category": "fallback_cities"
+    },
+    {
+      "test": "fallback_eligible_קרית שמונה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_מגדל העמק",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_עפולה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_נצרת",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_כרמיאל",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_טבריה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_צפת",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_נהריה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_עכו",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_ראש הנקרה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_שפרעם",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_טמרה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_באקה אל גרביה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_עראבה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_מעלה עירון",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_קצרין",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_מעלות תרשיחא",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_שלומי",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_מטולה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_ראש פינה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_אופקים",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_שדרות",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_בית שאן",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_נתיבות",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_אשקלון",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_קרית גת",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_קרית מלאכי",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_ירוחון",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_דימונה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_ערד",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_מצפה רמון",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_רהט",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_תל אביב - יפו",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_ירושלים",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_חיפה",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_באר שבע",
+      "success": true,
+      "category": "fallback_eligible"
+    },
+    {
+      "test": "fallback_eligible_נתניה",
+      "success": true,
+      "category": "fallback_eligible"
+    }
+  ]
+}

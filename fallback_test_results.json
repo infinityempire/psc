@@ -1,0 +1,223 @@
+{
+  "timestamp": "2026-07-19T05:11:01.970601",
+  "total": 42,
+  "passed": 40,
+  "failed": 2,
+  "rate": 95.23809523809524,
+  "results": [
+    {
+      "test": "fallback_cities_exist",
+      "success": false,
+      "count": 16
+    },
+    {
+      "test": "fallback_streets_exist",
+      "success": true,
+      "count": 3
+    },
+    {
+      "test": "fallback_eligible_exist",
+      "success": false,
+      "count": 9
+    },
+    {
+      "test": "file_exists_data/cities_streets.json",
+      "success": true,
+      "path": "data/cities_streets.json",
+      "size": 1673752
+    },
+    {
+      "test": "file_exists_data/periphery/eligible_cities.json",
+      "success": true,
+      "path": "data/periphery/eligible_cities.json",
+      "size": 1552
+    },
+    {
+      "test": "file_exists_data/tariffs.json",
+      "success": true,
+      "path": "data/tariffs.json",
+      "size": 2309
+    },
+    {
+      "test": "cities_data_structure",
+      "success": true,
+      "cities_count": 1272,
+      "streets_count": 1310
+    },
+    {
+      "test": "eligible_data_structure",
+      "success": true,
+      "eligible_count": 67
+    },
+    {
+      "test": "fallback_search_תל",
+      "success": true,
+      "matches": 1
+    },
+    {
+      "test": "fallback_search_ירו",
+      "success": true,
+      "matches": 1
+    },
+    {
+      "test": "fallback_search_חיפה",
+      "success": true,
+      "matches": 1
+    },
+    {
+      "test": "fallback_search_באר",
+      "success": true,
+      "matches": 1
+    },
+    {
+      "test": "fallback_search_נתניה",
+      "success": true,
+      "matches": 1
+    },
+    {
+      "test": "fallback_eligible_אופקים",
+      "success": true,
+      "eligible": true
+    },
+    {
+      "test": "fallback_eligible_שדרות",
+      "success": true,
+      "eligible": true
+    },
+    {
+      "test": "fallback_eligible_בית שאן",
+      "success": true,
+      "eligible": true
+    },
+    {
+      "test": "fallback_eligible_תל אביב - יפו",
+      "success": true,
+      "eligible": true
+    },
+    {
+      "test": "fallback_eligible_ירושלים",
+      "success": true,
+      "eligible": true
+    },
+    {
+      "test": "fare_yellow_single",
+      "success": true,
+      "price": 8.0
+    },
+    {
+      "test": "fare_yellow_daily",
+      "success": true,
+      "price": 17.5
+    },
+    {
+      "test": "fare_yellow_monthly",
+      "success": true,
+      "price": 315.0
+    },
+    {
+      "test": "fare_green_single",
+      "success": true,
+      "price": 14.5
+    },
+    {
+      "test": "fare_green_daily",
+      "success": true,
+      "price": 29.0
+    },
+    {
+      "test": "fare_green_monthly",
+      "success": true,
+      "price": 315.0
+    },
+    {
+      "test": "fare_lightblue_single",
+      "success": true,
+      "price": 19.0
+    },
+    {
+      "test": "fare_lightblue_daily",
+      "success": true,
+      "price": 37.5
+    },
+    {
+      "test": "fare_lightblue_monthly",
+      "success": true,
+      "price": 315.0
+    },
+    {
+      "test": "fare_blue_single",
+      "success": true,
+      "price": 19.0
+    },
+    {
+      "test": "fare_blue_daily",
+      "success": true,
+      "price": 37.5
+    },
+    {
+      "test": "fare_blue_monthly",
+      "success": true,
+      "price": 315.0
+    },
+    {
+      "test": "fare_purple_single",
+      "success": true,
+      "price": 30.5
+    },
+    {
+      "test": "fare_purple_daily",
+      "success": true,
+      "price": 60.5
+    },
+    {
+      "test": "fare_purple_monthly",
+      "success": true,
+      "price": 315.0
+    },
+    {
+      "test": "fare_gray_single",
+      "success": true,
+      "price": 74.0
+    },
+    {
+      "test": "fare_gray_daily",
+      "success": true,
+      "price": 79.5
+    },
+    {
+      "test": "fare_gray_monthly",
+      "success": true,
+      "price": 684.0
+    },
+    {
+      "test": "discount_adult",
+      "success": true,
+      "price": 315.0
+    },
+    {
+      "test": "discount_youth",
+      "success": true,
+      "price": 157.5
+    },
+    {
+      "test": "discount_senior",
+      "success": true,
+      "price": 157.5
+    },
+    {
+      "test": "discount_disabled",
+      "success": true,
+      "price": 157.5
+    },
+    {
+      "test": "discount_student",
+      "success": true,
+      "price": 211.04999999999998
+    },
+    {
+      "test": "discount_periphery",
+      "success": true,
+      "price": 157.5
+    }
+  ]
+}
