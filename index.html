@@ -43,14 +43,6 @@
             --history-chip-text: #1565c0;
             --student-pass-bg: #fff8e1;
             --student-pass-border: #ffc107;
-            /* Geographic Eligibility Section */
-            --geo-card-bg: #f0f4f8;
-            --geo-card-border: #3498db;
-            --geo-card-header-bg: linear-gradient(135deg,#1e3a5f,#2c5282);
-            --geo-step-active: #3498db;
-            --geo-step-done: #27ae60;
-            --geo-result-eligible: #27ae60;
-            --geo-result-not-eligible: #e74c3c;
         }
 
         /* Dark Mode Colors */
@@ -86,14 +78,6 @@
             --history-chip-text: #90caf9;
             --student-pass-bg: #3a3520;
             --student-pass-border: #ffc107;
-            /* Geographic Eligibility Section */
-            --geo-card-bg: #1a2a3a;
-            --geo-card-border: #64b5f6;
-            --geo-card-header-bg: linear-gradient(135deg,#1a1a2e,#2d2d44);
-            --geo-step-active: #64b5f6;
-            --geo-step-done: #66bb6a;
-            --geo-result-eligible: #66bb6a;
-            --geo-result-not-eligible: #ef5350;
         }
 
         /* ============================================================ */
@@ -181,61 +165,6 @@
         .student-passes h4{color:var(--text-primary);margin-bottom:10px}
 
         /* ============================================================ */
-        /* GEOGRAPHIC ELIGIBILITY SECTION */
-        /* ============================================================ */
-        .geo-eligibility-section{margin-top:25px;border-top:2px dashed var(--border-color);padding-top:25px}
-        
-        .geo-card{background:var(--geo-card-bg);border:2px solid var(--geo-card-border);border-radius:16px;overflow:hidden;transition:all 0.3s ease}
-        
-        .geo-card-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:var(--geo-card-header-bg);color:#fff;cursor:pointer;transition:all 0.3s ease}
-        .geo-card-header:hover{filter:brightness(1.1)}
-        .geo-card-title{display:flex;align-items:center;gap:12px;font-size:1.15em;font-weight:600}
-        .geo-card-title .icon{font-size:1.3em}
-        .geo-toggle-icon{font-size:1.5em;transition:transform 0.3s ease}
-        .geo-card.expanded .geo-toggle-icon{transform:rotate(180deg)}
-        
-        .geo-card-content{padding:0;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease}
-        .geo-card.expanded .geo-card-content{padding:20px;max-height:800px}
-        
-        .geo-steps{display:flex;justify-content:space-between;margin-bottom:20px;position:relative}
-        .geo-steps::before{content:'';position:absolute;top:18px;left:10%;right:10%;height:3px;background:var(--border-color);z-index:0}
-        .geo-step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;flex:1}
-        .geo-step-num{width:36px;height:36px;border-radius:50%;background:var(--bg-secondary);border:3px solid var(--border-color);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1em;color:var(--text-secondary);transition:all 0.3s ease}
-        .geo-step.active .geo-step-num{border-color:var(--geo-step-active);color:var(--geo-step-active);background:var(--highlight-bg)}
-        .geo-step.done .geo-step-num{border-color:var(--geo-step-done);background:var(--geo-step-done);color:#fff}
-        .geo-step-label{font-size:0.8em;color:var(--text-secondary);margin-top:8px;text-align:center;transition:color 0.3s ease}
-        .geo-step.active .geo-step-label{color:var(--geo-step-active);font-weight:600}
-        .geo-step.done .geo-step-label{color:var(--geo-step-done)}
-        
-        .geo-field-group{margin-bottom:15px}
-        .geo-field-group label{display:block;font-size:0.9em;color:var(--text-secondary);margin-bottom:6px;font-weight:500}
-        .geo-field-wrapper{position:relative}
-        .geo-field-wrapper input{width:100%;padding:12px 15px;padding-right:40px;border:2px solid var(--border-color);border-radius:10px;font-size:1em;background:var(--bg-secondary);color:var(--text-primary);transition:all 0.3s ease}
-        .geo-field-wrapper input:focus{border-color:var(--geo-step-active);outline:none;box-shadow:0 0 0 3px rgba(52,152,219,0.2)}
-        .geo-field-wrapper input:disabled{background:var(--fare-breakdown-bg);cursor:not-allowed;opacity:0.7}
-        .geo-field-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:1.1em;opacity:0.6}
-        .geo-field-wrapper .autocomplete-list{top:calc(100% + 4px);border-radius:10px;border-top:2px solid var(--geo-step-active)}
-        
-        .geo-check-btn{width:100%;padding:14px;background:var(--geo-card-header-bg);color:#fff;border:none;border-radius:10px;font-size:1.1em;font-weight:600;cursor:pointer;transition:all 0.3s ease;margin-top:10px}
-        .geo-check-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
-        .geo-check-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-        .geo-check-btn.loading{position:relative;color:transparent}
-        .geo-check-btn.loading::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite}
-        
-        @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-        
-        .geo-result{margin-top:20px;padding:20px;border-radius:12px;text-align:center;display:none;animation:fadeIn 0.3s ease}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-        .geo-result.eligible{background:linear-gradient(135deg,rgba(39,174,96,0.15),rgba(46,204,113,0.15));border:2px solid var(--geo-result-eligible)}
-        .geo-result.not-eligible{background:linear-gradient(135deg,rgba(231,76,60,0.15),rgba(192,57,43,0.15));border:2px solid var(--geo-result-not-eligible)}
-        .geo-result-icon{font-size:3em;margin-bottom:10px}
-        .geo-result-title{font-size:1.3em;font-weight:bold;margin-bottom:8px}
-        .geo-result.eligible .geo-result-title{color:var(--geo-result-eligible)}
-        .geo-result.not-eligible .geo-result-title{color:var(--geo-result-not-eligible)}
-        .geo-result-desc{font-size:0.95em;color:var(--text-secondary);line-height:1.6}
-        .geo-result-desc strong{color:var(--text-primary)}
-
-        /* ============================================================ */
         /* RESPONSIVE STYLES */
         /* ============================================================ */
         @media (max-width: 600px) {
@@ -262,11 +191,6 @@
             .history-chip{padding:6px 12px;font-size:0.8em}
             .student-passes .result-card{padding:12px 8px}
             .student-passes .result-card .price{font-size:1.3em}
-            
-            /* Geographic Section Mobile */
-            .geo-steps{gap:5px}
-            .geo-step-num{width:30px;height:30px;font-size:0.9em}
-            .geo-step-label{font-size:0.7em}
         }
         
         @media (max-width: 400px) {
@@ -338,73 +262,6 @@
                 </div>
             </div>
             <button id="calculate-btn">🔍 חשב תעריף</button>
-
-            <!-- Geographic Eligibility Check Section -->
-            <div class="geo-eligibility-section">
-                <div class="geo-card" id="geo-card">
-                    <div class="geo-card-header" onclick="toggleGeoCard()">
-                        <div class="geo-card-title">
-                            <span class="icon">🔍</span>
-                            <span>בדיקת זכאות גיאוגרפית</span>
-                        </div>
-                        <span class="geo-toggle-icon">▼</span>
-                    </div>
-                    <div class="geo-card-content">
-                        <div class="geo-steps">
-                            <div class="geo-step active" id="geo-step-1">
-                                <div class="geo-step-num">1</div>
-                                <div class="geo-step-label">עיר</div>
-                            </div>
-                            <div class="geo-step" id="geo-step-2">
-                                <div class="geo-step-num">2</div>
-                                <div class="geo-step-label">רחוב</div>
-                            </div>
-                            <div class="geo-step" id="geo-step-3">
-                                <div class="geo-step-num">3</div>
-                                <div class="geo-step-label">מספר</div>
-                            </div>
-                        </div>
-                        
-                        <div class="geo-field-group">
-                            <label for="geo-city">🏙️ עיר מגורים:</label>
-                            <div class="geo-field-wrapper">
-                                <span class="geo-field-icon">📍</span>
-                                <input type="text" id="geo-city" placeholder="הקלד שם עיר..." autocomplete="off">
-                                <div id="geo-city-list" class="autocomplete-list"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="geo-field-group">
-                            <label for="geo-street">🛣️ רחוב:</label>
-                            <div class="geo-field-wrapper">
-                                <span class="geo-field-icon">🏠</span>
-                                <input type="text" id="geo-street" placeholder="הקלד שם רחוב..." autocomplete="off" disabled>
-                                <div id="geo-street-list" class="autocomplete-list"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="geo-field-group">
-                            <label for="geo-house">🏡 מספר בית:</label>
-                            <div class="geo-field-wrapper">
-                                <span class="geo-field-icon">#️⃣</span>
-                                <input type="text" id="geo-house" placeholder="הקלד מספר..." autocomplete="off" disabled>
-                            </div>
-                        </div>
-                        
-                        <button class="geo-check-btn" id="geo-check-btn" onclick="checkGeographicEligibility()">
-                            🔍 בדוק זכאות
-                        </button>
-                        
-                        <div class="geo-result" id="geo-result">
-                            <div class="geo-result-icon" id="geo-result-icon">✅</div>
-                            <div class="geo-result-title" id="geo-result-title">זכאי להנחת פריפריה!</div>
-                            <div class="geo-result-desc" id="geo-result-desc">
-                                כתובתך <strong id="geo-result-address"></strong> נמצאת באזור גיאוגרפי הזכאי להנחה.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="results-section" id="results">
             <div class="results-grid" id="results-grid">
@@ -536,195 +393,6 @@
             'קרית חרושת': [33.2077, 35.5694]
         };
 
-        // ============================================================
-        // SOCIO-ECONOMIC CLUSTER ELIGIBILITY DATABASE (צדק תחבורתי)
-        // Based on Ministry of Transport statistical zones (clusters 1-5)
-        // ============================================================
-
-        // CITY-LEVEL ELIGIBILITY (entire city qualifies)
-        var ELIGIBLE_CITIES = {
-            // Northern periphery - all streets eligible
-            'קרית שמונה': {cluster: 1, region: 'צפון', reason: 'יישוב ספר - אשכול סוציו-אקונומי 1'},
-            'נהריה': {cluster: 2, region: 'צפון', reason: 'עיר פריפריאלית - אשכול סוציו-אקונומי 2'},
-            'עכו': {cluster: 2, region: 'צפון', reason: 'עיר פריפריאלית - אשכול סוציו-אקונומי 2'},
-            'טבריה': {cluster: 3, region: 'צפון', reason: 'עיר בגליל - אשכול סוציו-אקונומי 3'},
-            'צפת': {cluster: 3, region: 'צפון', reason: 'עיר הררית - אשכול סוציו-אקונומי 3'},
-            'כרמיאל': {cluster: 4, region: 'צפון', reason: 'עיר בגליל המערבי - אשכול סוציו-אקונומי 4'},
-            'נצרת': {cluster: 2, region: 'צפון', reason: 'עיר בגליל - אשכול סוציו-אקונומי 2'},
-            'מגדל העמק': {cluster: 4, region: 'צפון', reason: 'עיר בעמק יזרעאל - אשכול סוציו-אקונומי 4'},
-            'סחנין': {cluster: 1, region: 'צפון', reason: 'יישוב ערבי - אשכול סוציו-אקונומי 1'},
-            // Southern periphery - all streets eligible
-            'באר שבע': {cluster: 2, region: 'דרום', reason: 'בירת הדרום - אשכול סוציו-אקונומי 2'},
-            'אילת': {cluster: 5, region: 'דרום', reason: 'עיר קיצונית - אשכול סוציו-אקונומי 5'},
-            'דימונה': {cluster: 3, region: 'דרום', reason: 'יישוב ספר - אשכול סוציו-אקונומי 3'},
-            'ערד': {cluster: 3, region: 'דרום', reason: 'יישוב בנגב - אשכול סוציו-אקונומי 3'},
-            'מצפה רמון': {cluster: 4, region: 'דרום', reason: 'יישוב קהילתי - אשכול סוציו-אקונומי 4'},
-            'רהט': {cluster: 1, region: 'דרום', reason: 'עיר בדרום - אשכול סוציו-אקונומי 1'},
-            'להבים': {cluster: 4, region: 'דרום', reason: 'יישוב קהילתי - אשכול סוציו-אקונומי 4'},
-            // Southern development towns
-            'אשקלון': {cluster: 4, region: 'דרום', reason: 'עיר פיתוח - אשכול סוציו-אקונומי 4'},
-            'קריית גת': {cluster: 3, region: 'דרום', reason: 'עיר פיתוח - אשכול סוציו-אקונומי 3'},
-            'קריית מלאכי': {cluster: 3, region: 'דרום', reason: 'עיר פיתוח - אשכול סוציו-אקונומי 3'},
-            'שדרות': {cluster: 2, region: 'דרום', reason: 'יישוב ספר - אשכול סוציו-אקונומי 2'},
-            'נתיבות': {cluster: 2, region: 'דרום', reason: 'יישוב בדרום - אשכול סוציו-אקונומי 2'},
-            'אופקים': {cluster: 2, region: 'דרום', reason: 'יישוב בדרום - אשכול סוציו-אקונומי 2'},
-            // Jerusalem corridor
-            'מעלה אדומים': {cluster: 4, region: 'ירושלים', reason: 'יישוב בקו התפר - אשכול סוציו-אקונומי 4'},
-            'ביתר עילית': {cluster: 5, region: 'ירושלים', reason: 'יישוב בקו התפר - אשכול סוציו-אקונומי 5'},
-            'אריאל': {cluster: 5, region: 'שומרון', reason: 'יישוב בשומרון - אשכול סוציו-אקונומי 5'},
-            // Eastern periphery
-            'טייבה': {cluster: 2, region: 'מרכז', reason: 'עיר בפריפריה המזרחית - אשכול סוציו-אקונומי 2'}
-        };
-
-        // STREET-LEVEL ELIGIBILITY DATABASE
-        // For non-peripheral cities where specific neighborhoods/streets ARE eligible (clusters 1-5)
-        // Key format: "CITY|STREET_NAME" - stores cluster and eligibility info
-        var ELIGIBLE_STREETS = {
-            // ירושלים - Specific eligible neighborhoods and streets
-            'ירושלים|שחל': {cluster: 1, neighborhood: 'שכונת שחל', reason: 'אשכול סוציו-אקונומי 1 - שכונה מודרת'},
-            'ירושלים|גבעת מרדכי': {cluster: 2, neighborhood: 'גבעת מרדכי', reason: 'אשכול סוציו-אקונומי 2'},
-            'ירושלים|קרית יובל': {cluster: 1, neighborhood: 'קרית יובל', reason: 'אשכול סוציו-אקונומי 1 - שכונה מודרת'},
-            'ירושלים|רומא': {cluster: 1, neighborhood: 'שכונת רומא', reason: 'אשכול סוציו-אקונומי 1'},
-            'ירושלים|גילה': {cluster: 2, neighborhood: 'גילה', reason: 'אשכול סוציו-אקונומי 2'},
-            'ירושלים|בית חנינא': {cluster: 1, neighborhood: 'בית חנינא', reason: 'אשכול סוציו-אקונומי 1'},
-            'ירושלים|ענתא': {cluster: 2, neighborhood: 'ענתא', reason: 'אשכול סוציו-אקונומי 2'},
-            'ירושלים|ביתר עילית': {cluster: 5, neighborhood: 'ביתר עילית', reason: 'אשכול סוציו-אקונומי 5'},
-            'ירושלים|הרובע המוסלמי': {cluster: 1, neighborhood: 'הרובע המוסלמי', reason: 'אשכול סוציו-אקונומי 1'},
-            'ירושלים|הרובע הנוצרי': {cluster: 3, neighborhood: 'הרובע הנוצרי', reason: 'אשכול סוציו-אקונומי 3'},
-            'ירושלים|מאה שערים': {cluster: 1, neighborhood: 'מאה שערים', reason: 'אשכול סוציו-אקונומי 1'},
-            'ירושלים|נווה יעקב': {cluster: 2, neighborhood: 'נווה יעקב', reason: 'אשכול סוציו-אקונומי 2'},
-            'ירושלים|שמואל הנביא': {cluster: 1, neighborhood: 'שמואל הנביא', reason: 'אשכול סוציו-אקונומי 1'},
-            
-            // תל אביב - Specific eligible neighborhoods
-            'תל אביב|הדר יהודה': {cluster: 2, neighborhood: 'הדר יהודה', reason: 'אשכול סוציו-אקונומי 2'},
-            'תל אביב|פלורנטין': {cluster: 3, neighborhood: 'פלורנטין', reason: 'אשכול סוציו-אקונומי 3'},
-            'תל אביב|מנשייה': {cluster: 2, neighborhood: 'מנשייה', reason: 'אשכול סוציו-אקונומי 2'},
-            'תל אביב|עזרא': {cluster: 1, neighborhood: 'שכונת עזרא', reason: 'אשכול סוציו-אקונומי 1'},
-            
-            // חיפה - Specific eligible neighborhoods
-            'חיפה|חליסה': {cluster: 1, neighborhood: 'חליסה', reason: 'אשכול סוציו-אקונומי 1 - שכונה דרוזית'},
-            'חיפה|כבאבה': {cluster: 1, neighborhood: 'כבאבה', reason: 'אשכול סוציו-אקונומי 1 - שכונה ערבית'},
-            'חיפה|רובע הדר': {cluster: 2, neighborhood: 'רובע הדר', reason: 'אשכול סוציו-אקונומי 2'},
-            
-            // באר שבע - Specific eligible neighborhoods
-            'באר שבע|נחל בוקר': {cluster: 1, neighborhood: 'נחל בוקר', reason: 'אשכול סוציו-אקונומי 1'},
-            'באר שבע|רביבים': {cluster: 2, neighborhood: 'רביבים', reason: 'אשכול סוציו-אקונומי 2'},
-            'באר שבע|מרכז העיר': {cluster: 3, neighborhood: 'מרכז העיר', reason: 'אשכול סוציו-אקונומי 3'},
-            
-            // נתניה - Specific eligible neighborhoods
-            'נתניה|עיר תחתית': {cluster: 2, neighborhood: 'העיר התחתית', reason: 'אשכול סוציו-אקונומי 2'},
-            'נתניה|קרית צאנז': {cluster: 3, neighborhood: 'קרית צאנז', reason: 'אשכול סוציו-אקונומי 3'},
-            
-            // אשדוד - Specific eligible neighborhoods
-            'אשדוד|שכונה ב': {cluster: 2, neighborhood: 'שכונה ב', reason: 'אשכול סוציו-אקונומי 2'},
-            'אשדוד|רובע א': {cluster: 3, neighborhood: 'רובע א', reason: 'אשכול סוציו-אקונומי 3'},
-            
-            // אשקלון - Specific eligible neighborhoods
-            'אשקלון|שמעוני': {cluster: 2, neighborhood: 'שמעוני', reason: 'אשכול סוציו-אקונומי 2'},
-            'אשקלון|גבעת זאב': {cluster: 4, neighborhood: 'גבעת זאב', reason: 'אשכול סוציו-אקונומי 4'}
-        };
-
-        // Check eligibility for a specific address
-        function checkAddressEligibility(city, street) {
-            // First check if entire city is eligible
-            if (ELIGIBLE_CITIES[city]) {
-                return {
-                    eligible: true,
-                    type: 'city',
-                    cluster: ELIGIBLE_CITIES[city].cluster,
-                    reason: ELIGIBLE_CITIES[city].reason,
-                    region: ELIGIBLE_CITIES[city].region
-                };
-            }
-            
-            // Then check street-level eligibility
-            if (city && street) {
-                var streetKey = city + '|' + street;
-                var streetData = ELIGIBLE_STREETS[streetKey];
-                
-                if (streetData) {
-                    return {
-                        eligible: true,
-                        type: 'street',
-                        cluster: streetData.cluster,
-                        neighborhood: streetData.neighborhood,
-                        reason: streetData.reason,
-                        region: 'שכונתי'
-                    };
-                }
-                
-                // Try partial matching for street name
-                for (var key in ELIGIBLE_STREETS) {
-                    if (key.startsWith(city + '|')) {
-                        var eligibleStreet = key.split('|')[1];
-                        if (street.includes(eligibleStreet) || eligibleStreet.includes(street)) {
-                            var data = ELIGIBLE_STREETS[key];
-                            return {
-                                eligible: true,
-                                type: 'street',
-                                cluster: data.cluster,
-                                neighborhood: data.neighborhood,
-                                reason: data.reason,
-                                region: 'שכונתי'
-                            };
-                        }
-                    }
-                }
-            }
-            
-            // Not eligible
-            return {
-                eligible: false,
-                type: 'not_eligible',
-                reason: 'הכתובת אינה נמצאת באזור הזכאי להנחה'
-            };
-        }
-
-        // STREETS DATABASE (populated from eligible streets + sample data)
-        var STREETS_BY_CITY = {};
-
-        // Initialize with streets from the eligibility database + sample streets
-        function initStreetsDatabase() {
-            // First, add streets from the eligibility database
-            for (var key in ELIGIBLE_STREETS) {
-                var parts = key.split('|');
-                var city = parts[0];
-                var street = parts[1];
-                
-                if (!STREETS_BY_CITY[city]) {
-                    STREETS_BY_CITY[city] = [];
-                }
-                if (STREETS_BY_CITY[city].indexOf(street) === -1) {
-                    STREETS_BY_CITY[city].push(street);
-                }
-            }
-            
-            // Add sample streets for cities not in eligibility database
-            var sampleStreets = {
-                'תל אביב': ['דיזנגוף', 'אלנבי', 'בן יהודה', 'שלום עליכם', 'פרישמן', 'מנשייה', 'הדר יהודה'],
-                'ירושלים': ['יפו', 'קינג ג\'ורג\'', 'בן סירא', 'המלך ג\'ורג\'', 'שמואל הנביא', 'שחל', 'גבעת מרדכי', 'קרית יובל', 'גילה', 'בית חנינא'],
-                'חיפה': ['הגעתון', 'פריד', 'המעפיל', 'דרך הים', 'חליסה', 'כבאבה', 'רובע הדר'],
-                'באר שבע': ['רחוב הראשונים', 'דרך גילת', 'הנשיא', 'בילו', 'יצחק רגב', 'נחל בוקר', 'רביבים'],
-                'נתניה': ['סמבר', 'פרידמן', 'העיר התחתית', 'קרית צאנז', 'הרצל'],
-                'אשדוד': ['הרצל', 'מעלה הסמילה', 'שכונה ב\'', 'רובע א\''],
-                'אשקלון': ['הרצל', 'שמעוני', 'גבעת זאב', 'ניר עוז'],
-                'רמת גן': ['אבא הלל', 'בזל', 'ז\'בוטינסקי', 'בורוכוב'],
-                'פתח תקווה': ['רוטשילד', 'ז\'בוטינסקי', 'הרב קנאזו', 'משה דיין'],
-                'באר שבע': ['דרך גילת', 'נחל בוקר', 'רביבים', 'מרכז העיר']
-            };
-            
-            for (var city in sampleStreets) {
-                if (!STREETS_BY_CITY[city]) {
-                    STREETS_BY_CITY[city] = [];
-                }
-                sampleStreets[city].forEach(function(street) {
-                    if (STREETS_BY_CITY[city].indexOf(street) === -1) {
-                        STREETS_BY_CITY[city].push(street);
-                    }
-                });
-            }
-        }
-
         // Train cities
         var TRAIN_CITIES = ['תל אביב', 'ירושלים', 'חיפה', 'באר שבע', 'נתניה', 'ראשון לציון', 'פתח תקווה', 'מודיעין', 'הרצליה', 'רעננה', 'כפר סבא', 'בני ברק', 'רמת גן', 'חולון', 'בת ים'];
 
@@ -746,206 +414,6 @@
             'periphery': {base: 415, train: 455, periphery: 280},
             'eilat': {base: 690, train: 0, periphery: 0}
         };
-
-        // ============================================================
-        // GEOGRAPHIC ELIGIBILITY CHECK FUNCTIONS
-        // ============================================================
-
-        function toggleGeoCard() {
-            var card = document.getElementById('geo-card');
-            card.classList.toggle('expanded');
-        }
-
-        function updateGeoSteps(currentStep) {
-            for (var i = 1; i <= 3; i++) {
-                var step = document.getElementById('geo-step-' + i);
-                step.classList.remove('active', 'done');
-                if (i < currentStep) {
-                    step.classList.add('done');
-                } else if (i === currentStep) {
-                    step.classList.add('active');
-                }
-            }
-        }
-
-        function setupGeoAutocomplete(inputId, listId, dataSource, onSelect) {
-            var input = document.getElementById(inputId);
-            var list = document.getElementById(listId);
-            var highlightedIndex = -1;
-
-            input.addEventListener('input', function() {
-                var value = this.value.trim();
-                if (value.length < 1) {
-                    list.classList.remove('active');
-                    return;
-                }
-
-                var matches = dataSource(value);
-                if (matches.length === 0) {
-                    list.classList.remove('active');
-                    return;
-                }
-
-                list.innerHTML = '';
-                highlightedIndex = -1;
-
-                matches.forEach(function(item, index) {
-                    var itemEl = document.createElement('div');
-                    itemEl.className = 'autocomplete-item';
-                    itemEl.textContent = typeof item === 'string' ? item : item.name;
-                    itemEl.setAttribute('data-index', index);
-                    itemEl.addEventListener('click', function() {
-                        input.value = typeof item === 'string' ? item : item.name;
-                        list.classList.remove('active');
-                        onSelect(item);
-                    });
-                    list.appendChild(itemEl);
-                });
-
-                list.classList.add('active');
-            });
-
-            input.addEventListener('keydown', function(e) {
-                var items = list.querySelectorAll('.autocomplete-item');
-                if (!list.classList.contains('active') || items.length === 0) return;
-
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    highlightedIndex = highlightedIndex < items.length - 1 ? highlightedIndex + 1 : 0;
-                    items.forEach(function(item) { item.classList.remove('highlighted'); });
-                    items[highlightedIndex].classList.add('highlighted');
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    highlightedIndex = highlightedIndex > 0 ? highlightedIndex - 1 : items.length - 1;
-                    items.forEach(function(item) { item.classList.remove('highlighted'); });
-                    items[highlightedIndex].classList.add('highlighted');
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (highlightedIndex >= 0) {
-                        items[highlightedIndex].click();
-                    }
-                }
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!input.contains(e.target) && !list.contains(e.target)) {
-                    list.classList.remove('active');
-                }
-            });
-        }
-
-        // City autocomplete source
-        function filterCitiesForGeo(input) {
-            if (!input || input.length < 1) return [];
-            var normalizedInput = input.trim().toLowerCase();
-            var cities = [];
-            for (var city in CITIES) {
-                cities.push(city);
-            }
-            return cities.filter(function(city) {
-                return city.toLowerCase().indexOf(normalizedInput) !== -1;
-            }).slice(0, 10);
-        }
-
-        // Street autocomplete source
-        function filterStreetsForGeo(input, city) {
-            if (!input || input.length < 1 || !city) return [];
-            var normalizedInput = input.trim().toLowerCase();
-            var streets = STREETS_BY_CITY[city] || [];
-            return streets.filter(function(street) {
-                return street.toLowerCase().indexOf(normalizedInput) !== -1;
-            }).slice(0, 10);
-        }
-
-        var selectedCity = null;
-        var selectedStreet = null;
-
-        // Initialize geographic autocomplete
-        function initGeoAutocomplete() {
-            initStreetsDatabase();
-            
-            setupGeoAutocomplete('geo-city', 'geo-city-list', filterCitiesForGeo, function(city) {
-                selectedCity = city;
-                document.getElementById('geo-street').disabled = false;
-                updateGeoSteps(2);
-                document.getElementById('geo-street').focus();
-            });
-
-            setupGeoAutocomplete('geo-street', 'geo-street-list', function(input) {
-                return filterStreetsForGeo(input, selectedCity);
-            }, function(street) {
-                selectedStreet = street;
-                document.getElementById('geo-house').disabled = false;
-                updateGeoSteps(3);
-                document.getElementById('geo-house').focus();
-            });
-        }
-
-        function checkGeographicEligibility() {
-            var city = document.getElementById('geo-city').value.trim();
-            var street = document.getElementById('geo-street').value.trim();
-            var house = document.getElementById('geo-house').value.trim();
-
-            if (!city) {
-                alert('יש להזין עיר');
-                return;
-            }
-
-            var btn = document.getElementById('geo-check-btn');
-            btn.classList.add('loading');
-            btn.disabled = true;
-
-            // Simulate API call
-            setTimeout(function() {
-                btn.classList.remove('loading');
-                btn.disabled = false;
-
-                var resultDiv = document.getElementById('geo-result');
-                var resultIcon = document.getElementById('geo-result-icon');
-                var resultTitle = document.getElementById('geo-result-title');
-                var resultDesc = document.getElementById('geo-result-desc');
-                var resultAddress = document.getElementById('geo-result-address');
-
-                var fullAddress = city + (street ? ', ' + street : '') + (house ? ' ' + house : '');
-                resultAddress.textContent = fullAddress;
-
-                // Check eligibility using socio-economic cluster database
-                var eligibility = checkAddressEligibility(city, street);
-
-                if (eligibility.eligible) {
-                    resultDiv.className = 'geo-result eligible';
-                    resultIcon.textContent = '✅';
-                    
-                    if (eligibility.type === 'city') {
-                        resultTitle.textContent = '🎉 זכאי להנחת צדק תחבורתי!';
-                        resultDesc.innerHTML = 
-                            '<strong>' + city + '</strong> - כל הרחובות בעיר זכאים<br><br>' +
-                            '📋 סיבת הזכאות: ' + eligibility.reason + '<br>' +
-                            '📍 אזור: ' + eligibility.region + '<br>' +
-                            '🔢 אשכול סוציו-אקונומי: ' + eligibility.cluster + '<br><br>' +
-                            '💰 הנחה: 50% על מנוי חודשי';
-                    } else {
-                        resultTitle.textContent = '🎉 זכאי להנחת צדק תחבורתי!';
-                        resultDesc.innerHTML = 
-                            '<strong>' + street + '</strong> ב' + city + '<br><br>' +
-                            '📋 סיבת הזכאות: ' + eligibility.reason + '<br>' +
-                            '📍 שכונה: ' + (eligibility.neighborhood || eligibility.region) + '<br>' +
-                            '🔢 אשכול סוציו-אקונומי: ' + eligibility.cluster + '<br><br>' +
-                            '💰 הנחה: 50% על מנוי חודשי';
-                    }
-                } else {
-                    resultDiv.className = 'geo-result not-eligible';
-                    resultIcon.textContent = '❌';
-                    resultTitle.textContent = 'לא זכאי להנחה';
-                    resultDesc.innerHTML = 
-                        'הכתובת <strong>' + fullAddress + '</strong> אינה נמצאת באזור הזכאי.<br><br>' +
-                        '📋 קריטריונים: אשכולות סוציו-אקונומיים 1-5 בלבד<br>' +
-                        '💡 יש להזין כתובת מדויקת (עיר + רחוב + מספר)';
-                }
-
-                resultDiv.style.display = 'block';
-            }, 800);
-        }
 
         // ============================================================
         // DISTANCE CALCULATION
@@ -1323,12 +791,31 @@
                     el.style.display = showEilat ? 'block' : 'none';
                 });
 
+                // Apply 50% discount for periphery residents on monthly pass
+                if (isPeripheryResident) {
+                    document.getElementById('price-monthly-periphery').textContent = '157.50';
+                }
+
                 // Update breakdown
                 document.getElementById('r-origin').textContent = origin;
                 document.getElementById('r-dest').textContent = dest;
                 document.getElementById('r-distance').textContent = distance ? distance.toFixed(1) + ' ק"מ' : 'לא נמצא';
-                document.getElementById('r-type').textContent = document.querySelector('label[for="' + document.querySelector('input[name="ticketType"]:checked').id + '"]').textContent.trim();
-                document.getElementById('r-final').textContent = finalSingle.toFixed(2) + ' ₪';
+                
+                // Determine final price with periphery discount
+                var finalPrice = finalSingle;
+                var ticketType = document.querySelector('input[name="ticketType"]:checked').value;
+                if (isPeripheryResident) {
+                    if (ticketType === 'monthly') {
+                        finalPrice = 157.50;
+                        document.getElementById('r-type').textContent = 'מנוי פריפריה גיאוגרפית';
+                    } else {
+                        // Apply 50% discount on single rides
+                        finalPrice = finalSingle;
+                    }
+                } else {
+                    document.getElementById('r-type').textContent = document.querySelector('label[for="' + document.querySelector('input[name="ticketType"]:checked').id + '"]').textContent.trim();
+                }
+                document.getElementById('r-final').textContent = finalPrice.toFixed(2) + ' ₪';
 
                 // Update WhatsApp button
                 var whatsappBtn = document.getElementById('whatsapp-share-btn');
@@ -1361,16 +848,6 @@
         }
 
         document.getElementById('calculate-btn').onclick = calculateFareAndDisplay;
-
-        // Initialize geographic autocomplete on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            initGeoAutocomplete();
-        });
-
-        // Run immediately if DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initGeoAutocomplete();
-        }
     </script>
 </body>
 </html>
