@@ -1174,6 +1174,135 @@
         renderRecentSearches();
 
         // ============================================================
+        // UI STATE RESET - Prevent State Leaks Between Calculations
+        // ============================================================
+        
+        // Track the last known state to detect changes
+        var lastKnownState = {
+            origin: '',
+            dest: '',
+            passengerType: 'adult'
+        };
+        
+        /**
+         * Reset the results container to a clean slate state.
+         * This clears all cached periphery flags, labels, and prices.
+         * Called whenever any input field changes to prevent UI state leaks.
+         */
+        function resetResultsContainer() {
+            var resultsEl = document.getElementById('results');
+            
+            // Remove active class to hide results section
+            resultsEl.classList.remove('active');
+            
+            // Reset all price displays to default values
+            document.getElementById('price-single').textContent = '0.00';
+            document.getElementById('price-daily').textContent = '0.00';
+            document.getElementById('price-monthly-national').textContent = '0.00';
+            document.getElementById('price-monthly-national').style.color = '';
+            document.getElementById('price-monthly-train').textContent = '0.00';
+            document.getElementById('price-monthly-train').style.color = '';
+            document.getElementById('price-monthly-periphery').textContent = '-';
+            document.getElementById('price-monthly-periphery').style.color = '';
+            document.getElementById('price-monthly-eilat').textContent = '-';
+            document.getElementById('price-monthly-eilat').style.color = '';
+            
+            // Reset student pass prices
+            document.getElementById('price-semester').textContent = '0.00';
+            document.getElementById('price-annual').textContent = '0.00';
+            
+            // Hide student passes section
+            document.getElementById('student-passes').style.display = 'none';
+            
+            // Reset breakdown items
+            document.getElementById('r-origin').textContent = '-';
+            document.getElementById('r-dest').textContent = '-';
+            document.getElementById('r-distance').textContent = '-';
+            document.getElementById('r-type').textContent = '-';
+            document.getElementById('r-final').textContent = '0.00 ₪';
+            
+            // Hide GPS distance
+            document.getElementById('gps-distance').classList.remove('active');
+            document.getElementById('gps-distance').innerHTML = '';
+            
+            // Hide train pass visibility
+            document.getElementById('train-pass-label').classList.remove('active');
+            document.getElementById('train-pass-price').classList.remove('active');
+            
+            // Hide Eilat pass visibility
+            document.getElementById('eilat-pass-label').classList.remove('active');
+            document.getElementById('eilat-pass-price').classList.remove('active');
+            
+            // Hide WhatsApp share button
+            document.getElementById('whatsapp-share-btn').style.display = 'none';
+            
+            // Hide fallback notice
+            document.getElementById('fallback').style.display = 'none';
+            
+            // Reset student pass card selection state
+            updateStudentPassCards('semester');
+            
+            // Clear last calculated result (prevents WhatsApp sharing stale data)
+            lastCalculatedResult = null;
+            
+            // Reset selected student pass to default
+            selectedStudentPass = 'semester';
+        }
+        
+        /**
+         * Check if state has changed and trigger reset if needed.
+         * Returns true if state changed, false otherwise.
+         */
+        function checkAndResetOnStateChange() {
+            var currentOrigin = document.getElementById('origin').value.trim();
+            var currentDest = document.getElementById('dest').value.trim();
+            var currentPassenger = document.querySelector('[name="passenger"]:checked').value;
+            
+            var stateChanged = (
+                currentOrigin !== lastKnownState.origin ||
+                currentDest !== lastKnownState.dest ||
+                currentPassenger !== lastKnownState.passengerType
+            );
+            
+            if (stateChanged) {
+                // Update known state
+                lastKnownState.origin = currentOrigin;
+                lastKnownState.dest = currentDest;
+                lastKnownState.passengerType = currentPassenger;
+                
+                // Reset the results container
+                resetResultsContainer();
+            }
+            
+            return stateChanged;
+        }
+        
+        // ============================================================
+        // INPUT CHANGE HANDLERS - Reset UI on any input change
+        // ============================================================
+        
+        // Add event listeners to origin input
+        document.getElementById('origin').addEventListener('input', function() {
+            checkAndResetOnStateChange();
+        });
+        
+        // Add event listeners to destination input
+        document.getElementById('dest').addEventListener('input', function() {
+            checkAndResetOnStateChange();
+        });
+        
+        // Add event listeners to all passenger profile radios
+        var profileRadios = document.querySelectorAll('[name="passenger"]');
+        profileRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                // Reset results on any profile change
+                checkAndResetOnStateChange();
+                // Also update student pass visibility
+                updateStudentPassVisibility();
+            });
+        });
+        
+        // ============================================================
         // PROFILE CHANGE HANDLER - Show/hide student pass option
         // ============================================================
         
@@ -1193,14 +1322,6 @@
                 }
             }
         }
-        
-        // Add event listeners to all passenger profile radios
-        var profileRadios = document.querySelectorAll('[name="passenger"]');
-        profileRadios.forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                updateStudentPassVisibility();
-            });
-        });
         
         // Initialize visibility on page load
         updateStudentPassVisibility();
@@ -1512,6 +1633,15 @@
                 alert('יש להזין מוצא ויעד');
                 return;
             }
+
+            // CRITICAL: Reset all calculation variables from scratch
+            // This ensures no residual or cached state from previous calculations
+            resetResultsContainer();
+            
+            // Update the last known state to current values
+            lastKnownState.origin = origin;
+            lastKnownState.dest = dest;
+            lastKnownState.passengerType = passengerType;
 
             btn.disabled = true;
             btn.textContent = '...';
