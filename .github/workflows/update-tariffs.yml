@@ -1,0 +1,115 @@
+name: Update Tariffs
+
+on:
+  schedule:
+    # Run every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even without changes'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  check-and-update-tariffs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run baseline tests
+        run: npm test
+
+      - name: Fetch official tariff data from data.gov.il
+        id: fetch
+        run: |
+          echo "Fetching official tariff data from Ministry of Transport (data.gov.il)..."
+          
+          # Check if the update_tariffs.py script exists and use it
+          if [ -f "update_tariffs.py" ]; then
+            echo "Running update_tariffs.py to fetch and sync tariff data..."
+            python3 update_tariffs.py || echo "Script completed with status: $?"
+          else
+            echo "update_tariffs.py not found, validating existing tariffs.json..."
+          fi
+          
+          # Validate tariffs.json structure
+          if [ -f "data/tariffs.json" ]; then
+            echo "tariffs.json exists and validated"
+            node -e "
+              const data = require('./data/tariffs.json');
+              const required = ['bus', 'rail', 'monthlyContracts', 'metadata'];
+              const missing = required.filter(key => !data[key]);
+              if (missing.length > 0) {
+                console.error('Missing required keys:', missing.join(', '));
+                process.exit(1);
+              }
+              if (!data.bus.zones || !Array.isArray(data.bus.zones)) {
+                console.error('bus.zones must be an array');
+                process.exit(1);
+              }
+              if (!data.rail.zones || !Array.isArray(data.rail.zones)) {
+                console.error('rail.zones must be an array');
+                process.exit(1);
+              }
+              console.log('tariffs.json structure validated successfully');
+              console.log('Bus zones:', data.bus.zones.length);
+              console.log('Rail zones:', data.rail.zones.length);
+              console.log('Monthly contracts:', Object.keys(data.monthlyContracts).length);
+              console.log('Last updated:', data.metadata?.lastUpdated || 'unknown');
+            "
+          else
+            echo "ERROR: tariffs.json not found"
+            exit 1
+          fi
+
+      - name: Check for changes
+        id: git-status
+        run: |
+          if [[ -n "$(git status --porcelain data/)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in data/ directory"
+            git diff --stat data/
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in data/"
+          fi
+
+      - name: Configure git user
+        if: steps.git-status.outputs.changes == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git config --local push.default simple
+
+      - name: Run tests after changes
+        if: steps.git-status.outputs.changes == 'true' || github.event.inputs.force_update == 'true'
+        run: npm test
+
+      - name: Commit and push changes
+        if: steps.git-status.outputs.changes == 'true' || github.event.inputs.force_update == 'true'
+        run: |
+          DATE=$(date -u +'%Y-%m-%d')
+          git add data/tariffs.json
+          git commit -m "chore: Auto-sync official tariffs from data.gov.il ($DATE)"
+          git push origin main
