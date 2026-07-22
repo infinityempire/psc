@@ -206,7 +206,7 @@ describe('Israel Railways (Train) Single Ride Pricing', () => {
             includes_rail: true
         });
         
-        expect(res.baseFare).toBe(255.00); // Monthly with rail
+        expect(res.baseFare).toBe(610.00); // Combined Rail Monthly Pass
         expect(res.trainPremium).toBe(false);
     });
 });

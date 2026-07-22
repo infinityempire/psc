@@ -5,41 +5,73 @@
  * Updated with:
  * - Tzedek Tachburati 50%/33% discount based on socio-economic cluster
  * - Israel Railways single ride pricing tiers
+ * - Corrected fare tiers per official schedule
  */
 
-// Train single-ride fare tiers (higher minimum than bus)
-const TRAIN_SINGLE_FARE_TIERS = [
-    { maxDistance: 15, fare: 8.50 },      // Short distance - train premium
-    { maxDistance: 40, fare: 16.00 },     // Medium distance
-    { maxDistance: 75, fare: 22.50 },     // Long distance
-    { maxDistance: Infinity, fare: 36.00 } // Very long distance
+// Bus fare tiers (base)
+const BUS_FARE_TIERS = [
+    { maxDistance: 15, single: 6.00, daily: 13.50 },
+    { maxDistance: 40, single: 12.00, daily: 24.00 },
+    { maxDistance: 75, single: 17.00, daily: 32.50 },
+    { maxDistance: Infinity, single: 28.00, daily: 50.00 }
 ];
 
-// Bus single-ride fare tiers
-const BUS_SINGLE_FARE_TIERS = [
-    { maxDistance: 15, fare: 6.00 },
-    { maxDistance: 40, fare: 12.00 },
-    { maxDistance: 75, fare: 17.00 },
-    { maxDistance: Infinity, fare: 28.00 }
+// Train fare tiers (with rail premium)
+const TRAIN_FARE_TIERS = [
+    { maxDistance: 15, single: 8.50, daily: 19.00 },
+    { maxDistance: 40, single: 16.00, daily: 32.00 },
+    { maxDistance: 75, single: 22.50, daily: 42.50 },
+    { maxDistance: Infinity, single: 36.00, daily: 68.00 }
 ];
 
-function getBaseFare(distance, ticketType, includesRail) {
-    if (ticketType === 'single') {
-        const tiers = includesRail ? TRAIN_SINGLE_FARE_TIERS : BUS_SINGLE_FARE_TIERS;
-        for (const tier of tiers) {
-            if (distance <= tier.maxDistance) {
-                return tier.fare;
-            }
-        }
-        return tiers[tiers.length - 1].fare;
-    } else if (ticketType === 'monthly') {
-        if (!includesRail) {
-            return (distance <= 40) ? 99.00 : 236.00;
-        } else {
-            return (distance <= 40) ? 255.00 : 630.00;
+// Monthly pass prices (standardized)
+const MONTHLY_PASS_PRICES = {
+    bus: 310.00,    // Nationwide Monthly Pass
+    rail: 610.00    // Combined Rail Monthly Pass
+};
+
+/**
+ * Calculate fare for a given distance and ticket type
+ * @param {number} distance - Distance in km
+ * @param {string} ticketType - 'single', 'daily', or 'monthly'
+ * @param {boolean} includesRail - Whether route includes train
+ * @returns {object} Fare object with single, daily, monthly prices
+ */
+function calculateTierFare(distance, includesRail = false) {
+    const tiers = includesRail ? TRAIN_FARE_TIERS : BUS_FARE_TIERS;
+    
+    for (const tier of tiers) {
+        if (distance <= tier.maxDistance) {
+            return {
+                singleFare: tier.single,
+                dailyFare: tier.daily,
+                monthlyFare: includesRail ? MONTHLY_PASS_PRICES.rail : MONTHLY_PASS_PRICES.bus
+            };
         }
     }
-    return 0;
+    
+    // Default to longest distance tier
+    const lastTier = tiers[tiers.length - 1];
+    return {
+        singleFare: lastTier.single,
+        dailyFare: lastTier.daily,
+        monthlyFare: includesRail ? MONTHLY_PASS_PRICES.rail : MONTHLY_PASS_PRICES.bus
+    };
+}
+
+function getBaseFare(distance, ticketType, includesRail) {
+    const fares = calculateTierFare(distance, includesRail);
+    
+    switch (ticketType) {
+        case 'single':
+            return fares.singleFare;
+        case 'daily':
+            return fares.dailyFare;
+        case 'monthly':
+            return fares.monthlyFare;
+        default:
+            return 0;
+    }
 }
 
 function computeTransportFare(params) {
@@ -88,11 +120,13 @@ function computeTransportFare(params) {
         peripheryDiscount: peripheryDiscount,
         appliedDiscount: appliedDiscount,
         finalFare: Math.round(finalFare * 100) / 100,
-        trainPremium: includesRail && ticketType === 'single'
+        trainPremium: includesRail && ticketType === 'single',
+        // Include all fares for UI display
+        allFares: calculateTierFare(distance, includesRail)
     };
 }
 
 // Export for Node.js environments
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { computeTransportFare };
+    module.exports = { computeTransportFare, calculateTierFare };
 }
