@@ -154,6 +154,10 @@
         .autocomplete-item:hover{background:var(--highlight-bg)}
         .autocomplete-item.highlighted{background:var(--highlight-bg)}
         
+        /* Periphery Badge (Tzedek Tachburati) */
+        .periphery-badge{display:inline-block;background:linear-gradient(#27ae60,#2ecc71);color:#fff;padding:3px 8px;border-radius:12px;font-size:0.75em;font-weight:bold;margin-right:8px;vertical-align:middle}
+        body.dark-mode .periphery-badge{background:linear-gradient(#2e7d32,#388e3c)}
+        
         /* GPS Distance Display */
         .gps-distance{background:var(--gps-distance-bg);border-radius:10px;padding:10px 15px;margin-top:10px;font-size:0.95em;color:var(--gps-distance-text);display:none;transition:background 0.3s ease,color 0.3s ease}
         .gps-distance.active{display:block}
@@ -797,6 +801,96 @@
         ];
 
         // ============================================================
+        // PERIPHERY DATA - Tzedek Tachburati (Social Transport Justice)
+        // Socio-economic clusters 1-5: 50% discount
+        // Other periphery areas: 33% discount
+        // ============================================================
+        var PERIPHERY_DATA = {
+            // Cluster 5 - Sderot area (highest priority)
+            'שדרות': { cluster: 5, streets: { 'הרצל': 'all', 'הסביון': 'odd', 'הורד': 'even', 'הנשיא': '1-50', 'יהודה': '12' } },
+            'נתיבות': { cluster: 5, streets: {} },
+            
+            // Cluster 5 - Ofakim area
+            'אופקים': { cluster: 5, streets: {} },
+            
+            // Cluster 5 - Bet She'an area
+            'בית שאן': { cluster: 5, streets: {} },
+            
+            // Additional periphery cities with cluster info (loaded from JSON)
+            'קרית גת': { cluster: 4, streets: {} },
+            'קרית מלאכי': { cluster: 4, streets: {} },
+            'ירוחון': { cluster: 4, streets: {} },
+            'שדה בוקר': { cluster: 4, streets: {} },
+            'עזתה': { cluster: 4, streets: {} },
+            'קרית שמונה': { cluster: 3, streets: {} },
+            'עפולה': { cluster: 3, streets: {} },
+            'מגדל העמק': { cluster: 3, streets: {} },
+            'נצרת': { cluster: 2, streets: {} },
+            'טבריה': { cluster: 2, streets: {} },
+            'צפת': { cluster: 2, streets: {} },
+            'כרמיאל': { cluster: 2, streets: {} },
+            'נהריה': { cluster: 1, streets: {} },
+            'עכו': { cluster: 1, streets: {} },
+            'חדרה': { cluster: 1, streets: {} },
+            'מעלה אפרים': { cluster: 2, streets: {} }
+        };
+
+        // Periphery eligible cluster threshold (1-5 = 50% discount)
+        var PERIPHERY_CLUSTERS = [1, 2, 3, 4, 5];
+
+        // Get periphery eligibility for a city
+        function getCityPeripheryInfo(cityName) {
+            if (!cityName) return null;
+            cityName = cityName.trim();
+            return PERIPHERY_DATA[cityName] || null;
+        }
+
+        // Check if city qualifies for 50% Tzedek Tachburati discount
+        function isHighPriorityPeriphery(cityName) {
+            var info = getCityPeripheryInfo(cityName);
+            if (!info) return false;
+            return PERIPHERY_CLUSTERS.includes(info.cluster);
+        }
+
+        // Check if street qualifies for periphery discount in given city
+        function isStreetEligible(cityName, streetName) {
+            var info = getCityPeripheryInfo(cityName);
+            if (!info || !streetName) return false;
+            
+            var streets = info.streets;
+            if (!streets || Object.keys(streets).length === 0) {
+                return true; // No street restrictions
+            }
+            
+            var streetRule = streets[streetName];
+            if (!streetRule) return false;
+            
+            if (streetRule === 'all') return true;
+            
+            // Parse street number rules
+            var streetNum = parseInt(streetName.match(/\d+/)) || 0;
+            if (streetRule === 'odd') return streetNum % 2 === 1;
+            if (streetRule === 'even') return streetNum % 2 === 0;
+            
+            // Handle range rules like "1-50"
+            var rangeMatch = streetRule.match(/(\d+)-(\d+)/);
+            if (rangeMatch) {
+                var min = parseInt(rangeMatch[1]);
+                var max = parseInt(rangeMatch[2]);
+                return streetNum >= min && streetNum <= max;
+            }
+            
+            // Handle exact number
+            return parseInt(streetRule) === streetNum;
+        }
+
+        // Get periphery cluster (for computeTransportFare integration)
+        function getPeripheryCluster(cityName) {
+            var info = getCityPeripheryInfo(cityName);
+            return info ? info.cluster : 0;
+        }
+
+        // ============================================================
         // FARE RULES - Official Ministry of Transport fare zones
         // Source: bus.gov.il - Official fare table
         // ============================================================
@@ -972,11 +1066,26 @@
                 matches.forEach(function(city, index) {
                     var item = document.createElement('div');
                     item.className = 'autocomplete-item';
-                    item.textContent = city;
+                    
+                    // Add periphery indicator badge
+                    var peripheryInfo = getCityPeripheryInfo(city);
+                    if (peripheryInfo && isHighPriorityPeriphery(city)) {
+                        item.innerHTML = city + ' <span class="periphery-badge">צ"ת ' + peripheryInfo.cluster + '</span>';
+                    } else {
+                        item.textContent = city;
+                    }
+                    
                     item.setAttribute('data-index', index);
                     item.addEventListener('click', function() {
                         input.value = city;
                         list.classList.remove('active');
+                        // Trigger periphery checkbox update
+                        if (peripheryInfo) {
+                            var peripheryCheckbox = document.getElementById('p-periphery');
+                            if (peripheryCheckbox) {
+                                peripheryCheckbox.checked = true;
+                            }
+                        }
                         // Trigger calculation if both fields are filled
                         if (inputId === 'origin') {
                             var destValue = document.getElementById('dest').value;
@@ -1565,10 +1674,54 @@
 
             var freeProfile = isFreeProfile(passengerType);
             var monthlyDiscount = getMonthlyDiscount(passengerType);
+            
+            // Check for train connectivity
+            var originLower = origin.toLowerCase();
+            var destLower = dest.toLowerCase();
+            var originHasTrain = TRAIN_CITIES.some(function(city) {
+                return city.toLowerCase() === originLower;
+            });
+            var destHasTrain = TRAIN_CITIES.some(function(city) {
+                return city.toLowerCase() === destLower;
+            });
+            var hasTrainRoute = originHasTrain && destHasTrain;
 
-            // Calculate Single and Daily prices
-            var singlePrice = freeProfile ? 0.00 : fareZone.data.single;
-            var dailyPrice = freeProfile ? 0.00 : fareZone.data.daily;
+            // Get periphery info for cluster-based discount
+            var originPeripheryInfo = getCityPeripheryInfo(origin);
+            var originCluster = originPeripheryInfo ? originPeripheryInfo.cluster : 0;
+            var isHighPriorityPeripheryCity = isHighPriorityPeriphery(origin);
+            
+            // Calculate base Single and Daily prices (with train premium if applicable)
+            var baseSingle = fareZone.data.single;
+            var baseDaily = fareZone.data.daily;
+            
+            // Apply train premium for single rides if route has train connectivity
+            if (hasTrainRoute) {
+                // Train single ride is approximately 42% higher than bus
+                var trainPremium = 1.42;
+                baseSingle = Math.round(fareZone.data.single * trainPremium * 100) / 100;
+                baseDaily = Math.round(fareZone.data.daily * trainPremium * 100) / 100;
+            }
+            
+            var singlePrice = freeProfile ? 0.00 : baseSingle;
+            var dailyPrice = freeProfile ? 0.00 : baseDaily;
+
+            // Calculate periphery discount based on cluster
+            var peripheryDiscount = 0;
+            if (passengerType === 'periphery_resident' && originPeripheryInfo) {
+                // Cluster 1-5: 50% discount, others: 33%
+                if (originCluster >= 1 && originCluster <= 5) {
+                    peripheryDiscount = 0.50;
+                } else {
+                    peripheryDiscount = 0.33;
+                }
+            }
+
+            // Apply periphery discount to single/daily prices
+            if (peripheryDiscount > 0) {
+                singlePrice = Math.round(singlePrice * (1 - peripheryDiscount) * 100) / 100;
+                dailyPrice = Math.round(dailyPrice * (1 - peripheryDiscount) * 100) / 100;
+            }
 
             // Evaluate all monthly contracts
             var monthlyNational = evaluateMonthlyContract(
@@ -1601,7 +1754,13 @@
                 zone: fareZone.zone,
                 zoneLabel: fareZone.data.label,
                 distance: distance,
-                isFallback: isFallback
+                isFallback: isFallback,
+                
+                // Periphery info
+                hasTrainRoute: hasTrainRoute,
+                peripheryCluster: originCluster,
+                isHighPriorityPeriphery: isHighPriorityPeripheryCity,
+                peripheryDiscount: peripheryDiscount
             };
         }
 
@@ -1665,13 +1824,25 @@
                         result.monthlyTrain.price,
                         result.monthlyTrain.valid);
                     
-                    // PERIPHERY PRICING - Apply 50% discount (157.50 ₪) when periphery profile is selected
+                    // PERIPHERY PRICING - Cluster-based discount (50% for clusters 1-5, 33% for others)
                     var peripheryPriceEl = document.getElementById('price-monthly-periphery');
                     var isPeripheryProfile = (passengerType === 'periphery_resident');
+                    var cluster = result.peripheryCluster || 0;
+                    var isHighPriority = result.isHighPriorityPeriphery;
                     
                     if (isPeripheryProfile) {
-                        // Apply 50% discount: 50% of 315 ₪ = 157.50 ₪
-                        peripheryPriceEl.textContent = '157.50';
+                        // Apply cluster-based discount to monthly pass
+                        var basePeripheryPrice = 315.00; // Standard periphery monthly
+                        var discountRate = (cluster >= 1 && cluster <= 5) ? 0.50 : 0.33;
+                        var peripheryPrice = Math.round(basePeripheryPrice * (1 - discountRate) * 100) / 100;
+                        peripheryPriceEl.textContent = peripheryPrice.toFixed(2);
+                        
+                        // Add tooltip info about discount
+                        if (cluster >= 1 && cluster <= 5) {
+                            peripheryPriceEl.title = 'צדק תחבורתי - קלסטר ' + cluster + ' (50% הנחה)';
+                        } else if (cluster > 0) {
+                            peripheryPriceEl.title = 'צדק תחבורתי - קלסטר ' + cluster + ' (33% הנחה)';
+                        }
                     } else {
                         // Not periphery profile - show standard pricing
                         peripheryPriceEl.textContent =
@@ -1680,6 +1851,11 @@
                                 result.monthlyPeriphery.message;
                         peripheryPriceEl.style.color =
                             result.monthlyPeriphery.valid ? '' : '#c00';
+                    }
+                    
+                    // Show train route indicator
+                    if (result.hasTrainRoute) {
+                        document.getElementById('price-single').title = 'מחיר רכבת (יקר ב-42% מאוטובוס)';
                     }
                     
                     document.getElementById('price-monthly-eilat').textContent =
