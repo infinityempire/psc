@@ -898,37 +898,44 @@
             yellow: {       // 0-15 km
                 minDistance: 0,
                 maxDistance: 15,
-                single: 6.00,
-                daily: 13.00,
+                single: 8.00,
+                daily: 17.50,
                 label: 'אזור 1 (0-15 ק"מ)'
             },
             green: {        // 15.1-40 km
                 minDistance: 15.1,
                 maxDistance: 40,
-                single: 12.50,
-                daily: 24.00,
+                single: 14.50,
+                daily: 29.00,
                 label: 'אזור 2 (15.1-40 ק"מ)'
             },
             lightblue: {    // 40.1-75 km
                 minDistance: 40.1,
                 maxDistance: 75,
-                single: 17.00,
-                daily: 32.50,
+                single: 19.00,
+                daily: 37.50,
                 label: 'אזור 3 (40.1-75 ק"מ)'
             },
             blue: {         // 75.1-120 km
                 minDistance: 75.1,
                 maxDistance: 120,
-                single: 27.00,
-                daily: 50.00,
+                single: 19.00,
+                daily: 37.50,
                 label: 'אזור 4 (75.1-120 ק"מ)'
             },
-            purple: {       // 120.1+ km
+            purple: {       // 120.1-225 km
                 minDistance: 120.1,
+                maxDistance: 225,
+                single: 30.50,
+                daily: 60.50,
+                label: 'אזור 5 (120.1-225 ק"מ)'
+            },
+            gray: {         // 225.1+ km
+                minDistance: 225.1,
                 maxDistance: Infinity,
-                single: 68.50,
-                daily: 85.00,
-                label: 'אזור 5 (120.1+ ק"מ)'
+                single: 74.00,
+                daily: 79.50,
+                label: 'אזור 6 (225.1+ ק"מ)'
             }
         };
 
@@ -939,37 +946,44 @@
             yellow: {       // 0-15 km
                 minDistance: 0,
                 maxDistance: 15,
-                single: 9.00,
-                daily: 18.00,
+                single: 11.50,
+                daily: 23.00,
                 label: 'אזור 1 + רכבת (0-15 ק"מ)'
             },
             green: {        // 15.1-40 km
                 minDistance: 15.1,
                 maxDistance: 40,
-                single: 18.00,
-                daily: 37.00,
+                single: 21.00,
+                daily: 32.50,
                 label: 'אזור 2 + רכבת (15.1-40 ק"מ)'
             },
             lightblue: {    // 40.1-75 km
                 minDistance: 40.1,
                 maxDistance: 75,
-                single: 22.50,
-                daily: 42.50,
+                single: 27.00,
+                daily: 42.00,
                 label: 'אזור 3 + רכבת (40.1-75 ק"מ)'
             },
             blue: {         // 75.1-120 km
                 minDistance: 75.1,
                 maxDistance: 120,
-                single: 35.50,
-                daily: 62.00,
+                single: 30.50,
+                daily: 47.00,
                 label: 'אזור 4 + רכבת (75.1-120 ק"מ)'
             },
-            purple: {       // 120.1+ km
+            purple: {       // 120.1-225 km
                 minDistance: 120.1,
+                maxDistance: 225,
+                single: 52.50,
+                daily: 80.50,
+                label: 'אזור 5 + רכבת (120.1-225 ק"מ)'
+            },
+            gray: {         // 225.1+ km
+                minDistance: 225.1,
                 maxDistance: Infinity,
-                single: 68.50,
-                daily: 115.00,
-                label: 'אזור 5 + רכבת (120.1+ ק"מ)'
+                single: 52.50,
+                daily: 80.50,
+                label: 'אזור 6 + רכבת (225.1+ ק"מ)'
             }
         };
 
@@ -981,20 +995,37 @@
             national: {
                 id: 'national',
                 name: 'חופשי חודשי ארצי',
-                base: 310.00, // Fixed base price for Nationwide Monthly Pass
+                base: 315.00, // Fixed base price for Nationwide Monthly Pass
                 label: 'בינעירוני ארצי'
             },
-            nationalTrain: {
-                id: 'nationalTrain',
-                name: 'חופשי ארצי משולב רכבת',
-                base: 610.00, // Fixed base price for Combined Rail Monthly Pass
-                label: 'משולב רכבת',
-                condition: 'intercity' // Only for distance > 40km
+            nationalTrain40: {
+                id: 'nationalTrain40',
+                name: 'חופשי ארצי משולב רכבת עד 40 ק"מ',
+                base: 323.00, // Fixed base price for Combined Rail up to 40km
+                label: 'משולב רכבת עד 40 ק"מ'
+            },
+            nationalTrain75: {
+                id: 'nationalTrain75',
+                name: 'חופשי ארצי משולב רכבת עד 75 ק"מ',
+                base: 464.00, // Fixed base price for Combined Rail up to 75km
+                label: 'משולב רכבת עד 75 ק"מ'
+            },
+            nationalTrainUnlimited: {
+                id: 'nationalTrainUnlimited',
+                name: 'חופשי ארצי משולב רכבת ללא הגבלה',
+                base: 684.00, // Fixed base price for Combined Rail Unlimited
+                label: 'משולב רכבת ללא הגבלה'
+            },
+            peripheryRegional: {
+                id: 'peripheryRegional',
+                name: 'חופשי אזורי פריפריה עד 40 ק"מ',
+                base: 139.00, // Regional Periphery Bus up to 40km
+                label: 'פריפריה אזורית עד 40 ק"מ'
             },
             periphery: {
                 id: 'periphery',
                 name: 'חופשי חודשי פריפריה',
-                base: 310.00, // Base same as national; discount applied based on cluster
+                base: 315.00, // Base same as national; discount applied based on cluster
                 label: 'פריפריה',
                 invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
                 invalidMessage: 'לא תקף במסלול זה'
@@ -1637,8 +1668,10 @@
                 return { zone: 'lightblue', data: FARE_RULES.lightblue, railData: RAIL_FARE_RULES.lightblue, distance: distance };
             } else if (distance <= FARE_RULES.blue.maxDistance) {
                 return { zone: 'blue', data: FARE_RULES.blue, railData: RAIL_FARE_RULES.blue, distance: distance };
-            } else {
+            } else if (distance <= FARE_RULES.purple.maxDistance) {
                 return { zone: 'purple', data: FARE_RULES.purple, railData: RAIL_FARE_RULES.purple, distance: distance };
+            } else {
+                return { zone: 'gray', data: FARE_RULES.gray, railData: RAIL_FARE_RULES.gray, distance: distance };
             }
         };
 
@@ -2066,8 +2099,8 @@
                     document.getElementById('price-monthly-national').textContent =
                         MONTHLY_CONTRACTS.national.base.toFixed(2);
                     document.getElementById('price-monthly-train').textContent =
-                        MONTHLY_CONTRACTS.nationalTrain.base.toFixed(2);
-                    // Graceful periphery fallback: ₪207.70 (33% discount on ₪310 base)
+                        MONTHLY_CONTRACTS.nationalTrain75.base.toFixed(2);
+                    // Graceful periphery fallback: ₪210.05 (33% discount on ₪315 base)
                     var peripheryFallback = Math.round(MONTHLY_CONTRACTS.periphery.base * 0.67 * 100) / 100;
                     document.getElementById('price-monthly-periphery').textContent = peripheryFallback.toFixed(2);
                     document.getElementById('price-monthly-eilat').textContent =

@@ -7,29 +7,33 @@
  */
 
 // Official Distance-Tier Tariff Matrix
-// Bus / Light Rail / Metronit (ללא רכבת ישראל)
+// Bus / Light Rail / Metronit / Cable (ללא רכבת ישראל)
 const BUS_FARE_TIERS = [
-    { minDistance: 0, maxDistance: 15, single: 6.00, daily: 13.00, monthlyLocal: 235.00, monthlyNational: 310.00 },
-    { minDistance: 15.1, maxDistance: 40, single: 12.50, daily: 24.00, monthlyLocal: null, monthlyNational: 310.00 },
-    { minDistance: 40.1, maxDistance: 75, single: 17.00, daily: 32.50, monthlyLocal: null, monthlyNational: 310.00 },
-    { minDistance: 75.1, maxDistance: 120, single: 27.00, daily: 50.00, monthlyLocal: null, monthlyNational: 310.00 },
-    { minDistance: 120.1, maxDistance: Infinity, single: 68.50, daily: 85.00, monthlyLocal: null, monthlyNational: 310.00 }
+    { minDistance: 0, maxDistance: 15, single: 8.00, daily: 17.50, monthlyLocal: null, monthlyNational: 315.00 },
+    { minDistance: 15.1, maxDistance: 40, single: 14.50, daily: 29.00, monthlyLocal: null, monthlyNational: 315.00 },
+    { minDistance: 40.1, maxDistance: 75, single: 19.00, daily: 37.50, monthlyLocal: null, monthlyNational: 315.00 },
+    { minDistance: 75.1, maxDistance: 120, single: 19.00, daily: 37.50, monthlyLocal: null, monthlyNational: 315.00 },
+    { minDistance: 120.1, maxDistance: 225, single: 30.50, daily: 60.50, monthlyLocal: null, monthlyNational: 315.00 },
+    { minDistance: 225.1, maxDistance: Infinity, single: 74.00, daily: 79.50, monthlyLocal: null, monthlyNational: 315.00 }
 ];
 
 // Including Israel Railways (כולל רכבת ישראל)
 const RAIL_FARE_TIERS = [
-    { minDistance: 0, maxDistance: 15, single: 9.00, daily: 18.00, monthlyNationalRail: 610.00 },
-    { minDistance: 15.1, maxDistance: 40, single: 18.00, daily: 37.00, monthlyNationalRail: 610.00 },
-    { minDistance: 40.1, maxDistance: 75, single: 22.50, daily: 42.50, monthlyNationalRail: 610.00 },
-    { minDistance: 75.1, maxDistance: 120, single: 35.50, daily: 62.00, monthlyNationalRail: 610.00 },
-    { minDistance: 120.1, maxDistance: Infinity, single: 68.50, daily: 115.00, monthlyNationalRail: 610.00 }
+    { minDistance: 0, maxDistance: 15, single: 11.50, daily: 23.00, monthlyUpTo40km: 323.00 },
+    { minDistance: 15.1, maxDistance: 40, single: 21.00, daily: 32.50, monthlyUpTo40km: 323.00 },
+    { minDistance: 40.1, maxDistance: 75, single: 27.00, daily: 42.00, monthlyUpTo75km: 464.00 },
+    { minDistance: 75.1, maxDistance: 120, single: 30.50, daily: 47.00, monthlyUnlimited: 684.00 },
+    { minDistance: 120.1, maxDistance: Infinity, single: 52.50, daily: 80.50, monthlyUnlimited: 684.00 }
 ];
 
 // Monthly pass base prices
 const MONTHLY_PASS_BASE = {
-    busLocal: 235.00,
-    busNational: 310.00,
-    railNational: 610.00
+    busLocal: null,
+    busNational: 315.00,
+    railUpTo40km: 323.00,
+    railUpTo75km: 464.00,
+    railUnlimited: 684.00,
+    peripheryRegional: 139.00
 };
 
 /**
@@ -67,11 +71,19 @@ function calculateTierFare(distance, includesRail = false) {
             monthlyLocal: busTier.monthlyLocal,
             monthlyNational: busTier.monthlyNational
         },
-        // Rail tiers (including train)
+        // Rail tiers (including train) - distance-based monthly passes
         rail: {
             single: railTier.single,
             daily: railTier.daily,
-            monthlyNationalRail: railTier.monthlyNationalRail
+            monthlyUpTo40km: railTier.monthlyUpTo40km,
+            monthlyUpTo75km: railTier.monthlyUpTo75km,
+            monthlyUnlimited: railTier.monthlyUnlimited
+        },
+        // Get appropriate rail monthly pass based on distance
+        getRailMonthlyPass: function(dist) {
+            if (dist <= 40) return railTier.monthlyUpTo40km;
+            if (dist <= 75) return railTier.monthlyUpTo75km;
+            return railTier.monthlyUnlimited;
         },
         // Distance metadata
         distance: distance,
@@ -91,13 +103,14 @@ function getZoneLabel(distance) {
     if (distance <= 40) return 'אזור 2 (15.1-40 ק"מ)';
     if (distance <= 75) return 'אזור 3 (40.1-75 ק"מ)';
     if (distance <= 120) return 'אזור 4 (75.1-120 ק"מ)';
-    return 'אזור 5 (120.1+ ק"מ)';
+    if (distance <= 225) return 'אזור 5 (120.1-225 ק"מ)';
+    return 'אזור 6 (225.1+ ק"מ)';
 }
 
 /**
  * Get base fare for a specific ticket type
  * @param {number} distance - Distance in km
- * @param {string} ticketType - 'single', 'daily', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyNationalRail'
+ * @param {string} ticketType - 'single', 'daily', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail'
  * @param {boolean} includesRail - Whether route includes train
  * @returns {number} Base fare amount
  */
@@ -110,13 +123,13 @@ function getBaseFare(distance, ticketType, includesRail = false) {
         case 'daily':
             return includesRail ? fares.rail.daily : fares.bus.daily;
         case 'monthly':
-            return includesRail ? fares.rail.monthlyNationalRail : fares.bus.monthlyNational;
+            return includesRail ? fares.getRailMonthlyPass(distance) : fares.bus.monthlyNational;
         case 'monthlyLocal':
             return fares.bus.monthlyLocal;
         case 'monthlyNational':
             return fares.bus.monthlyNational;
-        case 'monthlyNationalRail':
-            return fares.rail.monthlyNationalRail;
+        case 'monthlyRail':
+            return fares.getRailMonthlyPass(distance);
         default:
             return 0;
     }
@@ -220,7 +233,10 @@ function computeTransportFare(params) {
         rail: {
             single: allFares.rail.single,
             daily: allFares.rail.daily,
-            monthlyNationalRail: allFares.rail.monthlyNationalRail
+            monthlyUpTo40km: allFares.rail.monthlyUpTo40km,
+            monthlyUpTo75km: allFares.rail.monthlyUpTo75km,
+            monthlyUnlimited: allFares.rail.monthlyUnlimited,
+            getMonthlyPass: allFares.getRailMonthlyPass
         },
         
         // Discount information
