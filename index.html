@@ -1757,6 +1757,18 @@
                 single: singlePrice,
                 daily: dailyPrice,
                 
+                // allFares structure from psc.js for UI display
+                allFares: {
+                    bus: {
+                        singleFare: fareZone.data.single,
+                        dailyFare: fareZone.data.daily
+                    },
+                    rail: {
+                        singleFare: hasTrainRoute ? Math.round(fareZone.data.single * 1.42 * 100) / 100 : fareZone.data.single,
+                        dailyFare: hasTrainRoute ? Math.round(fareZone.data.daily * 1.42 * 100) / 100 : fareZone.data.daily
+                    }
+                },
+                
                 // Monthly contracts
                 monthlyNational: monthlyNational,
                 monthlyTrain: monthlyTrain,
@@ -1827,9 +1839,25 @@
                     // Store for WhatsApp sharing
                     lastCalculatedResult = result;
 
-                    // Update Single & Daily prices
-                    document.getElementById('price-single').textContent = result.single.toFixed(2);
-                    document.getElementById('price-daily').textContent = result.daily.toFixed(2);
+                    // Update Single & Daily prices using allFares structure
+                    var fares = result.allFares;
+                    
+                    // Bus single ride: fares.bus.singleFare
+                    document.getElementById('price-single').textContent = fares.bus.singleFare.toFixed(2);
+                    
+                    // Rail single ride: fares.rail.singleFare
+                    if (result.hasTrainRoute) {
+                        document.getElementById('price-single').textContent = fares.rail.singleFare.toFixed(2);
+                        document.getElementById('price-single').title = 'מחיר רכבת';
+                    }
+                    
+                    // Bus daily pass: fares.bus.dailyFare
+                    document.getElementById('price-daily').textContent = fares.bus.dailyFare.toFixed(2);
+                    
+                    // Rail daily pass: fares.rail.dailyFare
+                    if (result.hasTrainRoute) {
+                        document.getElementById('price-daily').textContent = fares.rail.dailyFare.toFixed(2);
+                    }
 
                     // Update Monthly contract prices
                     renderPrice('price-monthly-national',
@@ -1866,11 +1894,6 @@
                                 result.monthlyPeriphery.message;
                         peripheryPriceEl.style.color =
                             result.monthlyPeriphery.valid ? '' : '#c00';
-                    }
-                    
-                    // Show train route indicator
-                    if (result.hasTrainRoute) {
-                        document.getElementById('price-single').title = 'מחיר רכבת (יקר ב-42% מאוטובוס)';
                     }
                     
                     document.getElementById('price-monthly-eilat').textContent =
