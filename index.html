@@ -935,25 +935,26 @@
 
         // ============================================================
         // MONTHLY CONTRACTS (Official Reform Passes)
+        // All monthly pass prices are now standardized per the latest fare schedule.
         // ============================================================
         var MONTHLY_CONTRACTS = {
             national: {
                 id: 'national',
                 name: 'חופשי חודשי ארצי',
-                base: 21.07,
+                base: 310.00, // Fixed base price for Nationwide Monthly Pass
                 label: 'בינעירוני ארצי'
             },
             nationalTrain: {
                 id: 'nationalTrain',
                 name: 'חופשי ארצי משולב רכבת',
-                base: 464.00, // Default, overridden by zone in evaluateMonthlyContract
+                base: 610.00, // Fixed base price for Combined Rail Monthly Pass
                 label: 'משולב רכבת',
                 condition: 'intercity' // Only for distance > 40km
             },
             periphery: {
                 id: 'periphery',
                 name: 'חופשי חודשי פריפריה',
-                base: 133.00,
+                base: 310.00, // Base same as national; discount applied based on cluster
                 label: 'פריפריה',
                 invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
                 invalidMessage: 'לא תקף במסלול זה'
@@ -1290,7 +1291,8 @@
         var lastKnownState = {
             origin: '',
             dest: '',
-            passengerType: 'adult'
+            passengerType: 'adult',
+            ticketType: 'single'
         };
         
         /**
@@ -1366,11 +1368,13 @@
             var currentOrigin = document.getElementById('origin').value.trim();
             var currentDest = document.getElementById('dest').value.trim();
             var currentPassenger = document.querySelector('[name="passenger"]:checked').value;
+            var currentTicketType = document.querySelector('[name="ticketType"]:checked').value;
             
             var stateChanged = (
                 currentOrigin !== lastKnownState.origin ||
                 currentDest !== lastKnownState.dest ||
-                currentPassenger !== lastKnownState.passengerType
+                currentPassenger !== lastKnownState.passengerType ||
+                currentTicketType !== lastKnownState.ticketType
             );
             
             if (stateChanged) {
@@ -1378,6 +1382,7 @@
                 lastKnownState.origin = currentOrigin;
                 lastKnownState.dest = currentDest;
                 lastKnownState.passengerType = currentPassenger;
+                lastKnownState.ticketType = currentTicketType;
                 
                 // Reset the results container
                 resetResultsContainer();
@@ -1408,6 +1413,15 @@
                 checkAndResetOnStateChange();
                 // Also update student pass visibility
                 updateStudentPassVisibility();
+            });
+        });
+        
+        // Add event listeners to all ticket type radios
+        var ticketTypeRadios = document.querySelectorAll('[name="ticketType"]');
+        ticketTypeRadios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                // Reset results on any ticket type change
+                checkAndResetOnStateChange();
             });
         });
         
@@ -1591,13 +1605,14 @@
         }
 
         // Monthly train prices by zone (from bus.gov.il)
+        // Combined Rail Monthly Pass is now fixed at ₪610.00
         var MONTHLY_TRAIN_PRICES = {
-            yellow: 323,
-            green: 323,
-            lightblue: 464,
-            blue: 684,
-            purple: 684,
-            gray: 684
+            yellow: 610.00,
+            green: 610.00,
+            lightblue: 610.00,
+            blue: 610.00,
+            purple: 610.00,
+            gray: 610.00
         };
 
         function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
@@ -1831,8 +1846,8 @@
                     var isHighPriority = result.isHighPriorityPeriphery;
                     
                     if (isPeripheryProfile) {
-                        // Apply cluster-based discount to monthly pass
-                        var basePeripheryPrice = 315.00; // Standard periphery monthly
+                        // Apply cluster-based discount to monthly pass using the standardized base price
+                        var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 310.00
                         var discountRate = (cluster >= 1 && cluster <= 5) ? 0.50 : 0.33;
                         var peripheryPrice = Math.round(basePeripheryPrice * (1 - discountRate) * 100) / 100;
                         peripheryPriceEl.textContent = peripheryPrice.toFixed(2);
@@ -1943,10 +1958,14 @@
                     var typeLabel = '';
                     var monthlyNationalPrice = result.monthlyNational.price;
 
-                    // Check if periphery profile is selected - apply 50% discount
+                    // Check if periphery profile is selected - apply cluster-based discount
                     if (isPeripheryProfile) {
-                        finalPrice = 157.50;
-                        typeLabel = 'פריפריה גיאוגרפית (157.50 ₪)';
+                        // Calculate periphery price using cluster-based discount (50% for clusters 1-5, 33% for others)
+                        var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 310.00
+                        var discountRate = (cluster >= 1 && cluster <= 5) ? 0.50 : 0.33;
+                        finalPrice = Math.round(basePeripheryPrice * (1 - discountRate) * 100) / 100;
+                        var discountLabel = (cluster >= 1 && cluster <= 5) ? '50%' : '33%';
+                        typeLabel = 'פריפריה גיאוגרפית (' + finalPrice.toFixed(2) + ' ₪) - ' + discountLabel + ' הנחה';
                     } else if (ticketType === 'single') {
                         finalPrice = result.single;
                         typeLabel = 'נסיעה בודדת (' + result.zoneLabel + ')';

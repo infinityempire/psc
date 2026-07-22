@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Public Transportation Fare Calculator",
   "scripts": {
-    "sync-fares": "node sync-fares.js"
+    "sync-fares": "node sync-fares.js",
+    "test": "jest"
   },
   "dependencies": {
     "puppeteer": "^21.0.0"
