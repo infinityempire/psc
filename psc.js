@@ -4,37 +4,65 @@
  * 
  * Official Ministry of Transport ("Derech Shaveh" / "Tachburah Tzedek") tariff structure
  * Direct mapping to national distance-tier matrix for both Bus/Light Rail and Rail routes
+ * 
+ * This module loads tariff data dynamically from data/tariffs.json
  */
 
-// Official Distance-Tier Tariff Matrix
-// Bus / Light Rail / Metronit / Cable (ללא רכבת ישראל)
-const BUS_FARE_TIERS = [
-    { minDistance: 0, maxDistance: 15, single: 8.00, daily: 17.50, monthlyLocal: null, monthlyNational: 315.00 },
-    { minDistance: 15.1, maxDistance: 40, single: 14.50, daily: 29.00, monthlyLocal: null, monthlyNational: 315.00 },
-    { minDistance: 40.1, maxDistance: 75, single: 19.00, daily: 37.50, monthlyLocal: null, monthlyNational: 315.00 },
-    { minDistance: 75.1, maxDistance: 120, single: 19.00, daily: 37.50, monthlyLocal: null, monthlyNational: 315.00 },
-    { minDistance: 120.1, maxDistance: 225, single: 30.50, daily: 60.50, monthlyLocal: null, monthlyNational: 315.00 },
-    { minDistance: 225.1, maxDistance: Infinity, single: 74.00, daily: 79.50, monthlyLocal: null, monthlyNational: 315.00 }
-];
+// Load tariff data from JSON file
+let TARIFF_DATA = null;
+let BUS_FARE_TIERS = [];
+let RAIL_FARE_TIERS = [];
+let MONTHLY_PASS_BASE = {};
 
-// Including Israel Railways (כולל רכבת ישראל)
-const RAIL_FARE_TIERS = [
-    { minDistance: 0, maxDistance: 15, single: 11.50, daily: 23.00, monthlyUpTo40km: 323.00 },
-    { minDistance: 15.1, maxDistance: 40, single: 21.00, daily: 32.50, monthlyUpTo40km: 323.00 },
-    { minDistance: 40.1, maxDistance: 75, single: 27.00, daily: 42.00, monthlyUpTo75km: 464.00 },
-    { minDistance: 75.1, maxDistance: 120, single: 30.50, daily: 47.00, monthlyUnlimited: 684.00 },
-    { minDistance: 120.1, maxDistance: Infinity, single: 52.50, daily: 80.50, monthlyUnlimited: 684.00 }
-];
+function loadTariffData(tariffJson) {
+    TARIFF_DATA = tariffJson;
+    
+    // Convert bus zones to tier format
+    BUS_FARE_TIERS = TARIFF_DATA.bus.zones.map(zone => ({
+        minDistance: zone.minDistance,
+        maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
+        single: zone.single,
+        daily: zone.daily,
+        monthlyLocal: null,
+        monthlyNational: zone.monthlyNational
+    }));
+    
+    // Convert rail zones to tier format
+    RAIL_FARE_TIERS = TARIFF_DATA.rail.zones.map(zone => ({
+        minDistance: zone.minDistance,
+        maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
+        single: zone.single,
+        daily: zone.daily,
+        monthlyUpTo40km: zone.monthlyUpTo40km,
+        monthlyUpTo75km: zone.monthlyUpTo75km,
+        monthlyUnlimited: zone.monthlyUnlimited
+    }));
+    
+    // Build monthly pass base from contracts
+    MONTHLY_PASS_BASE = {
+        busLocal: null,
+        busNational: TARIFF_DATA.monthlyContracts.national.base,
+        railUpTo40km: TARIFF_DATA.monthlyContracts.nationalTrain40.base,
+        railUpTo75km: TARIFF_DATA.monthlyContracts.nationalTrain75.base,
+        railUnlimited: TARIFF_DATA.monthlyContracts.nationalTrainUnlimited.base,
+        peripheryRegional: TARIFF_DATA.monthlyContracts.peripheryRegional.base
+    };
+}
 
-// Monthly pass base prices
-const MONTHLY_PASS_BASE = {
-    busLocal: null,
-    busNational: 315.00,
-    railUpTo40km: 323.00,
-    railUpTo75km: 464.00,
-    railUnlimited: 684.00,
-    peripheryRegional: 139.00
-};
+// Initialize with default data if running in Node.js with fs
+if (typeof module !== 'undefined' && module.exports) {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const tariffPath = path.join(__dirname, 'data', 'tariffs.json');
+        if (fs.existsSync(tariffPath)) {
+            const tariffJson = JSON.parse(fs.readFileSync(tariffPath, 'utf8'));
+            loadTariffData(tariffJson);
+        }
+    } catch (e) {
+        console.warn('Could not load tariffs.json, using embedded defaults');
+    }
+}
 
 /**
  * Find the appropriate fare tier based on distance
@@ -270,8 +298,10 @@ if (typeof module !== 'undefined' && module.exports) {
         getBaseFare,
         getZoneLabel,
         findFareTier,
-        BUS_FARE_TIERS,
-        RAIL_FARE_TIERS,
-        MONTHLY_PASS_BASE
+        loadTariffData,
+        getTariffData: () => TARIFF_DATA,
+        getBusFareTiers: () => BUS_FARE_TIERS,
+        getRailFareTiers: () => RAIL_FARE_TIERS,
+        getMonthlyPassBase: () => MONTHLY_PASS_BASE
     };
 }

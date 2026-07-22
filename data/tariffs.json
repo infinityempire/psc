@@ -1,90 +1,270 @@
 {
     "metadata": {
-        "version": "1.0.0",
-        "lastUpdated": "2025-07-13",
-        "source": "PSC Fare Authority",
-        "description": "Public Service Commission transit fare tariffs extracted from index.html"
+        "version": "2.0.0",
+        "lastUpdated": "2026-07-22",
+        "source": "Ministry of Transport - Official Frozen Fares",
+        "description": "Official public transit fare tariffs (Bus/Light Rail/Metronit/Cable without Israel Railways)",
+        "officialSource": "data.gov.il - Ministry of Transport GTFS Tariff Data"
     },
     "currency": {
         "code": "ILS",
         "symbol": "₪",
         "name": "Israeli Shekel"
     },
-    "fareRules": {
-        "yellow": {
-            "minDistance": 0,
-            "maxDistance": 27,
-            "single": 8.00,
-            "daily": 17.50
+    "bus": {
+        "description": "Bus / Light Rail / Metronit / Cable (ללא רכבת ישראל)",
+        "zones": [
+            {
+                "id": "yellow",
+                "name": "אזור 1",
+                "minDistance": 0,
+                "maxDistance": 15,
+                "label": "0-15 ק\"מ",
+                "single": 8.00,
+                "daily": 17.50,
+                "monthlyNational": 315.00
+            },
+            {
+                "id": "green",
+                "name": "אזור 2",
+                "minDistance": 15.1,
+                "maxDistance": 40,
+                "label": "15.1-40 ק\"מ",
+                "single": 14.50,
+                "daily": 29.00,
+                "monthlyNational": 315.00
+            },
+            {
+                "id": "lightblue",
+                "name": "אזור 3",
+                "minDistance": 40.1,
+                "maxDistance": 75,
+                "label": "40.1-75 ק\"מ",
+                "single": 19.00,
+                "daily": 37.50,
+                "monthlyNational": 315.00
+            },
+            {
+                "id": "blue",
+                "name": "אזור 4",
+                "minDistance": 75.1,
+                "maxDistance": 120,
+                "label": "75.1-120 ק\"מ",
+                "single": 19.00,
+                "daily": 37.50,
+                "monthlyNational": 315.00
+            },
+            {
+                "id": "purple",
+                "name": "אזור 5",
+                "minDistance": 120.1,
+                "maxDistance": 225,
+                "label": "120.1-225 ק\"מ",
+                "single": 30.50,
+                "daily": 60.50,
+                "monthlyNational": 315.00
+            },
+            {
+                "id": "gray",
+                "name": "אזור 6",
+                "minDistance": 225.1,
+                "maxDistance": null,
+                "label": "225.1+ ק\"מ",
+                "single": 74.00,
+                "daily": 79.50,
+                "monthlyNational": 315.00
+            }
+        ]
+    },
+    "rail": {
+        "description": "Including Israel Railways (כולל רכבת ישראל)",
+        "zones": [
+            {
+                "id": "yellow",
+                "name": "אזור 1 + רכבת",
+                "minDistance": 0,
+                "maxDistance": 15,
+                "label": "0-15 ק\"מ",
+                "single": 11.50,
+                "daily": 23.00,
+                "monthlyUpTo40km": 323.00
+            },
+            {
+                "id": "green",
+                "name": "אזור 2 + רכבת",
+                "minDistance": 15.1,
+                "maxDistance": 40,
+                "label": "15.1-40 ק\"מ",
+                "single": 21.00,
+                "daily": 32.50,
+                "monthlyUpTo40km": 323.00
+            },
+            {
+                "id": "lightblue",
+                "name": "אזור 3 + רכבת",
+                "minDistance": 40.1,
+                "maxDistance": 75,
+                "label": "40.1-75 ק\"מ",
+                "single": 27.00,
+                "daily": 42.00,
+                "monthlyUpTo75km": 464.00
+            },
+            {
+                "id": "blue",
+                "name": "אזור 4 + רכבת",
+                "minDistance": 75.1,
+                "maxDistance": 120,
+                "label": "75.1-120 ק\"מ",
+                "single": 30.50,
+                "daily": 47.00,
+                "monthlyUnlimited": 684.00
+            },
+            {
+                "id": "purple",
+                "name": "אזור 5 + רכבת",
+                "minDistance": 120.1,
+                "maxDistance": 225,
+                "label": "120.1-225 ק\"מ",
+                "single": 52.50,
+                "daily": 80.50,
+                "monthlyUnlimited": 684.00
+            },
+            {
+                "id": "gray",
+                "name": "אזור 6 + רכבת",
+                "minDistance": 225.1,
+                "maxDistance": null,
+                "label": "225.1+ ק\"מ",
+                "single": 52.50,
+                "daily": 80.50,
+                "monthlyUnlimited": 684.00
+            }
+        ]
+    },
+    "monthlyContracts": {
+        "national": {
+            "id": "national",
+            "name": "חופשי חודשי ארצי",
+            "nameEn": "National Bus Monthly",
+            "base": 315.00,
+            "label": "בינעירוני ארצי"
         },
-        "green": {
-            "minDistance": 27,
-            "maxDistance": 41,
-            "single": 14.50,
-            "daily": 29.00
+        "nationalTrain40": {
+            "id": "nationalTrain40",
+            "name": "חופשי ארצי משולב רכבת עד 40 ק\"מ",
+            "nameEn": "National Rail up to 40km",
+            "base": 323.00,
+            "label": "משולב רכבת עד 40 ק\"מ"
         },
-        "lightblue": {
-            "minDistance": 40,
-            "maxDistance": 75,
-            "single": 19.00,
-            "daily": 37.50
+        "nationalTrain75": {
+            "id": "nationalTrain75",
+            "name": "חופשי ארצי משולב רכבת עד 75 ק\"מ",
+            "nameEn": "National Rail up to 75km",
+            "base": 464.00,
+            "label": "משולב רכבת עד 75 ק\"מ"
         },
-        "blue": {
-            "minDistance": 75,
-            "maxDistance": 116,
-            "single": 19.00,
-            "daily": 37.50
+        "nationalTrainUnlimited": {
+            "id": "nationalTrainUnlimited",
+            "name": "חופשי ארצי משולב רכבת ללא הגבלה",
+            "nameEn": "National Rail Unlimited",
+            "base": 684.00,
+            "label": "משולב רכבת ללא הגבלה"
         },
-        "purple": {
-            "minDistance": 116,
-            "maxDistance": 150,
-            "single": 30.50,
-            "daily": 60.50
+        "peripheryRegional": {
+            "id": "peripheryRegional",
+            "name": "חופשי אזורי פריפריה עד 40 ק\"מ",
+            "nameEn": "Regional Periphery Bus up to 40km",
+            "base": 139.00,
+            "label": "פריפריה אזורית עד 40 ק\"מ"
         },
-        "gray": {
-            "minDistance": 150,
-            "maxDistance": null,
-            "single": 74.00,
-            "daily": 79.50
+        "periphery": {
+            "id": "periphery",
+            "name": "חופשי חודשי פריפריה",
+            "nameEn": "Periphery Monthly",
+            "base": 315.00,
+            "label": "פריפריה",
+            "note": "Base same as national; discount applied based on cluster"
+        },
+        "eilat": {
+            "id": "eilat",
+            "name": "חופשי חודשי אילת",
+            "nameEn": "Eilat Monthly",
+            "base": 114.50,
+            "label": "אילת"
+        }
+    },
+    "discounts": {
+        "periphery": {
+            "clusters1to5": 0.50,
+            "clusters6plus": 0.33,
+            "description": "Tzedek Tachburati - Socio-Economic Cluster Discount"
+        },
+        "profiles": {
+            "youth": {
+                "single": 0.50,
+                "daily": 0.50,
+                "monthly": 0,
+                "description": "Youth under 18"
+            },
+            "youngAdult": {
+                "single": 0,
+                "daily": 0,
+                "monthly": 0.33,
+                "description": "Young adults 18-26 on monthly passes only"
+            },
+            "senior67674": {
+                "single": 0.50,
+                "daily": 0.50,
+                "monthly": 0,
+                "description": "Senior citizens 67-74"
+            },
+            "senior75plus": {
+                "single": 1.00,
+                "daily": 1.00,
+                "monthly": 1.00,
+                "description": "Senior citizens 75+ - 100% free"
+            },
+            "student": {
+                "single": 0.33,
+                "daily": 0.33,
+                "monthly": 0.50,
+                "description": "Students - 33% on single/daily, 50% on monthly"
+            },
+            "disabled": {
+                "single": 0.50,
+                "daily": 0.50,
+                "monthly": 0,
+                "description": "Disabled passengers"
+            }
         }
     },
     "ticketTypes": {
         "single": {
             "name": "נסיעה בודדת",
+            "nameEn": "Single Ride",
             "description": "Single ride ticket"
         },
         "daily": {
             "name": "חופשי יומי",
+            "nameEn": "Daily Pass",
             "description": "Daily unlimited rides pass"
         },
         "monthly": {
             "name": "חופשי חודשי",
-            "description": "Monthly unlimited rides pass",
-            "baseMultiplier": 1.0
+            "nameEn": "Monthly Pass",
+            "description": "Monthly unlimited rides pass"
         },
         "semester": {
             "name": "סמסטריאלי",
+            "nameEn": "Semester Pass",
             "description": "Semester pass",
             "baseMultiplier": 4.0
         },
         "annual": {
             "name": "שנתי",
+            "nameEn": "Annual Pass",
             "description": "Annual pass",
             "baseMultiplier": 8.0
-        }
-    },
-    "passengerTypes": {
-        "regular": {
-            "discount": 1.0,
-            "name": "רגיל"
-        },
-        "student": {
-            "discount": 0.5,
-            "name": "סטודנט"
-        },
-        "senior": {
-            "discount": 0.5,
-            "name": "קשיש"
         }
     }
 }

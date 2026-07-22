@@ -891,153 +891,94 @@
         }
 
         // ============================================================
-        // FARE RULES - Official Ministry of Transport fare zones
-        // Source: bus.gov.il - Official fare table
+        // FARE RULES - Loaded dynamically from data/tariffs.json
+        // Source: Ministry of Transport - Official Frozen Fares
         // ============================================================
-        var FARE_RULES = {
-            yellow: {       // 0-15 km
-                minDistance: 0,
-                maxDistance: 15,
-                single: 8.00,
-                daily: 17.50,
-                label: 'אזור 1 (0-15 ק"מ)'
-            },
-            green: {        // 15.1-40 km
-                minDistance: 15.1,
-                maxDistance: 40,
-                single: 14.50,
-                daily: 29.00,
-                label: 'אזור 2 (15.1-40 ק"מ)'
-            },
-            lightblue: {    // 40.1-75 km
-                minDistance: 40.1,
-                maxDistance: 75,
-                single: 19.00,
-                daily: 37.50,
-                label: 'אזור 3 (40.1-75 ק"מ)'
-            },
-            blue: {         // 75.1-120 km
-                minDistance: 75.1,
-                maxDistance: 120,
-                single: 19.00,
-                daily: 37.50,
-                label: 'אזור 4 (75.1-120 ק"מ)'
-            },
-            purple: {       // 120.1-225 km
-                minDistance: 120.1,
-                maxDistance: 225,
-                single: 30.50,
-                daily: 60.50,
-                label: 'אזור 5 (120.1-225 ק"מ)'
-            },
-            gray: {         // 225.1+ km
-                minDistance: 225.1,
-                maxDistance: Infinity,
-                single: 74.00,
-                daily: 79.50,
-                label: 'אזור 6 (225.1+ ק"מ)'
-            }
+        
+        // Default fallback values (used if JSON fails to load)
+        var DEFAULT_FARE_RULES = {
+            yellow: { minDistance: 0, maxDistance: 15, single: 8.00, daily: 17.50, label: 'אזור 1 (0-15 ק"מ)' },
+            green: { minDistance: 15.1, maxDistance: 40, single: 14.50, daily: 29.00, label: 'אזור 2 (15.1-40 ק"מ)' },
+            lightblue: { minDistance: 40.1, maxDistance: 75, single: 19.00, daily: 37.50, label: 'אזור 3 (40.1-75 ק"מ)' },
+            blue: { minDistance: 75.1, maxDistance: 120, single: 19.00, daily: 37.50, label: 'אזור 4 (75.1-120 ק"מ)' },
+            purple: { minDistance: 120.1, maxDistance: 225, single: 30.50, daily: 60.50, label: 'אזור 5 (120.1-225 ק"מ)' },
+            gray: { minDistance: 225.1, maxDistance: Infinity, single: 74.00, daily: 79.50, label: 'אזור 6 (225.1+ ק"מ)' }
         };
-
-        // ============================================================
-        // INCLUDING ISRAEL RAILWAYS FARE MATRIX (כולל רכבת ישראל)
-        // ============================================================
-        var RAIL_FARE_RULES = {
-            yellow: {       // 0-15 km
-                minDistance: 0,
-                maxDistance: 15,
-                single: 11.50,
-                daily: 23.00,
-                label: 'אזור 1 + רכבת (0-15 ק"מ)'
-            },
-            green: {        // 15.1-40 km
-                minDistance: 15.1,
-                maxDistance: 40,
-                single: 21.00,
-                daily: 32.50,
-                label: 'אזור 2 + רכבת (15.1-40 ק"מ)'
-            },
-            lightblue: {    // 40.1-75 km
-                minDistance: 40.1,
-                maxDistance: 75,
-                single: 27.00,
-                daily: 42.00,
-                label: 'אזור 3 + רכבת (40.1-75 ק"מ)'
-            },
-            blue: {         // 75.1-120 km
-                minDistance: 75.1,
-                maxDistance: 120,
-                single: 30.50,
-                daily: 47.00,
-                label: 'אזור 4 + רכבת (75.1-120 ק"מ)'
-            },
-            purple: {       // 120.1-225 km
-                minDistance: 120.1,
-                maxDistance: 225,
-                single: 52.50,
-                daily: 80.50,
-                label: 'אזור 5 + רכבת (120.1-225 ק"מ)'
-            },
-            gray: {         // 225.1+ km
-                minDistance: 225.1,
-                maxDistance: Infinity,
-                single: 52.50,
-                daily: 80.50,
-                label: 'אזור 6 + רכבת (225.1+ ק"מ)'
-            }
+        
+        var DEFAULT_RAIL_FARE_RULES = {
+            yellow: { minDistance: 0, maxDistance: 15, single: 11.50, daily: 23.00, label: 'אזור 1 + רכבת (0-15 ק"מ)' },
+            green: { minDistance: 15.1, maxDistance: 40, single: 21.00, daily: 32.50, label: 'אזור 2 + רכבת (15.1-40 ק"מ)' },
+            lightblue: { minDistance: 40.1, maxDistance: 75, single: 27.00, daily: 42.00, label: 'אזור 3 + רכבת (40.1-75 ק"מ)' },
+            blue: { minDistance: 75.1, maxDistance: 120, single: 30.50, daily: 47.00, label: 'אזור 4 + רכבת (75.1-120 ק"מ)' },
+            purple: { minDistance: 120.1, maxDistance: 225, single: 52.50, daily: 80.50, label: 'אזור 5 + רכבת (120.1-225 ק"מ)' },
+            gray: { minDistance: 225.1, maxDistance: Infinity, single: 52.50, daily: 80.50, label: 'אזור 6 + רכבת (225.1+ ק"מ)' }
         };
-
-        // ============================================================
-        // MONTHLY CONTRACTS (Official Reform Passes)
-        // All monthly pass prices are now standardized per the latest fare schedule.
-        // ============================================================
-        var MONTHLY_CONTRACTS = {
-            national: {
-                id: 'national',
-                name: 'חופשי חודשי ארצי',
-                base: 315.00, // Fixed base price for Nationwide Monthly Pass
-                label: 'בינעירוני ארצי'
-            },
-            nationalTrain40: {
-                id: 'nationalTrain40',
-                name: 'חופשי ארצי משולב רכבת עד 40 ק"מ',
-                base: 323.00, // Fixed base price for Combined Rail up to 40km
-                label: 'משולב רכבת עד 40 ק"מ'
-            },
-            nationalTrain75: {
-                id: 'nationalTrain75',
-                name: 'חופשי ארצי משולב רכבת עד 75 ק"מ',
-                base: 464.00, // Fixed base price for Combined Rail up to 75km
-                label: 'משולב רכבת עד 75 ק"מ'
-            },
-            nationalTrainUnlimited: {
-                id: 'nationalTrainUnlimited',
-                name: 'חופשי ארצי משולב רכבת ללא הגבלה',
-                base: 684.00, // Fixed base price for Combined Rail Unlimited
-                label: 'משולב רכבת ללא הגבלה'
-            },
-            peripheryRegional: {
-                id: 'peripheryRegional',
-                name: 'חופשי אזורי פריפריה עד 40 ק"מ',
-                base: 139.00, // Regional Periphery Bus up to 40km
-                label: 'פריפריה אזורית עד 40 ק"מ'
-            },
-            periphery: {
-                id: 'periphery',
-                name: 'חופשי חודשי פריפריה',
-                base: 315.00, // Base same as national; discount applied based on cluster
-                label: 'פריפריה',
-                invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']),
-                invalidMessage: 'לא תקף במסלול זה'
-            },
-            eilat: {
-                id: 'eilat',
-                name: 'חופשי חודשי אילת',
-                base: 114.50,
-                label: 'אילת',
-                requiredCity: 'אילת'
-            }
+        
+        var DEFAULT_MONTHLY_CONTRACTS = {
+            national: { id: 'national', name: 'חופשי חודשי ארצי', base: 315.00, label: 'בינעירוני ארצי' },
+            nationalTrain40: { id: 'nationalTrain40', name: 'חופשי ארצי משולב רכבת עד 40 ק"מ', base: 323.00, label: 'משולב רכבת עד 40 ק"מ' },
+            nationalTrain75: { id: 'nationalTrain75', name: 'חופשי ארצי משולב רכבת עד 75 ק"מ', base: 464.00, label: 'משולב רכבת עד 75 ק"מ' },
+            nationalTrainUnlimited: { id: 'nationalTrainUnlimited', name: 'חופשי ארצי משולב רכבת ללא הגבלה', base: 684.00, label: 'משולב רכבת ללא הגבלה' },
+            peripheryRegional: { id: 'peripheryRegional', name: 'חופשי אזורי פריפריה עד 40 ק"מ', base: 139.00, label: 'פריפריה אזורית עד 40 ק"מ' },
+            periphery: { id: 'periphery', name: 'חופשי חודשי פריפריה', base: 315.00, label: 'פריפריה' },
+            eilat: { id: 'eilat', name: 'חופשי חודשי אילת', base: 114.50, label: 'אילת', requiredCity: 'אילת' }
         };
+        
+        // Initialize with defaults
+        var FARE_RULES = JSON.parse(JSON.stringify(DEFAULT_FARE_RULES));
+        var RAIL_FARE_RULES = JSON.parse(JSON.stringify(DEFAULT_RAIL_FARE_RULES));
+        var MONTHLY_CONTRACTS = JSON.parse(JSON.stringify(DEFAULT_MONTHLY_CONTRACTS));
+        
+        // Load tariff data from JSON on page load
+        (function loadTariffsFromJSON() {
+            fetch('data/tariffs.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to load tariffs.json');
+                    return response.json();
+                })
+                .then(data => {
+                    // Build FARE_RULES from bus zones
+                    FARE_RULES = {};
+                    data.bus.zones.forEach(zone => {
+                        FARE_RULES[zone.id] = {
+                            minDistance: zone.minDistance,
+                            maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
+                            single: zone.single,
+                            daily: zone.daily,
+                            label: zone.name + ' (' + zone.label + ')'
+                        };
+                    });
+                    
+                    // Build RAIL_FARE_RULES from rail zones
+                    RAIL_FARE_RULES = {};
+                    data.rail.zones.forEach(zone => {
+                        RAIL_FARE_RULES[zone.id] = {
+                            minDistance: zone.minDistance,
+                            maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
+                            single: zone.single,
+                            daily: zone.daily,
+                            label: zone.label
+                        };
+                    });
+                    
+                    // Build MONTHLY_CONTRACTS from contracts
+                    MONTHLY_CONTRACTS = {
+                        national: { ...data.monthlyContracts.national },
+                        nationalTrain40: { ...data.monthlyContracts.nationalTrain40 },
+                        nationalTrain75: { ...data.monthlyContracts.nationalTrain75 },
+                        nationalTrainUnlimited: { ...data.monthlyContracts.nationalTrainUnlimited },
+                        peripheryRegional: { ...data.monthlyContracts.peripheryRegional },
+                        periphery: { ...data.monthlyContracts.periphery, invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']), invalidMessage: 'לא תקף במסלול זה' },
+                        eilat: { ...data.monthlyContracts.eilat, requiredCity: 'אילת' }
+                    };
+                    
+                    // Dispatch event so other parts of app can react
+                    window.dispatchEvent(new CustomEvent('tariffsLoaded', { detail: data }));
+                })
+                .catch(error => {
+                    console.warn('Could not load tariffs.json, using default values:', error.message);
+                });
+        })();
 
         // ============================================================
         // PASSENGER PROFILES & DISCOUNT RULES
