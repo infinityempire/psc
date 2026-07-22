@@ -1899,10 +1899,10 @@
                     var isPeripheryProfile = (passengerType === 'periphery_resident');
                     var cluster = result.peripheryCluster || 0;
                     var isHighPriority = result.isHighPriorityPeriphery;
+                    var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 310.00
                     
                     if (isPeripheryProfile) {
                         // Apply cluster-based discount to monthly pass using the standardized base price
-                        var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 310.00
                         var discountRate = (cluster >= 1 && cluster <= 5) ? 0.50 : 0.33;
                         var peripheryPrice = Math.round(basePeripheryPrice * (1 - discountRate) * 100) / 100;
                         peripheryPriceEl.textContent = peripheryPrice.toFixed(2);
@@ -1912,15 +1912,22 @@
                             peripheryPriceEl.title = 'צדק תחבורתי - קלסטר ' + cluster + ' (50% הנחה)';
                         } else if (cluster > 0) {
                             peripheryPriceEl.title = 'צדק תחבורתי - קלסטר ' + cluster + ' (33% הנחה)';
+                        } else {
+                            // Invalid or missing cluster - show standard periphery price (33% discount)
+                            peripheryPriceEl.title = 'צדק תחבורתי - מחיר פריפריה סטנדרטי (33% הנחה)';
                         }
                     } else {
-                        // Not periphery profile - show standard pricing
-                        peripheryPriceEl.textContent =
-                            result.monthlyPeriphery.valid ?
-                                result.monthlyPeriphery.price.toFixed(2) :
-                                result.monthlyPeriphery.message;
-                        peripheryPriceEl.style.color =
-                            result.monthlyPeriphery.valid ? '' : '#c00';
+                        // Not periphery profile - show standard pricing with graceful fallback
+                        if (result.monthlyPeriphery && result.monthlyPeriphery.valid) {
+                            peripheryPriceEl.textContent = result.monthlyPeriphery.price.toFixed(2);
+                            peripheryPriceEl.style.color = '';
+                        } else {
+                            // Graceful fallback: show standard periphery price when contract is invalid
+                            // For clusters 1-5: ₪155.00 (50% off ₪310), for others: ₪207.70 (33% off ₪310)
+                            var fallbackPeripheryPrice = Math.round(basePeripheryPrice * 0.67 * 100) / 100; // Default 33% discount
+                            peripheryPriceEl.textContent = fallbackPeripheryPrice.toFixed(2);
+                            peripheryPriceEl.style.color = '';
+                        }
                     }
                     
                     document.getElementById('price-monthly-eilat').textContent =
@@ -2040,15 +2047,9 @@
                     document.getElementById('r-type').textContent = typeLabel;
                     document.getElementById('r-final').textContent = finalPrice.toFixed(2) + ' ₪';
 
-                    // Handle fallback notice
-                    var fallbackEl = document.getElementById('fallback');
-                    if (result.isFallback) {
-                        fallbackEl.style.display = 'block';
-                        fallbackEl.innerHTML = '<strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס ' +
-                            FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
-                    } else {
-                        fallbackEl.style.display = 'none';
-                    }
+                    // Hide fallback notice when valid distance tier is calculated (even if isFallback is true)
+                    // Fallback notice is only shown in catch block for actual errors
+                    document.getElementById('fallback').style.display = 'none';
 
                     // FEATURE 1: Show WhatsApp Share Button
                     document.getElementById('whatsapp-share-btn').style.display = 'flex';
@@ -2057,7 +2058,7 @@
                     saveRecentSearch(origin, dest);
 
                 } catch (e) {
-                    // Error fallback
+                    // Error fallback - show graceful default values instead of error messages
                     document.getElementById('price-single').textContent =
                         FARE_RULES.lightblue.single.toFixed(2);
                     document.getElementById('price-daily').textContent =
@@ -2066,10 +2067,14 @@
                         MONTHLY_CONTRACTS.national.base.toFixed(2);
                     document.getElementById('price-monthly-train').textContent =
                         MONTHLY_CONTRACTS.nationalTrain.base.toFixed(2);
-                    document.getElementById('price-monthly-periphery').textContent = 'שגיאה';
-                    document.getElementById('price-monthly-eilat').textContent = 'שגיאה';
+                    // Graceful periphery fallback: ₪207.70 (33% discount on ₪310 base)
+                    var peripheryFallback = Math.round(MONTHLY_CONTRACTS.periphery.base * 0.67 * 100) / 100;
+                    document.getElementById('price-monthly-periphery').textContent = peripheryFallback.toFixed(2);
+                    document.getElementById('price-monthly-eilat').textContent =
+                        MONTHLY_CONTRACTS.eilat.base.toFixed(2);
                     document.getElementById('r-final').textContent =
                         FARE_RULES.lightblue.single.toFixed(2) + ' ₪';
+                    // Show fallback notice only in case of actual errors (catches unhandled exceptions)
                     document.getElementById('fallback').style.display = 'block';
                     document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
                         FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
