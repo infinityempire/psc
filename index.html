@@ -1896,9 +1896,8 @@
                             peripheryPriceEl.textContent = result.monthlyPeriphery.price.toFixed(2);
                             peripheryPriceEl.style.color = '';
                         } else {
-                            // Graceful fallback: show standard periphery price when contract is invalid
-                            // For clusters 1-5: ₪155.00 (50% off ₪310), for others: ₪207.70 (33% off ₪310)
-                            var fallbackPeripheryPrice = Math.round(basePeripheryPrice * 0.67 * 100) / 100; // Default 33% discount
+                            // Graceful fallback: show 50% discount for Geographic Profile
+                            var fallbackPeripheryPrice = Math.round(basePeripheryPrice * 0.50 * 100) / 100; // 50% discount
                             peripheryPriceEl.textContent = fallbackPeripheryPrice.toFixed(2);
                             peripheryPriceEl.style.color = '';
                         }
@@ -2041,8 +2040,8 @@
                         MONTHLY_CONTRACTS.national.base.toFixed(2);
                     document.getElementById('price-monthly-train').textContent =
                         MONTHLY_CONTRACTS.nationalTrain75.base.toFixed(2);
-                    // Graceful periphery fallback: ₪210.05 (33% discount on ₪315 base)
-                    var peripheryFallback = Math.round(MONTHLY_CONTRACTS.periphery.base * 0.67 * 100) / 100;
+                    // Graceful periphery fallback: ₪157.50 (50% discount on ₪315 base)
+                    var peripheryFallback = Math.round(MONTHLY_CONTRACTS.periphery.base * 0.50 * 100) / 100;
                     document.getElementById('price-monthly-periphery').textContent = peripheryFallback.toFixed(2);
                     document.getElementById('price-monthly-eilat').textContent =
                         MONTHLY_CONTRACTS.eilat.base.toFixed(2);

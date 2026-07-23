@@ -196,8 +196,8 @@
     "discounts": {
         "periphery": {
             "clusters1to5": 0.50,
-            "clusters6plus": 0.33,
-            "description": "Tzedek Tachburati - Socio-Economic Cluster Discount"
+            "clusters6plus": 0.50,
+            "description": "Tzedek Tachburati - Geographic Profile Discount (50% for all clusters)"
         },
         "profiles": {
             "youth": {

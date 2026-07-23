@@ -178,8 +178,7 @@ function getBaseFare(distance, ticketType, includesRail = false) {
  * - Senior Citizen Plus (75+): 100% discount (Free)
  * - Student: 33% discount (0.67) on Single/Daily, 50% on Extended Semester Pass
  * - Disabled: 50% discount (0.5)
- * - Geographic Periphery (Clusters 1-5): 50% discount on Monthly Pass
- * - Geographic Periphery (Cluster 6+): 33% discount on Monthly Pass
+ * - Geographic Periphery (All Clusters): 50% discount on Monthly Pass
  * 
  * @param {object} params - Fare calculation parameters
  * @param {number} params.distance - Distance in km
