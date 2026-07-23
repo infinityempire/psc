@@ -48,14 +48,14 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
         expect(computeTransportFare({ distance: 25, ticket_type: 'monthlyLocal' }).bus.monthlyLocal).toBeNull();
     });
 
-    test('הנחת פריפריה (צדק תחבורתי) על מנוי חודשי - 33% (ללא ציון קלסטר)', () => {
+    test('הנחת פריפריה (צדק תחבורתי) על מנוי חודשי - 50% Geographic Profile', () => {
         const res = computeTransportFare({
             distance: 50,
             ticket_type: 'monthly',
             is_periphery: true
         });
-        expect(res.peripheryDiscount).toBe(0.33);
-        expect(res.finalFare).toBe(211.05); // 315 * 0.67 = 211.05
+        expect(res.peripheryDiscount).toBe(0.50);
+        expect(res.finalFare).toBe(157.50); // 315 * 0.50 = 157.50
     });
 
     test('בדיקת אי-זליגת מצב (State Leak Prevention)', () => {
@@ -194,32 +194,34 @@ describe('Tzedek Tachburati Discount - Monthly Pass Only', () => {
         expect(res.finalFare).toBe(157.50);
     });
 
-    test('פריפריה עם קלסטר 6 - 33% הנחה (מעל 5)', () => {
+    test('פריפריה עם קלסטר 6 - 50% הנחה Geographic Profile', () => {
         const res = computeTransportFare({
             distance: 25,
             ticket_type: 'monthly',
             is_periphery: true,
             periphery_cluster: 6
         });
-        expect(res.peripheryDiscount).toBe(0.33);
-        expect(res.finalFare).toBe(211.05); // 315 * 0.67 = 211.05
+        expect(res.peripheryDiscount).toBe(0.50);
+        expect(res.finalFare).toBe(157.50); // 315 * 0.50 = 157.50
     });
 
-    test('פריפריה עם קלסטר 0 או ללא קלסטר - 33% הנחה', () => {
+    test('פריפריה עם קלסטר 0 או ללא קלסטר - 50% הנחה Geographic Profile', () => {
         const res1 = computeTransportFare({
             distance: 25,
             ticket_type: 'monthly',
             is_periphery: true,
             periphery_cluster: 0
         });
-        expect(res1.peripheryDiscount).toBe(0.33);
+        expect(res1.peripheryDiscount).toBe(0.50);
+        expect(res1.finalFare).toBe(157.50);
 
         const res2 = computeTransportFare({
             distance: 25,
             ticket_type: 'monthly',
             is_periphery: true
         });
-        expect(res2.peripheryDiscount).toBe(0.33);
+        expect(res2.peripheryDiscount).toBe(0.50);
+        expect(res2.finalFare).toBe(157.50);
     });
 
     test('פריפריה 50% + פרופיל נוער - לא מתקפל (50% מקסימום)', () => {
@@ -400,14 +402,60 @@ describe('Jerusalem <-> Tel Aviv (53.9 km) - Official Tariff Verification', () =
         expect(res.finalFare).toBe(464.00);
     });
 
-    test('Monthly National Bus with 33% Periphery MUST output ₪211.05', () => {
+    test('Monthly National Bus with Geographic Profile 50% MUST output ₪157.50', () => {
         const res = computeTransportFare({ 
             distance: 53.9, 
             ticket_type: 'monthly',
             is_periphery: true,
             periphery_cluster: 6
         });
-        expect(res.peripheryDiscount).toBe(0.33);
-        expect(res.finalFare).toBe(211.05); // 315 * 0.67 = 211.05
+        expect(res.peripheryDiscount).toBe(0.50);
+        expect(res.finalFare).toBe(157.50); // 315 * 0.50 = 157.50
+    });
+});
+
+// ============================================================
+// Regional Periphery Monthly Pass & Geographic Profile Tests
+// ============================================================
+
+describe('Regional Periphery Monthly Pass & Geographic Profile', () => {
+    test('Regional Periphery Monthly Pass MUST output ₪139.00', () => {
+        const res = computeTransportFare({
+            distance: 25,
+            ticket_type: 'monthlyRegionalPeriphery'
+        });
+        expect(res.baseFare).toBe(139.00);
+        expect(res.finalFare).toBe(139.00);
+    });
+
+    test('Geographic Profile National Monthly Pass (50% off) MUST output ₪157.50', () => {
+        const res = computeTransportFare({
+            distance: 25,
+            ticket_type: 'monthly',
+            is_periphery: true
+        });
+        expect(res.baseFare).toBe(315.00);
+        expect(res.peripheryDiscount).toBe(0.50);
+        expect(res.finalFare).toBe(157.50); // 315.00 * 0.50 = 157.50
+    });
+
+    test('Geographic Profile with various clusters all output ₪157.50', () => {
+        // Cluster 1-5
+        const res1 = computeTransportFare({
+            distance: 25,
+            ticket_type: 'monthly',
+            is_periphery: true,
+            periphery_cluster: 1
+        });
+        expect(res1.finalFare).toBe(157.50);
+
+        // Cluster 6+
+        const res2 = computeTransportFare({
+            distance: 25,
+            ticket_type: 'monthly',
+            is_periphery: true,
+            periphery_cluster: 10
+        });
+        expect(res2.finalFare).toBe(157.50);
     });
 });

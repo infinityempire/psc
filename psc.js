@@ -138,7 +138,7 @@ function getZoneLabel(distance) {
 /**
  * Get base fare for a specific ticket type
  * @param {number} distance - Distance in km
- * @param {string} ticketType - 'single', 'daily', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail'
+ * @param {string} ticketType - 'single', 'daily', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail', 'monthlyRegionalPeriphery'
  * @param {boolean} includesRail - Whether route includes train
  * @returns {number} Base fare amount
  */
@@ -158,6 +158,9 @@ function getBaseFare(distance, ticketType, includesRail = false) {
             return fares.bus.monthlyNational;
         case 'monthlyRail':
             return fares.getRailMonthlyPass(distance);
+        case 'monthlyRegionalPeriphery':
+            // Regional Periphery Monthly Pass directly uses 139.00 NIS base fare
+            return MONTHLY_PASS_BASE.peripheryRegional;
         default:
             return 0;
     }
@@ -229,15 +232,12 @@ function computeTransportFare(params) {
         }
     }
 
-    // Calculate periphery discount for monthly passes only
-    // Clusters 1-5 get 50%, clusters 6+ get 33%
+    // Calculate Geographic Profile discount for monthly passes
+    // Geographic Profile ("תושב פריפריה גיאוגרפית") = 50% discount on National Monthly Pass
     let peripheryDiscount = 0;
     if (isPeriphery && isMonthlyPass) {
-        if (peripheryCluster >= 1 && peripheryCluster <= 5) {
-            peripheryDiscount = 0.50;
-        } else {
-            peripheryDiscount = 0.33;
-        }
+        // 50% discount for Geographic Profile on National Monthly Pass (315.00 * 0.50 = 157.50)
+        peripheryDiscount = 0.50;
     }
 
     // Apply the higher discount (profile or periphery) - no discount stacking
