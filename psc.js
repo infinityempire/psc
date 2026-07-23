@@ -23,6 +23,7 @@ function loadTariffData(tariffJson) {
         maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
         single: zone.single,
         daily: zone.daily,
+        dailyNationwide: zone.dailyNationwide || 44.00, // Default nationwide daily pass
         monthlyLocal: null,
         monthlyNational: zone.monthlyNational
     }));
@@ -33,6 +34,7 @@ function loadTariffData(tariffJson) {
         maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
         single: zone.single,
         daily: zone.daily,
+        dailyUnlimited: zone.dailyUnlimited || 74.00, // Default unlimited rail daily pass
         monthlyUpTo40km: zone.monthlyUpTo40km,
         monthlyUpTo75km: zone.monthlyUpTo75km,
         monthlyUnlimited: zone.monthlyUnlimited
@@ -96,6 +98,7 @@ function calculateTierFare(distance, includesRail = false) {
         bus: {
             single: busTier.single,
             daily: busTier.daily,
+            dailyNationwide: busTier.dailyNationwide,
             monthlyLocal: busTier.monthlyLocal,
             monthlyNational: busTier.monthlyNational
         },
@@ -103,6 +106,7 @@ function calculateTierFare(distance, includesRail = false) {
         rail: {
             single: railTier.single,
             daily: railTier.daily,
+            dailyUnlimited: railTier.dailyUnlimited,
             monthlyUpTo40km: railTier.monthlyUpTo40km,
             monthlyUpTo75km: railTier.monthlyUpTo75km,
             monthlyUnlimited: railTier.monthlyUnlimited
@@ -138,7 +142,7 @@ function getZoneLabel(distance) {
 /**
  * Get base fare for a specific ticket type
  * @param {number} distance - Distance in km
- * @param {string} ticketType - 'single', 'daily', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail', 'monthlyRegionalPeriphery'
+ * @param {string} ticketType - 'single', 'daily', 'dailyNationwide', 'dailyUnlimited', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail', 'monthlyRegionalPeriphery'
  * @param {boolean} includesRail - Whether route includes train
  * @returns {number} Base fare amount
  */
@@ -150,6 +154,12 @@ function getBaseFare(distance, ticketType, includesRail = false) {
             return includesRail ? fares.rail.single : fares.bus.single;
         case 'daily':
             return includesRail ? fares.rail.daily : fares.bus.daily;
+        case 'dailyNationwide':
+            // Bus nationwide daily pass - fixed price regardless of distance
+            return fares.bus.dailyNationwide;
+        case 'dailyUnlimited':
+            // Rail unlimited daily pass - fixed price regardless of distance
+            return fares.rail.dailyUnlimited;
         case 'monthly':
             return includesRail ? fares.getRailMonthlyPass(distance) : fares.bus.monthlyNational;
         case 'monthlyLocal':
@@ -182,7 +192,8 @@ function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, pe
     const calculateWithDiscount = (baseFare, ticketType, prof, isPeriph) => {
         let profileDiscount = 0;
         const isMonthlyPass = ticketType.startsWith('monthly');
-        const isSingleOrDaily = ticketType === 'single' || ticketType === 'daily';
+        const isDaily = ticketType === 'daily' || ticketType === 'dailyNationwide' || ticketType === 'dailyUnlimited';
+        const isSingleOrDaily = ticketType === 'single' || isDaily;
         
         if (prof === 'senior_75') {
             profileDiscount = 1.00;
@@ -220,12 +231,14 @@ function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, pe
         busOnly: {
             single: allFares.bus.single,
             daily: allFares.bus.daily,
+            dailyNationwide: allFares.bus.dailyNationwide,
             monthlyNational: allFares.bus.monthlyNational,
             monthlyPeriphery: MONTHLY_PASS_BASE.peripheryRegional,
             
             // Final prices with discount
             singleWithDiscount: calculateWithDiscount(allFares.bus.single, 'single', profile, isPeriphery),
             dailyWithDiscount: calculateWithDiscount(allFares.bus.daily, 'daily', profile, isPeriphery),
+            dailyNationwideWithDiscount: calculateWithDiscount(allFares.bus.dailyNationwide, 'daily', profile, isPeriphery),
             monthlyNationalWithDiscount: calculateWithDiscount(allFares.bus.monthlyNational, 'monthly', profile, isPeriphery),
             monthlyPeripheryWithDiscount: calculateWithDiscount(MONTHLY_PASS_BASE.peripheryRegional, 'monthly', profile, isPeriphery)
         },
@@ -234,6 +247,7 @@ function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, pe
         trainCombined: {
             single: allFares.rail.single,
             daily: allFares.rail.daily,
+            dailyUnlimited: allFares.rail.dailyUnlimited,
             monthly: railMonthlyPass,
             monthlyUpTo40km: allFares.rail.monthlyUpTo40km,
             monthlyUpTo75km: allFares.rail.monthlyUpTo75km,
@@ -242,6 +256,7 @@ function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, pe
             // Final prices with discount
             singleWithDiscount: calculateWithDiscount(allFares.rail.single, 'single', profile, isPeriphery),
             dailyWithDiscount: calculateWithDiscount(allFares.rail.daily, 'daily', profile, isPeriphery),
+            dailyUnlimitedWithDiscount: calculateWithDiscount(allFares.rail.dailyUnlimited, 'daily', profile, isPeriphery),
             monthlyWithDiscount: calculateWithDiscount(railMonthlyPass, 'monthly', profile, isPeriphery)
         },
         
@@ -267,7 +282,7 @@ function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, pe
  * 
  * @param {object} params - Fare calculation parameters
  * @param {number} params.distance - Distance in km
- * @param {string} params.ticket_type - 'single', 'daily', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyNationalRail'
+ * @param {string} params.ticket_type - 'single', 'daily', 'dailyNationwide', 'dailyUnlimited', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyNationalRail'
  * @param {string} params.profile - 'regular', 'youth', 'young_adult', 'senior_67_74', 'senior_75', 'student', 'disabled'
  * @param {boolean} params.is_periphery - Whether route is in geographic periphery
  * @param {number} params.periphery_cluster - Socio-economic cluster (1-10)
@@ -292,7 +307,8 @@ function computeTransportFare(params) {
     // Calculate profile discount based on ticket type and profile
     let profileDiscount = 0;
     const isMonthlyPass = ticketType.startsWith('monthly');
-    const isSingleOrDaily = ticketType === 'single' || ticketType === 'daily';
+    const isDaily = ticketType === 'daily' || ticketType === 'dailyNationwide' || ticketType === 'dailyUnlimited';
+    const isSingleOrDaily = ticketType === 'single' || isDaily;
     
     if (profile === 'senior_75') {
         // 100% discount for seniors 75+

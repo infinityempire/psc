@@ -20,8 +20,9 @@
                 "minDistance": 0,
                 "maxDistance": 15,
                 "label": "0-15 ק\"מ",
-                "single": 8.00,
-                "daily": 17.50,
+                "single": 6.00,
+                "daily": 30.00,
+                "dailyNationwide": 44.00,
                 "monthlyNational": 315.00
             },
             {
@@ -30,8 +31,9 @@
                 "minDistance": 15.1,
                 "maxDistance": 40,
                 "label": "15.1-40 ק\"מ",
-                "single": 14.50,
-                "daily": 29.00,
+                "single": 12.50,
+                "daily": 30.00,
+                "dailyNationwide": 44.00,
                 "monthlyNational": 315.00
             },
             {
@@ -42,6 +44,7 @@
                 "label": "40.1-75 ק\"מ",
                 "single": 19.00,
                 "daily": 37.50,
+                "dailyNationwide": 44.00,
                 "monthlyNational": 315.00
             },
             {
@@ -52,6 +55,7 @@
                 "label": "75.1-120 ק\"מ",
                 "single": 19.00,
                 "daily": 37.50,
+                "dailyNationwide": 44.00,
                 "monthlyNational": 315.00
             },
             {
@@ -62,6 +66,7 @@
                 "label": "120.1-225 ק\"מ",
                 "single": 30.50,
                 "daily": 60.50,
+                "dailyNationwide": 44.00,
                 "monthlyNational": 315.00
             },
             {
@@ -72,6 +77,7 @@
                 "label": "225.1+ ק\"מ",
                 "single": 74.00,
                 "daily": 79.50,
+                "dailyNationwide": 44.00,
                 "monthlyNational": 315.00
             }
         ]
@@ -85,8 +91,9 @@
                 "minDistance": 0,
                 "maxDistance": 15,
                 "label": "0-15 ק\"מ",
-                "single": 11.50,
-                "daily": 23.00,
+                "single": 9.00,
+                "daily": 32.00,
+                "dailyUnlimited": 74.00,
                 "monthlyUpTo40km": 323.00
             },
             {
@@ -95,8 +102,9 @@
                 "minDistance": 15.1,
                 "maxDistance": 40,
                 "label": "15.1-40 ק\"מ",
-                "single": 21.00,
-                "daily": 32.50,
+                "single": 18.00,
+                "daily": 32.00,
+                "dailyUnlimited": 74.00,
                 "monthlyUpTo40km": 323.00
             },
             {
@@ -106,7 +114,8 @@
                 "maxDistance": 75,
                 "label": "40.1-75 ק\"מ",
                 "single": 27.00,
-                "daily": 42.00,
+                "daily": 46.00,
+                "dailyUnlimited": 74.00,
                 "monthlyUpTo75km": 464.00
             },
             {
@@ -116,7 +125,8 @@
                 "maxDistance": 120,
                 "label": "75.1-120 ק\"מ",
                 "single": 30.50,
-                "daily": 47.00,
+                "daily": 46.00,
+                "dailyUnlimited": 74.00,
                 "monthlyUnlimited": 684.00
             },
             {
@@ -127,6 +137,7 @@
                 "label": "120.1-225 ק\"מ",
                 "single": 52.50,
                 "daily": 80.50,
+                "dailyUnlimited": 74.00,
                 "monthlyUnlimited": 684.00
             },
             {
@@ -137,6 +148,7 @@
                 "label": "225.1+ ק\"מ",
                 "single": 52.50,
                 "daily": 80.50,
+                "dailyUnlimited": 74.00,
                 "monthlyUnlimited": 684.00
             }
         ]
