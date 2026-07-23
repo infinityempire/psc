@@ -405,7 +405,7 @@
                             <div style="font-weight:bold;margin-bottom:10px;color:#27ae60;">🚌 אוטובוס ורכבת קלה</div>
                             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                                 <span style="color:var(--text-secondary);">ארצי:</span>
-                                <span style="font-weight:bold;"><span id="price-monthly-national">0.00</span> ₪</span>
+                                <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-national">0.00</span> ₪</span>
                             </div>
                             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                                 <span style="color:var(--text-secondary);">פריפריה:</span>
@@ -420,15 +420,15 @@
                             <div style="font-weight:bold;margin-bottom:10px;color:#3498db;">🚆 משולב רכבת ישראל</div>
                             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                                 <span style="color:var(--text-secondary);">עד 40 ק"מ:</span>
-                                <span style="font-weight:bold;"><span id="price-monthly-rail-40">0.00</span> ₪</span>
+                                <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-rail-40">0.00</span> ₪</span>
                             </div>
                             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                                 <span style="color:var(--text-secondary);">עד 75 ק"מ:</span>
-                                <span style="font-weight:bold;"><span id="price-monthly-rail-75">0.00</span> ₪</span>
+                                <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-rail-75">0.00</span> ₪</span>
                             </div>
                             <div style="display:flex;justify-content:space-between;">
                                 <span style="color:var(--text-secondary);">ללא הגבלה:</span>
-                                <span style="font-weight:bold;"><span id="price-monthly-rail-unlimited">0.00</span> ₪</span>
+                                <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-rail-unlimited">0.00</span> ₪</span>
                             </div>
                         </div>
                     </div>
@@ -1068,11 +1068,11 @@
         // Monthly pass discounts by profile
         var MONTHLY_DISCOUNTS = {
             adult: 0,
-            youth: 0.50,        // Youth under 18 - 50% off
-            youth_18_26: 0.33, // Young adults 18-26 - 33% off
-            senior: 0.50,      // Senior - 50% off
-            student: 0.33,     // Student - 33% off
-            disabled: 0.50     // Disabled - 50% off
+            youth: 0,          // Youth under 18 - 50% off on single/daily, 0% on monthly
+            youth_18_26: 0.33, // Young adults 18-26 - 33% off on monthly
+            senior: 0,         // Senior - 50% off on single/daily, 0% on monthly
+            student: 0.50,     // Student - 50% off on monthly (50% on extended semester)
+            disabled: 0        // Disabled - 50% off on single/daily, 0% on monthly
         };
 
         // ============================================================
@@ -1736,6 +1736,14 @@
                         return result;
                     }
                 }
+            }
+
+            // Check distance condition for Periphery pass
+            // Periphery passes are only valid for routes up to 40km
+            if (contract.id === 'periphery' && fareZone.distance > 40) {
+                result.valid = false;
+                result.message = 'לא קיים תעריף';
+                return result;
             }
 
             // Check intercity condition for National+Train
