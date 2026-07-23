@@ -37,7 +37,7 @@
             --whatsapp-green: #25D366;
             --whatsapp-green-dark: #128C7E;
             --disclaimer-bg: #f8f9fa;
-            --fallback-bg: #fff3cd;
+            --fallback-bg: #e3f2fd;
             --history-chip-bg: #e3f2fd;
             --history-chip-border: #2196f3;
             --history-chip-text: #1565c0;
@@ -72,7 +72,7 @@
             --price-color: #66bb6a;
             --link-color: #64b5f6;
             --disclaimer-bg: #252535;
-            --fallback-bg: #3a3520;
+            --fallback-bg: #1a3a5c;
             --history-chip-bg: #1a3a5c;
             --history-chip-border: #64b5f6;
             --history-chip-text: #90caf9;
@@ -409,7 +409,7 @@
             </div>
             
             <div class="fallback-notice" id="fallback" style="display:none;">
-                <strong>⚠️ מנגנון מקומי פעיל - מחיר בסיס 8.00 ₪</strong>
+                <strong>ℹ️ מנגנון מקומי פעיל - מחיר בסיס 8.00 ₪</strong>
             </div>
             <div class="disclaimer">⚠️ שימוש להמחשה בלבד</div>
         </div>
@@ -2049,7 +2049,7 @@
                         FARE_RULES.lightblue.single.toFixed(2) + ' ₪';
                     // Show fallback notice only in case of actual errors (catches unhandled exceptions)
                     document.getElementById('fallback').style.display = 'block';
-                    document.getElementById('fallback').innerHTML = '<strong>⚠️ שגיאה - מחיר בסיס ' +
+                    document.getElementById('fallback').innerHTML = '<strong>ℹ️ חיווי חישוב - מחיר בסיס ' +
                         FARE_RULES.lightblue.single.toFixed(2) + ' ₪ (תכלת 40-75 ק"מ)</strong>';
                 }
 
