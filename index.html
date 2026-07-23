@@ -988,6 +988,16 @@
         var RAIL_FARE_RULES = JSON.parse(JSON.stringify(DEFAULT_RAIL_FARE_RULES));
         var MONTHLY_CONTRACTS = JSON.parse(JSON.stringify(DEFAULT_MONTHLY_CONTRACTS));
         
+        // Monthly train prices by zone (used for nationalTrain contract)
+        var MONTHLY_TRAIN_PRICES = {
+            yellow: 323.00,
+            green: 323.00,
+            lightblue: 464.00,
+            blue: 684.00,
+            purple: 684.00,
+            gray: 684.00
+        };
+        
         // Load tariff data from JSON on page load
         (function loadTariffsFromJSON() {
             fetch('data/tariffs.json')
@@ -1033,6 +1043,12 @@
                         periphery: { ...data.monthlyContracts.periphery, invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']), invalidMessage: 'לא תקף במסלול זה' },
                         eilat: { ...data.monthlyContracts.eilat, requiredCity: 'אילת' }
                     };
+                    
+                    // Build MONTHLY_TRAIN_PRICES from rail zones
+                    MONTHLY_TRAIN_PRICES = {};
+                    data.rail.zones.forEach(zone => {
+                        MONTHLY_TRAIN_PRICES[zone.id] = zone.monthlyUpTo40km || 323.00;
+                    });
                     
                     // Dispatch event so other parts of app can react
                     window.dispatchEvent(new CustomEvent('tariffsLoaded', { detail: data }));
@@ -1417,12 +1433,15 @@
             document.getElementById('gps-distance').classList.remove('active');
             document.getElementById('gps-distance').innerHTML = '';
             
-            // Hide train pass visibility (legacy - now shown in grid)
-            document.getElementById('train-pass-label').classList.remove('active');
-            document.getElementById('train-pass-price').classList.remove('active');
+            // Hide train pass visibility (legacy - now shown in grid) with null checks
+            var trainPassRow = document.getElementById('train-pass-label');
+            var trainPassPrice = document.getElementById('train-pass-price');
+            if (trainPassRow) trainPassRow.classList.remove('active');
+            if (trainPassPrice) trainPassPrice.classList.remove('active');
             
-            // Hide Eilat pass visibility (now in monthly bus section)
-            document.getElementById('eilat-pass-row').classList.remove('active');
+            // Hide Eilat pass visibility (now in monthly bus section) with null check
+            var eilatPassRow = document.getElementById('eilat-pass-row');
+            if (eilatPassRow) eilatPassRow.classList.remove('active');
             
             // Hide WhatsApp share button
             document.getElementById('whatsapp-share-btn').style.display = 'none';
@@ -2008,23 +2027,23 @@
                         gpsDistanceEl.classList.remove('active');
                     }
 
-                    // Train Pass Visibility (legacy - now always visible in grid)
+                    // Train Pass Visibility (legacy - now always visible in grid) with null checks
                     var trainPassRow = document.getElementById('train-pass-label');
                     var trainPassPrice = document.getElementById('train-pass-price');
                     if (hasTrainConnectivity(origin, dest)) {
-                        trainPassRow.classList.add('active');
-                        trainPassPrice.classList.add('active');
+                        if (trainPassRow) trainPassRow.classList.add('active');
+                        if (trainPassPrice) trainPassPrice.classList.add('active');
                     } else {
-                        trainPassRow.classList.remove('active');
-                        trainPassPrice.classList.remove('active');
+                        if (trainPassRow) trainPassRow.classList.remove('active');
+                        if (trainPassPrice) trainPassPrice.classList.remove('active');
                     }
 
-                    // Eilat Pass Visibility (now in monthly bus section)
+                    // Eilat Pass Visibility (now in monthly bus section) with null check
                     var eilatPassRow = document.getElementById('eilat-pass-row');
                     if (shouldShowEilatPass(origin, dest)) {
-                        eilatPassRow.classList.add('active');
+                        if (eilatPassRow) eilatPassRow.classList.add('active');
                     } else {
-                        eilatPassRow.classList.remove('active');
+                        if (eilatPassRow) eilatPassRow.classList.remove('active');
                     }
 
                     // FEATURE 4: Student Extended Passes - Only show when semester/annual ticket type selected
@@ -2108,13 +2127,17 @@
 
                 } catch (e) {
                     // Error fallback - show graceful default values instead of error messages
-                    document.getElementById('price-single').textContent =
+                    document.getElementById('price-single-bus').textContent =
                         FARE_RULES.lightblue.single.toFixed(2);
-                    document.getElementById('price-daily').textContent =
+                    document.getElementById('price-single-rail').textContent =
+                        FARE_RULES.lightblue.single.toFixed(2);
+                    document.getElementById('price-daily-bus').textContent =
+                        FARE_RULES.lightblue.daily.toFixed(2);
+                    document.getElementById('price-daily-rail').textContent =
                         FARE_RULES.lightblue.daily.toFixed(2);
                     document.getElementById('price-monthly-national').textContent =
                         MONTHLY_CONTRACTS.national.base.toFixed(2);
-                    document.getElementById('price-monthly-train').textContent =
+                    document.getElementById('price-monthly-rail-75').textContent =
                         MONTHLY_CONTRACTS.nationalTrain75.base.toFixed(2);
                     // Graceful periphery fallback: ₪157.50 (50% discount on ₪315 base)
                     var peripheryFallback = Math.round(MONTHLY_CONTRACTS.periphery.base * 0.50 * 100) / 100;
