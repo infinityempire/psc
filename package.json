@@ -1,0 +1,31 @@
+{
+  "name": "israel-public-transport-fare-calculator",
+  "version": "1.0.0",
+  "description": "Israeli Public Transportation Fare Calculator - Accurate pricing based on Ministry of Transportation official fare schedule",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint \"app/**/*.tsx\" \"lib/**/*.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify:fares": "vitest run --reporter=verbose lib/fares.test.ts"
+  },
+  "dependencies": {
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@vitejs/plugin-react": "^6.0.4",
+    "next": "^16.2.11",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vitest": "^4.1.10"
+  },
+  "devDependencies": {
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.9.3"
+  }
+}
