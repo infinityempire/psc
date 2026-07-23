@@ -975,6 +975,7 @@
         
         var DEFAULT_MONTHLY_CONTRACTS = {
             national: { id: 'national', name: 'חופשי חודשי ארצי', base: 315.00, label: 'בינעירוני ארצי' },
+            nationalTrain: { id: 'nationalTrain', name: 'חופשי ארצי משולב רכבת', base: 0, label: 'משולב רכבת', isTrainContract: true },
             nationalTrain40: { id: 'nationalTrain40', name: 'חופשי ארצי משולב רכבת עד 40 ק"מ', base: 323.00, label: 'משולב רכבת עד 40 ק"מ' },
             nationalTrain75: { id: 'nationalTrain75', name: 'חופשי ארצי משולב רכבת עד 75 ק"מ', base: 464.00, label: 'משולב רכבת עד 75 ק"מ' },
             nationalTrainUnlimited: { id: 'nationalTrainUnlimited', name: 'חופשי ארצי משולב רכבת ללא הגבלה', base: 684.00, label: 'משולב רכבת ללא הגבלה' },
@@ -1036,6 +1037,7 @@
                     // Build MONTHLY_CONTRACTS from contracts
                     MONTHLY_CONTRACTS = {
                         national: { ...data.monthlyContracts.national },
+                        nationalTrain: { id: 'nationalTrain', name: 'חופשי ארצי משולב רכבת', base: 0, label: 'משולב רכבת', isTrainContract: true },
                         nationalTrain40: { ...data.monthlyContracts.nationalTrain40 },
                         nationalTrain75: { ...data.monthlyContracts.nationalTrain75 },
                         nationalTrainUnlimited: { ...data.monthlyContracts.nationalTrainUnlimited },
@@ -1719,7 +1721,7 @@
                 var requiredCityLower = contract.requiredCity.trim().toLowerCase();
                 if (originLower !== requiredCityLower && destLower !== requiredCityLower) {
                     result.valid = false;
-                    result.message = 'לא רלוונטי';
+                    result.message = 'לא קיים תעריף';
                     return result;
                 }
             }
@@ -1741,15 +1743,22 @@
             if (contract.condition === 'intercity' && 
                 (fareZone.zone === 'yellow' || fareZone.zone === 'green')) {
                 result.valid = false;
-                result.message = 'לא רלוונטי למסלול';
+                result.message = 'לא קיים תעריף';
                 return result;
             }
 
             // Determine base price and tier - National+Train uses zone-based pricing
             var basePrice = contract.base;
             var tier = null;
-            if (contract.id === 'nationalTrain') {
-                basePrice = MONTHLY_TRAIN_PRICES[fareZone.zone] || contract.base;
+            if (contract.isTrainContract) {
+                // Train contract - use zone-based pricing from MONTHLY_TRAIN_PRICES
+                basePrice = MONTHLY_TRAIN_PRICES[fareZone.zone];
+                // If no price found for this zone, mark as invalid
+                if (basePrice === undefined || basePrice === null) {
+                    result.valid = false;
+                    result.message = 'לא קיים תעריף';
+                    return result;
+                }
                 // Determine the tier based on zone
                 if (fareZone.zone === 'yellow' || fareZone.zone === 'green') {
                     tier = 'upTo40km';
@@ -1895,12 +1904,13 @@
         
         function renderPrice(elementId, value, valid) {
             var el = document.getElementById(elementId);
-            if (valid) {
+            // Handle invalid, null, NaN, or 0 values
+            if (!valid || value === null || value === undefined || isNaN(value) || value === 0) {
+                el.textContent = 'לא קיים תעריף';
+                el.style.color = '#999';
+            } else {
                 el.textContent = value.toFixed(2);
                 el.style.color = '';
-            } else {
-                el.textContent = value;
-                el.style.color = '#999';
             }
         }
 
@@ -1958,15 +1968,20 @@
                         result.monthlyNational.valid);
                     
                     // Update Monthly - Rail Combined (all distance tiers - always show all options)
-                    // Get the rail monthly prices from fareZone
-                    var railMonthlyPrices = {
-                        upTo40km: RAIL_FARE_RULES.yellow ? RAIL_FARE_RULES.yellow.monthlyUpTo40km : 323.00,
-                        upTo75km: RAIL_FARE_RULES.lightblue ? RAIL_FARE_RULES.lightblue.monthlyUpTo75km : 464.00,
-                        unlimited: RAIL_FARE_RULES.blue ? RAIL_FARE_RULES.blue.monthlyUnlimited : 684.00
-                    };
-                    document.getElementById('price-monthly-rail-40').textContent = railMonthlyPrices.upTo40km.toFixed(2);
-                    document.getElementById('price-monthly-rail-75').textContent = railMonthlyPrices.upTo75km.toFixed(2);
-                    document.getElementById('price-monthly-rail-unlimited').textContent = railMonthlyPrices.unlimited.toFixed(2);
+                    // Use calculated values from result.monthlyTrain instead of hardcoded lookups
+                    var railMonthly = result.monthlyTrain;
+                    // upTo40km: yellow/green zones (323.00)
+                    renderPrice('price-monthly-rail-40',
+                        MONTHLY_TRAIN_PRICES.yellow || 323.00,
+                        railMonthly && railMonthly.tier === 'upTo40km');
+                    // upTo75km: lightblue zone (464.00)
+                    renderPrice('price-monthly-rail-75',
+                        MONTHLY_TRAIN_PRICES.lightblue || 464.00,
+                        railMonthly && railMonthly.tier === 'upTo75km');
+                    // unlimited: blue/purple/gray zones (684.00)
+                    renderPrice('price-monthly-rail-unlimited',
+                        MONTHLY_TRAIN_PRICES.blue || 684.00,
+                        railMonthly && railMonthly.tier === 'unlimited');
                     
                     // PERIPHERY PRICING - Cluster-based discount (50% for clusters 1-5, 33% for others)
                     var peripheryPriceEl = document.getElementById('price-monthly-periphery');
