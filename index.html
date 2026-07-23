@@ -352,27 +352,86 @@
             <button id="calculate-btn">🔍 חשב תעריף</button>
         </div>
         <div class="results-section" id="results">
+            <!-- Fare Comparison Header -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+                <div style="background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:15px 20px;border-radius:15px;text-align:center;">
+                    <div style="font-size:1.5em;margin-bottom:5px;">🚌</div>
+                    <div style="font-weight:bold;font-size:1.1em;">אוטובוס ורכבת קלה</div>
+                    <div style="font-size:0.85em;opacity:0.9;">Bus & Light Rail</div>
+                </div>
+                <div style="background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;padding:15px 20px;border-radius:15px;text-align:center;">
+                    <div style="font-size:1.5em;margin-bottom:5px;">🚆</div>
+                    <div style="font-weight:bold;font-size:1.1em;">משולב רכבת ישראל</div>
+                    <div style="font-size:0.85em;opacity:0.9;">Combined Rail</div>
+                </div>
+            </div>
+            
             <div class="results-grid" id="results-grid">
-                <div class="result-card" id="result-single">
+                <!-- Single Ride Comparison -->
+                <div class="result-card" id="result-single" style="background:#e8f5e9;">
                     <div class="ticket-type">נסיעה בודדת</div>
-                    <div class="label">מחיר:</div>
-                    <div class="price"><span id="price-single">0.00</span> ₪</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px;">
+                        <div style="text-align:center;">
+                            <div style="font-size:0.85em;color:var(--text-secondary);">אוטובוס</div>
+                            <div class="price" style="font-size:1.8em;"><span id="price-single-bus">0.00</span> ₪</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:0.85em;color:var(--text-secondary);">רכבת</div>
+                            <div class="price" style="font-size:1.8em;"><span id="price-single-rail">0.00</span> ₪</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="result-card" id="result-daily">
+                
+                <!-- Daily Pass Comparison -->
+                <div class="result-card" id="result-daily" style="background:#e8f5e9;">
                     <div class="ticket-type">חופשי יומי</div>
-                    <div class="label">מחיר:</div>
-                    <div class="price"><span id="price-daily">0.00</span> ₪</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px;">
+                        <div style="text-align:center;">
+                            <div style="font-size:0.85em;color:var(--text-secondary);">אוטובוס</div>
+                            <div class="price" style="font-size:1.8em;"><span id="price-daily-bus">0.00</span> ₪</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:0.85em;color:var(--text-secondary);">משולב</div>
+                            <div class="price" style="font-size:1.8em;"><span id="price-daily-rail">0.00</span> ₪</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="result-card" id="result-monthly">
+                
+                <!-- Monthly Pass Comparison -->
+                <div class="result-card" id="result-monthly" style="grid-column:1/-1;background:#e8f5e9;">
                     <div class="ticket-type">חופשי חודשי</div>
-                    <div class="label">בינעירוני ארצי:</div>
-                    <div class="price"><span id="price-monthly-national">0.00</span> ₪</div>
-                    <div class="label train-pass-row" style="margin-top:8px;" id="train-pass-label">משולב רכבת:</div>
-                    <div class="price train-pass-row" id="train-pass-price"><span id="price-monthly-train">0.00</span> ₪</div>
-                    <div class="label" style="margin-top:8px;">פריפריה:</div>
-                    <div class="price"><span id="price-monthly-periphery">-</span></div>
-                    <div class="label eilat-pass-row" style="margin-top:8px;" id="eilat-pass-label">אילת:</div>
-                    <div class="price eilat-pass-row" id="eilat-pass-price"><span id="price-monthly-eilat">-</span></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:15px;">
+                        <div style="background:rgba(39,174,96,0.1);padding:15px;border-radius:10px;">
+                            <div style="font-weight:bold;margin-bottom:10px;color:#27ae60;">🚌 אוטובוס ורכבת קלה</div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                <span style="color:var(--text-secondary);">ארצי:</span>
+                                <span style="font-weight:bold;"><span id="price-monthly-national">0.00</span> ₪</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                <span style="color:var(--text-secondary);">פריפריה:</span>
+                                <span style="font-weight:bold;"><span id="price-monthly-periphery">-</span></span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;" class="eilat-pass-row" id="eilat-pass-row">
+                                <span style="color:var(--text-secondary);">אילת:</span>
+                                <span style="font-weight:bold;"><span id="price-monthly-eilat">-</span></span>
+                            </div>
+                        </div>
+                        <div style="background:rgba(52,152,219,0.1);padding:15px;border-radius:10px;">
+                            <div style="font-weight:bold;margin-bottom:10px;color:#3498db;">🚆 משולב רכבת ישראל</div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                <span style="color:var(--text-secondary);">עד 40 ק"מ:</span>
+                                <span style="font-weight:bold;"><span id="price-monthly-rail-40">0.00</span> ₪</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                <span style="color:var(--text-secondary);">עד 75 ק"מ:</span>
+                                <span style="font-weight:bold;"><span id="price-monthly-rail-75">0.00</span> ₪</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;">
+                                <span style="color:var(--text-secondary);">ללא הגבלה:</span>
+                                <span style="font-weight:bold;"><span id="price-monthly-rail-unlimited">0.00</span> ₪</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="fare-breakdown">
@@ -906,12 +965,12 @@
         };
         
         var DEFAULT_RAIL_FARE_RULES = {
-            yellow: { minDistance: 0, maxDistance: 15, single: 11.50, daily: 23.00, label: 'אזור 1 + רכבת (0-15 ק"מ)' },
-            green: { minDistance: 15.1, maxDistance: 40, single: 21.00, daily: 32.50, label: 'אזור 2 + רכבת (15.1-40 ק"מ)' },
-            lightblue: { minDistance: 40.1, maxDistance: 75, single: 27.00, daily: 42.00, label: 'אזור 3 + רכבת (40.1-75 ק"מ)' },
-            blue: { minDistance: 75.1, maxDistance: 120, single: 30.50, daily: 47.00, label: 'אזור 4 + רכבת (75.1-120 ק"מ)' },
-            purple: { minDistance: 120.1, maxDistance: 225, single: 52.50, daily: 80.50, label: 'אזור 5 + רכבת (120.1-225 ק"מ)' },
-            gray: { minDistance: 225.1, maxDistance: Infinity, single: 52.50, daily: 80.50, label: 'אזור 6 + רכבת (225.1+ ק"מ)' }
+            yellow: { minDistance: 0, maxDistance: 15, single: 11.50, daily: 23.00, label: 'אזור 1 + רכבת (0-15 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
+            green: { minDistance: 15.1, maxDistance: 40, single: 21.00, daily: 32.50, label: 'אזור 2 + רכבת (15.1-40 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
+            lightblue: { minDistance: 40.1, maxDistance: 75, single: 27.00, daily: 42.00, label: 'אזור 3 + רכבת (40.1-75 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
+            blue: { minDistance: 75.1, maxDistance: 120, single: 30.50, daily: 47.00, label: 'אזור 4 + רכבת (75.1-120 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
+            purple: { minDistance: 120.1, maxDistance: 225, single: 52.50, daily: 80.50, label: 'אזור 5 + רכבת (120.1-225 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
+            gray: { minDistance: 225.1, maxDistance: Infinity, single: 52.50, daily: 80.50, label: 'אזור 6 + רכבת (225.1+ ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 }
         };
         
         var DEFAULT_MONTHLY_CONTRACTS = {
@@ -949,7 +1008,7 @@
                         };
                     });
                     
-                    // Build RAIL_FARE_RULES from rail zones
+                    // Build RAIL_FARE_RULES from rail zones (including monthly pass prices)
                     RAIL_FARE_RULES = {};
                     data.rail.zones.forEach(zone => {
                         RAIL_FARE_RULES[zone.id] = {
@@ -957,7 +1016,10 @@
                             maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
                             single: zone.single,
                             daily: zone.daily,
-                            label: zone.label
+                            label: zone.label,
+                            monthlyUpTo40km: zone.monthlyUpTo40km,
+                            monthlyUpTo75km: zone.monthlyUpTo75km,
+                            monthlyUnlimited: zone.monthlyUnlimited
                         };
                     });
                     
@@ -1319,16 +1381,23 @@
             resultsEl.classList.remove('active');
             
             // Reset all price displays to default values
-            document.getElementById('price-single').textContent = '0.00';
-            document.getElementById('price-daily').textContent = '0.00';
+            // Single & Daily - Bus
+            document.getElementById('price-single-bus').textContent = '0.00';
+            document.getElementById('price-daily-bus').textContent = '0.00';
+            // Single & Daily - Rail
+            document.getElementById('price-single-rail').textContent = '0.00';
+            document.getElementById('price-daily-rail').textContent = '0.00';
+            // Monthly - Bus Only
             document.getElementById('price-monthly-national').textContent = '0.00';
             document.getElementById('price-monthly-national').style.color = '';
-            document.getElementById('price-monthly-train').textContent = '0.00';
-            document.getElementById('price-monthly-train').style.color = '';
             document.getElementById('price-monthly-periphery').textContent = '-';
             document.getElementById('price-monthly-periphery').style.color = '';
             document.getElementById('price-monthly-eilat').textContent = '-';
             document.getElementById('price-monthly-eilat').style.color = '';
+            // Monthly - Rail Combined
+            document.getElementById('price-monthly-rail-40').textContent = '0.00';
+            document.getElementById('price-monthly-rail-75').textContent = '0.00';
+            document.getElementById('price-monthly-rail-unlimited').textContent = '0.00';
             
             // Reset student pass prices
             document.getElementById('price-semester').textContent = '0.00';
@@ -1348,13 +1417,12 @@
             document.getElementById('gps-distance').classList.remove('active');
             document.getElementById('gps-distance').innerHTML = '';
             
-            // Hide train pass visibility
+            // Hide train pass visibility (legacy - now shown in grid)
             document.getElementById('train-pass-label').classList.remove('active');
             document.getElementById('train-pass-price').classList.remove('active');
             
-            // Hide Eilat pass visibility
-            document.getElementById('eilat-pass-label').classList.remove('active');
-            document.getElementById('eilat-pass-price').classList.remove('active');
+            // Hide Eilat pass visibility (now in monthly bus section)
+            document.getElementById('eilat-pass-row').classList.remove('active');
             
             // Hide WhatsApp share button
             document.getElementById('whatsapp-share-btn').style.display = 'none';
@@ -1617,7 +1685,7 @@
         };
 
         function evaluateMonthlyContract(contract, fareZone, origin, dest, discount, isFree) {
-            var result = { valid: true, price: null, message: '' };
+            var result = { valid: true, price: null, message: '', tier: null };
             var originLower = origin.trim().toLowerCase();
             var destLower = dest.trim().toLowerCase();
 
@@ -1658,12 +1726,22 @@
                 return result;
             }
 
-            // Determine base price - National+Train uses zone-based pricing
+            // Determine base price and tier - National+Train uses zone-based pricing
             var basePrice = contract.base;
+            var tier = null;
             if (contract.id === 'nationalTrain') {
                 basePrice = MONTHLY_TRAIN_PRICES[fareZone.zone] || contract.base;
+                // Determine the tier based on zone
+                if (fareZone.zone === 'yellow' || fareZone.zone === 'green') {
+                    tier = 'upTo40km';
+                } else if (fareZone.zone === 'lightblue') {
+                    tier = 'upTo75km';
+                } else {
+                    tier = 'unlimited';
+                }
             }
 
+            result.tier = tier;
             // Calculate price with discount
             result.price = Math.round(basePrice * (1 - discount) * 100) / 100;
             return result;
@@ -1843,37 +1921,39 @@
                     // Update Single & Daily prices using allFares structure
                     var fares = result.allFares;
                     
-                    // Bus single ride: fares.bus.singleFare
-                    document.getElementById('price-single').textContent = fares.bus.singleFare.toFixed(2);
+                    // Update Single Ride - Bus
+                    document.getElementById('price-single-bus').textContent = fares.bus.singleFare.toFixed(2);
                     
-                    // Rail single ride: fares.rail.singleFare
-                    if (result.hasTrainRoute) {
-                        document.getElementById('price-single').textContent = fares.rail.singleFare.toFixed(2);
-                        document.getElementById('price-single').title = 'מחיר רכבת';
-                    }
+                    // Update Single Ride - Rail (combined)
+                    document.getElementById('price-single-rail').textContent = fares.rail.singleFare.toFixed(2);
                     
-                    // Bus daily pass: fares.bus.dailyFare
-                    document.getElementById('price-daily').textContent = fares.bus.dailyFare.toFixed(2);
+                    // Update Daily Pass - Bus
+                    document.getElementById('price-daily-bus').textContent = fares.bus.dailyFare.toFixed(2);
                     
-                    // Rail daily pass: fares.rail.dailyFare
-                    if (result.hasTrainRoute) {
-                        document.getElementById('price-daily').textContent = fares.rail.dailyFare.toFixed(2);
-                    }
+                    // Update Daily Pass - Rail (combined)
+                    document.getElementById('price-daily-rail').textContent = fares.rail.dailyFare.toFixed(2);
 
-                    // Update Monthly contract prices
+                    // Update Monthly - Bus National
                     renderPrice('price-monthly-national',
                         result.monthlyNational.price,
                         result.monthlyNational.valid);
-                    renderPrice('price-monthly-train',
-                        result.monthlyTrain.price,
-                        result.monthlyTrain.valid);
+                    
+                    // Update Monthly - Rail Combined (all distance tiers - always show all options)
+                    // Get the rail monthly prices from fareZone
+                    var railMonthlyPrices = {
+                        upTo40km: RAIL_FARE_RULES.yellow ? RAIL_FARE_RULES.yellow.monthlyUpTo40km : 323.00,
+                        upTo75km: RAIL_FARE_RULES.lightblue ? RAIL_FARE_RULES.lightblue.monthlyUpTo75km : 464.00,
+                        unlimited: RAIL_FARE_RULES.blue ? RAIL_FARE_RULES.blue.monthlyUnlimited : 684.00
+                    };
+                    document.getElementById('price-monthly-rail-40').textContent = railMonthlyPrices.upTo40km.toFixed(2);
+                    document.getElementById('price-monthly-rail-75').textContent = railMonthlyPrices.upTo75km.toFixed(2);
+                    document.getElementById('price-monthly-rail-unlimited').textContent = railMonthlyPrices.unlimited.toFixed(2);
                     
                     // PERIPHERY PRICING - Cluster-based discount (50% for clusters 1-5, 33% for others)
                     var peripheryPriceEl = document.getElementById('price-monthly-periphery');
                     var isPeripheryProfile = (passengerType === 'periphery_resident');
                     var cluster = result.peripheryCluster || 0;
-                    var isHighPriority = result.isHighPriorityPeriphery;
-                    var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 310.00
+                    var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 315.00
                     
                     if (isPeripheryProfile) {
                         // Apply cluster-based discount to monthly pass using the standardized base price
@@ -1887,7 +1967,6 @@
                         } else if (cluster > 0) {
                             peripheryPriceEl.title = 'צדק תחבורתי - קלסטר ' + cluster + ' (33% הנחה)';
                         } else {
-                            // Invalid or missing cluster - show standard periphery price (33% discount)
                             peripheryPriceEl.title = 'צדק תחבורתי - מחיר פריפריה סטנדרטי (33% הנחה)';
                         }
                     } else {
@@ -1929,7 +2008,7 @@
                         gpsDistanceEl.classList.remove('active');
                     }
 
-                    // Train Pass Visibility
+                    // Train Pass Visibility (legacy - now always visible in grid)
                     var trainPassRow = document.getElementById('train-pass-label');
                     var trainPassPrice = document.getElementById('train-pass-price');
                     if (hasTrainConnectivity(origin, dest)) {
@@ -1940,15 +2019,12 @@
                         trainPassPrice.classList.remove('active');
                     }
 
-                    // Eilat Pass Visibility
-                    var eilatPassRow = document.getElementById('eilat-pass-label');
-                    var eilatPassPrice = document.getElementById('eilat-pass-price');
+                    // Eilat Pass Visibility (now in monthly bus section)
+                    var eilatPassRow = document.getElementById('eilat-pass-row');
                     if (shouldShowEilatPass(origin, dest)) {
                         eilatPassRow.classList.add('active');
-                        eilatPassPrice.classList.add('active');
                     } else {
                         eilatPassRow.classList.remove('active');
-                        eilatPassPrice.classList.remove('active');
                     }
 
                     // FEATURE 4: Student Extended Passes - Only show when semester/annual ticket type selected

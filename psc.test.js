@@ -459,3 +459,103 @@ describe('Regional Periphery Monthly Pass & Geographic Profile', () => {
         expect(res2.finalFare).toBe(157.50);
     });
 });
+
+// ============================================================
+// getFareBreakdown Function Tests - Bus Only vs Train Combined
+// ============================================================
+
+describe('getFareBreakdown - Bus Only vs Train Combined', () => {
+    const { getFareBreakdown } = require('./psc.js');
+    
+    test('Single ride - busOnly single price matches bus tier', () => {
+        const breakdown = getFareBreakdown(25); // 15.1-40km zone
+        expect(breakdown.busOnly.single).toBe(14.50);
+    });
+    
+    test('Single ride - trainCombined single price matches rail tier', () => {
+        const breakdown = getFareBreakdown(25); // 15.1-40km zone
+        expect(breakdown.trainCombined.single).toBe(21.00);
+    });
+    
+    test('Daily pass - busOnly daily price matches bus tier', () => {
+        const breakdown = getFareBreakdown(25);
+        expect(breakdown.busOnly.daily).toBe(29.00);
+    });
+    
+    test('Daily pass - trainCombined daily price matches rail tier', () => {
+        const breakdown = getFareBreakdown(25);
+        expect(breakdown.trainCombined.daily).toBe(32.50);
+    });
+    
+    test('Monthly - busOnly national matches bus monthly national', () => {
+        const breakdown = getFareBreakdown(25);
+        expect(breakdown.busOnly.monthlyNational).toBe(315.00);
+    });
+    
+    test('Monthly - busOnly periphery matches periphery regional base', () => {
+        const breakdown = getFareBreakdown(25);
+        expect(breakdown.busOnly.monthlyPeriphery).toBe(139.00);
+    });
+    
+    test('Monthly - trainCombined monthly for 0-40km distance', () => {
+        const breakdown = getFareBreakdown(25); // 25km - within 40km
+        expect(breakdown.trainCombined.monthlyUpTo40km).toBe(323.00);
+        expect(breakdown.trainCombined.monthly).toBe(323.00);
+    });
+    
+    test('Monthly - trainCombined monthly for 40.1-75km distance', () => {
+        const breakdown = getFareBreakdown(50); // 50km - within 40.1-75km
+        expect(breakdown.trainCombined.monthlyUpTo75km).toBe(464.00);
+        expect(breakdown.trainCombined.monthly).toBe(464.00);
+    });
+    
+    test('Monthly - trainCombined monthly for 75km+ distance', () => {
+        const breakdown = getFareBreakdown(100); // 100km - within 75.1-120km
+        expect(breakdown.trainCombined.monthlyUnlimited).toBe(684.00);
+        expect(breakdown.trainCombined.monthly).toBe(684.00);
+    });
+    
+    test('Youth profile discount applies to single ride', () => {
+        const breakdown = getFareBreakdown(25, 'youth');
+        expect(breakdown.busOnly.singleWithDiscount).toBe(7.25); // 14.50 * 0.50
+        expect(breakdown.trainCombined.singleWithDiscount).toBe(10.50); // 21.00 * 0.50
+    });
+    
+    test('Youth profile discount applies to daily pass', () => {
+        const breakdown = getFareBreakdown(25, 'youth');
+        expect(breakdown.busOnly.dailyWithDiscount).toBe(14.50); // 29.00 * 0.50
+        expect(breakdown.trainCombined.dailyWithDiscount).toBe(16.25); // 32.50 * 0.50
+    });
+    
+    test('Youth profile discount does NOT apply to monthly pass', () => {
+        const breakdown = getFareBreakdown(25, 'youth');
+        expect(breakdown.busOnly.monthlyNationalWithDiscount).toBe(315.00); // No youth discount on monthly
+        expect(breakdown.trainCombined.monthlyWithDiscount).toBe(323.00); // No youth discount on monthly
+    });
+    
+    test('Periphery discount applies to monthly pass', () => {
+        const breakdown = getFareBreakdown(25, 'regular', true, 3);
+        expect(breakdown.busOnly.monthlyNationalWithDiscount).toBe(157.50); // 315 * 0.50
+        expect(breakdown.busOnly.monthlyPeripheryWithDiscount).toBe(69.50); // 139 * 0.50
+    });
+    
+    test('Distance and zone label metadata included', () => {
+        const breakdown = getFareBreakdown(50);
+        expect(breakdown.distance).toBe(50);
+        expect(breakdown.zoneLabel).toBe('אזור 3 (40.1-75 ק"מ)');
+    });
+    
+    test('Jerusalem-Tel Aviv (53.9km) busOnly vs trainCombined comparison', () => {
+        const breakdown = getFareBreakdown(53.9);
+        
+        // Bus
+        expect(breakdown.busOnly.single).toBe(19.00);
+        expect(breakdown.busOnly.daily).toBe(37.50);
+        expect(breakdown.busOnly.monthlyNational).toBe(315.00);
+        
+        // Train Combined
+        expect(breakdown.trainCombined.single).toBe(27.00);
+        expect(breakdown.trainCombined.daily).toBe(42.00);
+        expect(breakdown.trainCombined.monthly).toBe(464.00); // Up to 75km
+    });
+});

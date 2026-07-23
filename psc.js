@@ -167,6 +167,91 @@ function getBaseFare(distance, ticketType, includesRail = false) {
 }
 
 /**
+ * Get complete fare breakdown with both busOnly and trainCombined options
+ * Returns structured data for UI display with side-by-side comparison
+ * @param {number} distance - Distance in km
+ * @param {string} profile - User profile for discount calculation
+ * @param {boolean} isPeriphery - Whether user qualifies for periphery discount
+ * @param {number} peripheryCluster - Socio-economic cluster (1-10)
+ * @returns {object} Fare breakdown with busOnly and trainCombined structures
+ */
+function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, peripheryCluster = 0) {
+    const allFares = calculateTierFare(distance);
+    
+    // Helper to calculate final price with discount
+    const calculateWithDiscount = (baseFare, ticketType, prof, isPeriph) => {
+        let profileDiscount = 0;
+        const isMonthlyPass = ticketType.startsWith('monthly');
+        const isSingleOrDaily = ticketType === 'single' || ticketType === 'daily';
+        
+        if (prof === 'senior_75') {
+            profileDiscount = 1.00;
+        } else if (prof === 'youth') {
+            profileDiscount = isSingleOrDaily ? 0.50 : 0;
+        } else if (prof === 'young_adult') {
+            profileDiscount = isMonthlyPass ? 0.33 : 0;
+        } else if (prof === 'senior_67_74' || prof === 'disabled') {
+            profileDiscount = isSingleOrDaily ? 0.50 : 0;
+        } else if (prof === 'student') {
+            if (ticketType === 'monthly') {
+                profileDiscount = 0.50;
+            } else if (isSingleOrDaily) {
+                profileDiscount = 0.33;
+            }
+        }
+        
+        let peripheryDiscount = 0;
+        if (isPeriph && isMonthlyPass) {
+            peripheryDiscount = 0.50;
+        }
+        
+        const appliedDiscount = Math.max(profileDiscount, peripheryDiscount);
+        return Math.round(baseFare * (1 - appliedDiscount) * 100) / 100;
+    };
+    
+    // Determine rail monthly pass based on distance
+    const railMonthlyPass = allFares.getRailMonthlyPass(distance);
+    
+    return {
+        distance: distance,
+        zoneLabel: allFares.zoneLabel,
+        
+        // Bus & Light Rail only (no train)
+        busOnly: {
+            single: allFares.bus.single,
+            daily: allFares.bus.daily,
+            monthlyNational: allFares.bus.monthlyNational,
+            monthlyPeriphery: MONTHLY_PASS_BASE.peripheryRegional,
+            
+            // Final prices with discount
+            singleWithDiscount: calculateWithDiscount(allFares.bus.single, 'single', profile, isPeriphery),
+            dailyWithDiscount: calculateWithDiscount(allFares.bus.daily, 'daily', profile, isPeriphery),
+            monthlyNationalWithDiscount: calculateWithDiscount(allFares.bus.monthlyNational, 'monthly', profile, isPeriphery),
+            monthlyPeripheryWithDiscount: calculateWithDiscount(MONTHLY_PASS_BASE.peripheryRegional, 'monthly', profile, isPeriphery)
+        },
+        
+        // Combined Rail (includes Israel Railways)
+        trainCombined: {
+            single: allFares.rail.single,
+            daily: allFares.rail.daily,
+            monthly: railMonthlyPass,
+            monthlyUpTo40km: allFares.rail.monthlyUpTo40km,
+            monthlyUpTo75km: allFares.rail.monthlyUpTo75km,
+            monthlyUnlimited: allFares.rail.monthlyUnlimited,
+            
+            // Final prices with discount
+            singleWithDiscount: calculateWithDiscount(allFares.rail.single, 'single', profile, isPeriphery),
+            dailyWithDiscount: calculateWithDiscount(allFares.rail.daily, 'daily', profile, isPeriphery),
+            monthlyWithDiscount: calculateWithDiscount(railMonthlyPass, 'monthly', profile, isPeriphery)
+        },
+        
+        // Metadata
+        isPeriphery: isPeriphery,
+        profile: profile
+    };
+}
+
+/**
  * Compute transport fare with profile discounts
  * Implements official Ministry of Transport tariff structure
  * 
@@ -295,6 +380,7 @@ if (typeof module !== 'undefined' && module.exports) {
         computeTransportFare, 
         calculateTierFare,
         getBaseFare,
+        getFareBreakdown,
         getZoneLabel,
         findFareTier,
         loadTariffData,
