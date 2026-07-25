@@ -1049,7 +1049,7 @@
                     // Build MONTHLY_TRAIN_PRICES from rail zones
                     MONTHLY_TRAIN_PRICES = {};
                     data.rail.zones.forEach(zone => {
-                        MONTHLY_TRAIN_PRICES[zone.id] = zone.monthlyUpTo40km || 323.00;
+                        MONTHLY_TRAIN_PRICES[zone.id] = zone.monthlyUpTo40km ?? zone.monthlyUpTo75km ?? zone.monthlyUnlimited ?? 323.00;
                     });
                     
                     // Dispatch event so other parts of app can react
