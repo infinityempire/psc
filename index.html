@@ -1839,11 +1839,11 @@
             // Calculate periphery discount based on cluster
             var peripheryDiscount = 0;
             if (passengerType === 'periphery_resident' && originPeripheryInfo) {
-                // Cluster 1-5: 50% discount, others: 33%
+                // All clusters: 50% discount (Geographic Profile / Tzedek Tachburati)
                 if (originCluster >= 1 && originCluster <= 5) {
                     peripheryDiscount = 0.50;
                 } else {
-                    peripheryDiscount = 0.33;
+                    peripheryDiscount = 0.50;
                 }
             }
 
@@ -1999,7 +1999,7 @@
                     
                     if (isPeripheryProfile) {
                         // Apply cluster-based discount to monthly pass using the standardized base price
-                        var discountRate = (cluster >= 1 && cluster <= 5) ? 0.50 : 0.33;
+                        var discountRate = 0.50;
                         var peripheryPrice = Math.round(basePeripheryPrice * (1 - discountRate) * 100) / 100;
                         peripheryPriceEl.textContent = peripheryPrice.toFixed(2);
                         
@@ -2110,7 +2110,7 @@
                     if (isPeripheryProfile) {
                         // Calculate periphery price using cluster-based discount (50% for clusters 1-5, 33% for others)
                         var basePeripheryPrice = MONTHLY_CONTRACTS.periphery.base; // 310.00
-                        var discountRate = (cluster >= 1 && cluster <= 5) ? 0.50 : 0.33;
+                        var discountRate = 0.50;
                         finalPrice = Math.round(basePeripheryPrice * (1 - discountRate) * 100) / 100;
                         var discountLabel = (cluster >= 1 && cluster <= 5) ? '50%' : '33%';
                         typeLabel = 'פריפריה גיאוגרפית (' + finalPrice.toFixed(2) + ' ₪) - ' + discountLabel + ' הנחה';
