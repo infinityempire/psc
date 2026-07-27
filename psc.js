@@ -17,35 +17,39 @@ let MONTHLY_PASS_BASE = {};
 function loadTariffData(tariffJson) {
     TARIFF_DATA = tariffJson;
     
-    // Convert bus zones to tier format
+    // Convert bus zones to tier format (Derech Shaveh reform)
     BUS_FARE_TIERS = TARIFF_DATA.bus.zones.map(zone => ({
         minDistance: zone.minDistance,
         maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
         single: zone.single,
-        daily: zone.daily,
-        dailyNationwide: zone.dailyNationwide || 44.00, // Default nationwide daily pass
+        dailyLocal: zone.dailyLocal,
+        dailyExtended: zone.dailyExtended,
+        dailyNationwide: zone.dailyNationwide,
         monthlyLocal: null,
         monthlyNational: zone.monthlyNational
     }));
     
-    // Convert rail zones to tier format
+    // Convert rail zones to tier format (Derech Shaveh reform)
     RAIL_FARE_TIERS = TARIFF_DATA.rail.zones.map(zone => ({
         minDistance: zone.minDistance,
         maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
         single: zone.single,
-        daily: zone.daily,
-        dailyUnlimited: zone.dailyUnlimited || 74.00, // Default unlimited rail daily pass
+        dailyLocal: zone.dailyLocal,
+        dailyExtended: zone.dailyExtended,
+        dailyNationwide: zone.dailyNationwide,
         monthlyUpTo40km: zone.monthlyUpTo40km,
         monthlyUpTo75km: zone.monthlyUpTo75km,
+        monthlyUpTo120km: zone.monthlyUpTo120km,
         monthlyUnlimited: zone.monthlyUnlimited
     }));
     
-    // Build monthly pass base from contracts
+    // Build monthly pass base from contracts (Derech Shaveh reform)
     MONTHLY_PASS_BASE = {
         busLocal: null,
         busNational: TARIFF_DATA.monthlyContracts.national.base,
         railUpTo40km: TARIFF_DATA.monthlyContracts.nationalTrain40.base,
         railUpTo75km: TARIFF_DATA.monthlyContracts.nationalTrain75.base,
+        railUpTo120km: TARIFF_DATA.monthlyContracts.nationalTrain120.base,
         railUnlimited: TARIFF_DATA.monthlyContracts.nationalTrainUnlimited.base,
         peripheryRegional: TARIFF_DATA.monthlyContracts.peripheryRegional.base
     };
@@ -94,28 +98,44 @@ function calculateTierFare(distance, includesRail = false) {
     const railTier = findFareTier(distance, RAIL_FARE_TIERS);
     
     const result = {
-        // Bus tiers
+        // Bus tiers (Derech Shaveh reform)
         bus: {
             single: busTier.single,
-            daily: busTier.daily,
+            dailyLocal: busTier.dailyLocal,
+            dailyExtended: busTier.dailyExtended,
             dailyNationwide: busTier.dailyNationwide,
             monthlyLocal: busTier.monthlyLocal,
             monthlyNational: busTier.monthlyNational
         },
-        // Rail tiers (including train) - distance-based monthly passes
+        // Rail tiers (including train) - distance-based monthly passes (Derech Shaveh reform)
         rail: {
             single: railTier.single,
-            daily: railTier.daily,
-            dailyUnlimited: railTier.dailyUnlimited,
+            dailyLocal: railTier.dailyLocal,
+            dailyExtended: railTier.dailyExtended,
+            dailyNationwide: railTier.dailyNationwide,
             monthlyUpTo40km: railTier.monthlyUpTo40km,
             monthlyUpTo75km: railTier.monthlyUpTo75km,
+            monthlyUpTo120km: railTier.monthlyUpTo120km,
             monthlyUnlimited: railTier.monthlyUnlimited
         },
         // Get appropriate rail monthly pass based on distance
         getRailMonthlyPass: function(dist) {
             if (dist <= 40) return railTier.monthlyUpTo40km;
             if (dist <= 75) return railTier.monthlyUpTo75km;
+            if (dist <= 120) return railTier.monthlyUpTo120km;
             return railTier.monthlyUnlimited;
+        },
+        // Get appropriate rail daily pass based on distance
+        getRailDailyPass: function(dist) {
+            if (dist <= 40) return railTier.dailyLocal;
+            if (dist <= 75) return railTier.dailyExtended;
+            return railTier.dailyNationwide;
+        },
+        // Get appropriate bus daily pass based on distance
+        getBusDailyPass: function(dist) {
+            if (dist <= 40) return busTier.dailyLocal;
+            if (dist <= 75) return busTier.dailyExtended;
+            return busTier.dailyNationwide;
         },
         // Distance metadata
         distance: distance,
@@ -135,16 +155,15 @@ function getZoneLabel(distance) {
     if (distance <= 40) return 'אזור 2 (15.1-40 ק"מ)';
     if (distance <= 75) return 'אזור 3 (40.1-75 ק"מ)';
     if (distance <= 120) return 'אזור 4 (75.1-120 ק"מ)';
-    if (distance <= 225) return 'אזור 5 (120.1-225 ק"מ)';
-    return 'אזור 6 (225.1+ ק"מ)';
+    return 'אזור 5 (120.1+ ק"מ)';
 }
 
 /**
  * Get base fare for a specific ticket type
  * @param {number} distance - Distance in km
- * @param {string} ticketType - 'single', 'daily', 'dailyNationwide', 'dailyUnlimited', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail', 'monthlyRegionalPeriphery'
+ * @param {string} ticketType - 'single', 'daily', 'dailyLocal', 'dailyExtended', 'dailyNationwide', 'dailyUnlimited', 'monthly', 'monthlyLocal', 'monthlyNational', 'monthlyRail', 'monthlyRegionalPeriphery'
  * @param {boolean} includesRail - Whether route includes train
- * @returns {number} Base fare amount
+ * @returns {number|null} Base fare amount (null if not available for this distance)
  */
 function getBaseFare(distance, ticketType, includesRail = false) {
     const fares = calculateTierFare(distance, includesRail);
@@ -153,13 +172,18 @@ function getBaseFare(distance, ticketType, includesRail = false) {
         case 'single':
             return includesRail ? fares.rail.single : fares.bus.single;
         case 'daily':
-            return includesRail ? fares.rail.daily : fares.bus.daily;
+            // Use appropriate daily pass based on distance
+            return includesRail ? fares.getRailDailyPass(distance) : fares.getBusDailyPass(distance);
+        case 'dailyLocal':
+            return includesRail ? fares.rail.dailyLocal : fares.bus.dailyLocal;
+        case 'dailyExtended':
+            return includesRail ? fares.rail.dailyExtended : fares.bus.dailyExtended;
         case 'dailyNationwide':
-            // Bus nationwide daily pass - fixed price regardless of distance
+            // Bus nationwide daily pass
             return fares.bus.dailyNationwide;
         case 'dailyUnlimited':
-            // Rail unlimited daily pass - fixed price regardless of distance
-            return fares.rail.dailyUnlimited;
+            // Rail nationwide daily pass
+            return fares.rail.dailyNationwide;
         case 'monthly':
             return includesRail ? fares.getRailMonthlyPass(distance) : fares.bus.monthlyNational;
         case 'monthlyLocal':
@@ -168,6 +192,14 @@ function getBaseFare(distance, ticketType, includesRail = false) {
             return fares.bus.monthlyNational;
         case 'monthlyRail':
             return fares.getRailMonthlyPass(distance);
+        case 'monthlyRailUpTo40km':
+            return fares.rail.monthlyUpTo40km;
+        case 'monthlyRailUpTo75km':
+            return fares.rail.monthlyUpTo75km;
+        case 'monthlyRailUpTo120km':
+            return fares.rail.monthlyUpTo120km;
+        case 'monthlyRailUnlimited':
+            return fares.rail.monthlyUnlimited;
         case 'monthlyRegionalPeriphery':
             // Regional Periphery Monthly Pass directly uses 139.00 NIS base fare
             return MONTHLY_PASS_BASE.peripheryRegional;
@@ -188,11 +220,13 @@ function getBaseFare(distance, ticketType, includesRail = false) {
 function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, peripheryCluster = 0) {
     const allFares = calculateTierFare(distance);
     
-    // Helper to calculate final price with discount
+    // Helper to calculate final price with discount (handles null fares)
     const calculateWithDiscount = (baseFare, ticketType, prof, isPeriph) => {
+        if (baseFare === null || baseFare === undefined) return null;
+        
         let profileDiscount = 0;
         const isMonthlyPass = ticketType.startsWith('monthly');
-        const isDaily = ticketType === 'daily' || ticketType === 'dailyNationwide' || ticketType === 'dailyUnlimited';
+        const isDaily = ticketType.startsWith('daily');
         const isSingleOrDaily = ticketType === 'single' || isDaily;
         
         if (prof === 'senior_75') {
@@ -220,43 +254,50 @@ function getFareBreakdown(distance, profile = 'regular', isPeriphery = false, pe
         return Math.round(baseFare * (1 - appliedDiscount) * 100) / 100;
     };
     
-    // Determine rail monthly pass based on distance
+    // Determine appropriate passes based on distance (Derech Shaveh reform)
     const railMonthlyPass = allFares.getRailMonthlyPass(distance);
+    const busDailyPass = allFares.getBusDailyPass(distance);
+    const railDailyPass = allFares.getRailDailyPass(distance);
     
     return {
         distance: distance,
         zoneLabel: allFares.zoneLabel,
         
-        // Bus & Light Rail only (no train)
+        // Bus & Light Rail only (no train) - Derech Shaveh reform
         busOnly: {
             single: allFares.bus.single,
-            daily: allFares.bus.daily,
+            dailyLocal: allFares.bus.dailyLocal,
+            dailyExtended: allFares.bus.dailyExtended,
             dailyNationwide: allFares.bus.dailyNationwide,
             monthlyNational: allFares.bus.monthlyNational,
             monthlyPeriphery: MONTHLY_PASS_BASE.peripheryRegional,
             
             // Final prices with discount
             singleWithDiscount: calculateWithDiscount(allFares.bus.single, 'single', profile, isPeriphery),
-            dailyWithDiscount: calculateWithDiscount(allFares.bus.daily, 'daily', profile, isPeriphery),
-            dailyNationwideWithDiscount: calculateWithDiscount(allFares.bus.dailyNationwide, 'daily', profile, isPeriphery),
+            dailyLocalWithDiscount: calculateWithDiscount(allFares.bus.dailyLocal, 'dailyLocal', profile, isPeriphery),
+            dailyExtendedWithDiscount: calculateWithDiscount(allFares.bus.dailyExtended, 'dailyExtended', profile, isPeriphery),
+            dailyNationwideWithDiscount: calculateWithDiscount(allFares.bus.dailyNationwide, 'dailyNationwide', profile, isPeriphery),
             monthlyNationalWithDiscount: calculateWithDiscount(allFares.bus.monthlyNational, 'monthly', profile, isPeriphery),
             monthlyPeripheryWithDiscount: calculateWithDiscount(MONTHLY_PASS_BASE.peripheryRegional, 'monthly', profile, isPeriphery)
         },
         
-        // Combined Rail (includes Israel Railways)
+        // Combined Rail (includes Israel Railways) - Derech Shaveh reform
         trainCombined: {
             single: allFares.rail.single,
-            daily: allFares.rail.daily,
-            dailyUnlimited: allFares.rail.dailyUnlimited,
+            dailyLocal: allFares.rail.dailyLocal,
+            dailyExtended: allFares.rail.dailyExtended,
+            dailyNationwide: allFares.rail.dailyNationwide,
             monthly: railMonthlyPass,
             monthlyUpTo40km: allFares.rail.monthlyUpTo40km,
             monthlyUpTo75km: allFares.rail.monthlyUpTo75km,
+            monthlyUpTo120km: allFares.rail.monthlyUpTo120km,
             monthlyUnlimited: allFares.rail.monthlyUnlimited,
             
             // Final prices with discount
             singleWithDiscount: calculateWithDiscount(allFares.rail.single, 'single', profile, isPeriphery),
-            dailyWithDiscount: calculateWithDiscount(allFares.rail.daily, 'daily', profile, isPeriphery),
-            dailyUnlimitedWithDiscount: calculateWithDiscount(allFares.rail.dailyUnlimited, 'daily', profile, isPeriphery),
+            dailyLocalWithDiscount: calculateWithDiscount(allFares.rail.dailyLocal, 'dailyLocal', profile, isPeriphery),
+            dailyExtendedWithDiscount: calculateWithDiscount(allFares.rail.dailyExtended, 'dailyExtended', profile, isPeriphery),
+            dailyNationwideWithDiscount: calculateWithDiscount(allFares.rail.dailyNationwide, 'dailyNationwide', profile, isPeriphery),
             monthlyWithDiscount: calculateWithDiscount(railMonthlyPass, 'monthly', profile, isPeriphery)
         },
         
@@ -346,7 +387,7 @@ function computeTransportFare(params) {
     // Calculate final fare
     const finalFare = baseFare * (1 - appliedDiscount);
 
-    // Build comprehensive result object for UI
+    // Build comprehensive result object for UI (Derech Shaveh reform)
     const result = {
         // Base fares
         baseFare: baseFare,
@@ -354,17 +395,23 @@ function computeTransportFare(params) {
         // All tier fares for UI display
         bus: {
             single: allFares.bus.single,
-            daily: allFares.bus.daily,
+            dailyLocal: allFares.bus.dailyLocal,
+            dailyExtended: allFares.bus.dailyExtended,
+            dailyNationwide: allFares.bus.dailyNationwide,
             monthlyLocal: allFares.bus.monthlyLocal,
             monthlyNational: allFares.bus.monthlyNational
         },
         rail: {
             single: allFares.rail.single,
-            daily: allFares.rail.daily,
+            dailyLocal: allFares.rail.dailyLocal,
+            dailyExtended: allFares.rail.dailyExtended,
+            dailyNationwide: allFares.rail.dailyNationwide,
             monthlyUpTo40km: allFares.rail.monthlyUpTo40km,
             monthlyUpTo75km: allFares.rail.monthlyUpTo75km,
+            monthlyUpTo120km: allFares.rail.monthlyUpTo120km,
             monthlyUnlimited: allFares.rail.monthlyUnlimited,
-            getMonthlyPass: allFares.getRailMonthlyPass
+            getMonthlyPass: allFares.getRailMonthlyPass,
+            getDailyPass: allFares.getRailDailyPass
         },
         
         // Discount information

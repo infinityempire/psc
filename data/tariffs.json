@@ -1,9 +1,9 @@
 {
     "metadata": {
-        "version": "2.0.0",
-        "lastUpdated": "2026-07-22",
-        "source": "Ministry of Transport - Official Frozen Fares",
-        "description": "Official public transit fare tariffs (Bus/Light Rail/Metronit/Cable without Israel Railways)",
+        "version": "3.0.0",
+        "lastUpdated": "2026-07-27",
+        "source": "Ministry of Transport - Derech Shaveh Reform",
+        "description": "Official public transit fare tariffs (Bus/Light Rail/Metronit/Cable) - Updated according to Derech Shaveh reform",
         "officialSource": "data.gov.il - Ministry of Transport GTFS Tariff Data"
     },
     "currency": {
@@ -20,9 +20,10 @@
                 "minDistance": 0,
                 "maxDistance": 15,
                 "label": "0-15 ק\"מ",
-                "single": 6.00,
-                "daily": 30.00,
-                "dailyNationwide": 44.00,
+                "single": 8.00,
+                "dailyLocal": 17.50,
+                "dailyExtended": null,
+                "dailyNationwide": null,
                 "monthlyNational": 315.00
             },
             {
@@ -31,9 +32,10 @@
                 "minDistance": 15.1,
                 "maxDistance": 40,
                 "label": "15.1-40 ק\"מ",
-                "single": 12.50,
-                "daily": 30.00,
-                "dailyNationwide": 44.00,
+                "single": 14.50,
+                "dailyLocal": 17.50,
+                "dailyExtended": null,
+                "dailyNationwide": null,
                 "monthlyNational": 315.00
             },
             {
@@ -43,8 +45,9 @@
                 "maxDistance": 75,
                 "label": "40.1-75 ק\"מ",
                 "single": 19.00,
-                "daily": 37.50,
-                "dailyNationwide": 44.00,
+                "dailyLocal": null,
+                "dailyExtended": 29.00,
+                "dailyNationwide": null,
                 "monthlyNational": 315.00
             },
             {
@@ -54,30 +57,21 @@
                 "maxDistance": 120,
                 "label": "75.1-120 ק\"מ",
                 "single": 19.00,
-                "daily": 37.50,
-                "dailyNationwide": 44.00,
+                "dailyLocal": null,
+                "dailyExtended": null,
+                "dailyNationwide": 37.50,
                 "monthlyNational": 315.00
             },
             {
                 "id": "purple",
                 "name": "אזור 5",
                 "minDistance": 120.1,
-                "maxDistance": 225,
-                "label": "120.1-225 ק\"מ",
-                "single": 30.50,
-                "daily": 60.50,
-                "dailyNationwide": 44.00,
-                "monthlyNational": 315.00
-            },
-            {
-                "id": "gray",
-                "name": "אזור 6",
-                "minDistance": 225.1,
                 "maxDistance": null,
-                "label": "225.1+ ק\"מ",
-                "single": 74.00,
-                "daily": 79.50,
-                "dailyNationwide": 44.00,
+                "label": "120.1+ ק\"מ",
+                "single": 27.00,
+                "dailyLocal": null,
+                "dailyExtended": null,
+                "dailyNationwide": null,
                 "monthlyNational": 315.00
             }
         ]
@@ -91,10 +85,14 @@
                 "minDistance": 0,
                 "maxDistance": 15,
                 "label": "0-15 ק\"מ",
-                "single": 9.00,
-                "daily": 32.00,
-                "dailyUnlimited": 74.00,
-                "monthlyUpTo40km": 323.00
+                "single": 11.50,
+                "dailyLocal": 23.00,
+                "dailyExtended": null,
+                "dailyNationwide": null,
+                "monthlyUpTo40km": 323.00,
+                "monthlyUpTo75km": null,
+                "monthlyUpTo120km": null,
+                "monthlyUnlimited": null
             },
             {
                 "id": "green",
@@ -102,10 +100,14 @@
                 "minDistance": 15.1,
                 "maxDistance": 40,
                 "label": "15.1-40 ק\"מ",
-                "single": 18.00,
-                "daily": 32.00,
-                "dailyUnlimited": 74.00,
-                "monthlyUpTo40km": 323.00
+                "single": 21.00,
+                "dailyLocal": 23.00,
+                "dailyExtended": null,
+                "dailyNationwide": null,
+                "monthlyUpTo40km": 323.00,
+                "monthlyUpTo75km": null,
+                "monthlyUpTo120km": null,
+                "monthlyUnlimited": null
             },
             {
                 "id": "lightblue",
@@ -114,9 +116,13 @@
                 "maxDistance": 75,
                 "label": "40.1-75 ק\"מ",
                 "single": 27.00,
-                "daily": 46.00,
-                "dailyUnlimited": 74.00,
-                "monthlyUpTo75km": 464.00
+                "dailyLocal": null,
+                "dailyExtended": 32.50,
+                "dailyNationwide": null,
+                "monthlyUpTo40km": null,
+                "monthlyUpTo75km": 464.00,
+                "monthlyUpTo120km": null,
+                "monthlyUnlimited": null
             },
             {
                 "id": "blue",
@@ -125,31 +131,28 @@
                 "maxDistance": 120,
                 "label": "75.1-120 ק\"מ",
                 "single": 30.50,
-                "daily": 46.00,
-                "dailyUnlimited": 74.00,
-                "monthlyUnlimited": 684.00
+                "dailyLocal": null,
+                "dailyExtended": null,
+                "dailyNationwide": 47.00,
+                "monthlyUpTo40km": null,
+                "monthlyUpTo75km": null,
+                "monthlyUpTo120km": 684.00,
+                "monthlyUnlimited": null
             },
             {
                 "id": "purple",
                 "name": "אזור 5 + רכבת",
                 "minDistance": 120.1,
-                "maxDistance": 225,
-                "label": "120.1-225 ק\"מ",
-                "single": 52.50,
-                "daily": 80.50,
-                "dailyUnlimited": 74.00,
-                "monthlyUnlimited": 684.00
-            },
-            {
-                "id": "gray",
-                "name": "אזור 6 + רכבת",
-                "minDistance": 225.1,
                 "maxDistance": null,
-                "label": "225.1+ ק\"מ",
-                "single": 52.50,
-                "daily": 80.50,
-                "dailyUnlimited": 74.00,
-                "monthlyUnlimited": 684.00
+                "label": "120.1+ ק\"מ",
+                "single": null,
+                "dailyLocal": null,
+                "dailyExtended": null,
+                "dailyNationwide": null,
+                "monthlyUpTo40km": null,
+                "monthlyUpTo75km": null,
+                "monthlyUpTo120km": null,
+                "monthlyUnlimited": 1038.00
             }
         ]
     },
@@ -175,11 +178,18 @@
             "base": 464.00,
             "label": "משולב רכבת עד 75 ק\"מ"
         },
+        "nationalTrain120": {
+            "id": "nationalTrain120",
+            "name": "חופשי ארצי משולב רכבת עד 120 ק\"מ",
+            "nameEn": "National Rail up to 120km",
+            "base": 684.00,
+            "label": "משולב רכבת עד 120 ק\"מ"
+        },
         "nationalTrainUnlimited": {
             "id": "nationalTrainUnlimited",
             "name": "חופשי ארצי משולב רכבת ללא הגבלה",
             "nameEn": "National Rail Unlimited",
-            "base": 684.00,
+            "base": 1038.00,
             "label": "משולב רכבת ללא הגבלה"
         },
         "peripheryRegional": {

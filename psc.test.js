@@ -1,37 +1,35 @@
 // בדיקות יחידה ו-E2E עבור מחשבון PSC (תחבורה ציבורית)
-// Official Ministry of Transport ("Derech Shaveh" / "Tachburah Tzedek") tariff structure
+// Derech Shaveh Reform - Updated 2026-07-27
 
 const { computeTransportFare } = require('./psc.js');
 
-describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
-    test('נסיעה בודדת - מדרגות מרחק בסיסיות (אוטובוס) - Official Tariff', () => {
-        // 0-15 km: ₪6.00
-        expect(computeTransportFare({ distance: 10, ticket_type: 'single' }).finalFare).toBe(6.00);
-        // 15.1-40 km: ₪12.50
-        expect(computeTransportFare({ distance: 25, ticket_type: 'single' }).finalFare).toBe(12.50);
+describe('PSC Transport Fare Calculator Tests - Derech Shaveh Reform (v3.0.0)', () => {
+    test('נסיעה בודדת - מדרגות מרחק בסיסיות (אוטובוס) - Derech Shaveh Tariff', () => {
+        // 0-15 km: ₪8.00
+        expect(computeTransportFare({ distance: 10, ticket_type: 'single' }).finalFare).toBe(8.00);
+        // 15.1-40 km: ₪14.50
+        expect(computeTransportFare({ distance: 25, ticket_type: 'single' }).finalFare).toBe(14.50);
         // 40.1-75 km: ₪19.00
         expect(computeTransportFare({ distance: 50, ticket_type: 'single' }).finalFare).toBe(19.00);
         // 75.1-120 km: ₪19.00
         expect(computeTransportFare({ distance: 80, ticket_type: 'single' }).finalFare).toBe(19.00);
-        // 120.1-225 km: ₪30.50
-        expect(computeTransportFare({ distance: 130, ticket_type: 'single' }).finalFare).toBe(30.50);
-        // 225.1+ km: ₪74.00
-        expect(computeTransportFare({ distance: 230, ticket_type: 'single' }).finalFare).toBe(74.00);
+        // 120.1+ km: ₪27.00
+        expect(computeTransportFare({ distance: 130, ticket_type: 'single' }).finalFare).toBe(27.00);
+        // 120.1+ km (long route like Eilat-Metula): ₪27.00 (NOT 74.00)
+        expect(computeTransportFare({ distance: 417.7, ticket_type: 'single' }).finalFare).toBe(27.00);
     });
 
-    test('חופשי יומי - מדרגות מרחק (אוטובוס)', () => {
-        // 0-15 km: ₪30.00 (nationwide)
-        expect(computeTransportFare({ distance: 10, ticket_type: 'daily' }).bus.daily).toBe(30.00);
-        // 15.1-40 km: ₪30.00
-        expect(computeTransportFare({ distance: 25, ticket_type: 'daily' }).bus.daily).toBe(30.00);
-        // 40.1-75 km: ₪37.50
-        expect(computeTransportFare({ distance: 50, ticket_type: 'daily' }).bus.daily).toBe(37.50);
-        // 75.1-120 km: ₪37.50
-        expect(computeTransportFare({ distance: 80, ticket_type: 'daily' }).bus.daily).toBe(37.50);
-        // 120.1-225 km: ₪60.50
-        expect(computeTransportFare({ distance: 130, ticket_type: 'daily' }).bus.daily).toBe(60.50);
-        // 225.1+ km: ₪79.50
-        expect(computeTransportFare({ distance: 230, ticket_type: 'daily' }).bus.daily).toBe(79.50);
+    test('חופשי יומי - מדרגות מרחק (אוטובוס) - Derech Shaveh', () => {
+        // 0-40 km: ₪17.50 (local)
+        expect(computeTransportFare({ distance: 10, ticket_type: 'daily' }).bus.dailyLocal).toBe(17.50);
+        expect(computeTransportFare({ distance: 25, ticket_type: 'daily' }).bus.dailyLocal).toBe(17.50);
+        // 40.1-75 km: ₪29.00 (extended)
+        expect(computeTransportFare({ distance: 50, ticket_type: 'daily' }).bus.dailyExtended).toBe(29.00);
+        // 75.1-120 km: ₪37.50 (nationwide)
+        expect(computeTransportFare({ distance: 80, ticket_type: 'daily' }).bus.dailyNationwide).toBe(37.50);
+        // 120.1+ km: no daily pass defined
+        expect(computeTransportFare({ distance: 130, ticket_type: 'daily' }).bus.dailyNationwide).toBeNull();
+        expect(computeTransportFare({ distance: 417.7, ticket_type: 'daily' }).bus.dailyNationwide).toBeNull();
     });
 
     test('מנוי חודשי לאומי (אוטובוס)', () => {
@@ -39,6 +37,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
         expect(computeTransportFare({ distance: 10, ticket_type: 'monthly' }).bus.monthlyNational).toBe(315.00);
         expect(computeTransportFare({ distance: 50, ticket_type: 'monthly' }).bus.monthlyNational).toBe(315.00);
         expect(computeTransportFare({ distance: 130, ticket_type: 'monthly' }).bus.monthlyNational).toBe(315.00);
+        expect(computeTransportFare({ distance: 417.7, ticket_type: 'monthly' }).bus.monthlyNational).toBe(315.00);
     });
 
     test('מנוי חודשי מקומי (אוטובוס) - לא קיים בתעריפים החדשים', () => {
@@ -65,7 +64,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             ticket_type: 'single',
             is_periphery: true
         });
-        expect(res1.finalFare).toBe(12.50);
+        expect(res1.finalFare).toBe(14.50);
 
         // ריצה 2: תושב מרכז (איפוס מפורש ל-false)
         const res2 = computeTransportFare({
@@ -74,7 +73,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             is_periphery: false
         });
         expect(res2.appliedDiscount).toBe(0.00);
-        expect(res2.finalFare).toBe(12.50);
+        expect(res2.finalFare).toBe(14.50);
     });
 
     test('תיעוד הנחות פרופיל מול פריפריה (מניעת כפל הנחות)', () => {
@@ -86,7 +85,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             is_periphery: true
         });
         expect(res.appliedDiscount).toBe(0.50);
-        expect(res.finalFare).toBe(6.25); // 12.50 * 0.50 = 6.25
+        expect(res.finalFare).toBe(7.25); // 14.50 * 0.50 = 7.25
     });
 
     test('אזרח ותיק פלוס (75+) - 100% הנחה', () => {
@@ -105,7 +104,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             profile: 'youth'
         });
         expect(res.profileDiscount).toBe(0.50);
-        expect(res.finalFare).toBe(6.25); // 12.50 * 0.50 = 6.25
+        expect(res.finalFare).toBe(7.25); // 14.50 * 0.50 = 7.25
     });
 
     test('סטודנט - 33% הנחה על נסיעה בודדת/יומי, 50% על מנוי', () => {
@@ -115,7 +114,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             profile: 'student'
         });
         expect(singleRes.profileDiscount).toBe(0.33);
-        expect(singleRes.finalFare).toBe(8.38); // 12.50 * 0.67 = 8.375 ≈ 8.38
+        expect(singleRes.finalFare).toBe(9.72); // 14.50 * 0.67 = 9.715 ≈ 9.72
 
         const monthlyRes = computeTransportFare({
             distance: 25,
@@ -133,7 +132,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             profile: 'young_adult'
         });
         expect(singleRes.profileDiscount).toBe(0);
-        expect(singleRes.finalFare).toBe(12.50); // No discount on single
+        expect(singleRes.finalFare).toBe(14.50); // No discount on single
 
         const monthlyRes = computeTransportFare({
             distance: 25,
@@ -151,7 +150,7 @@ describe('PSC Transport Fare Calculator Tests - Official Fare Matrix', () => {
             profile: 'disabled'
         });
         expect(res.profileDiscount).toBe(0.50);
-        expect(res.finalFare).toBe(15.00); // 30.00 * 0.50 = 15.00
+        expect(res.finalFare).toBe(8.75); // 17.50 * 0.50 = 8.75
     });
 });
 
@@ -240,28 +239,28 @@ describe('Tzedek Tachburati Discount - Monthly Pass Only', () => {
 });
 
 // ============================================================
-// Israel Railways (Train) Single Ride Pricing Tests - Official Tariff
+// Israel Railways (Train) Single Ride Pricing Tests - Derech Shaveh Reform
 // ============================================================
 
-describe('Israel Railways (Train) Official Tariff', () => {
+describe('Israel Railways (Train) - Derech Shaveh Tariff', () => {
     test('רכבת - מרחק קצר (0-15 ק"מ)', () => {
         const busRes = computeTransportFare({ distance: 10, ticket_type: 'single' });
         const railRes = computeTransportFare({ distance: 10, ticket_type: 'single', includes_rail: true });
         
-        expect(busRes.baseFare).toBe(6.00);
-        expect(railRes.baseFare).toBe(9.00);
-        expect(railRes.rail.single).toBe(9.00);
+        expect(busRes.baseFare).toBe(8.00);
+        expect(railRes.baseFare).toBe(11.50);
+        expect(railRes.rail.single).toBe(11.50);
         expect(railRes.trainPremium).toBe(true);
-        expect(railRes.finalFare).toBe(9.00);
+        expect(railRes.finalFare).toBe(11.50);
     });
 
     test('רכבת - מרחק בינוני (15.1-40 ק"מ)', () => {
         const busRes = computeTransportFare({ distance: 25, ticket_type: 'single' });
         const railRes = computeTransportFare({ distance: 25, ticket_type: 'single', includes_rail: true });
         
-        expect(busRes.baseFare).toBe(12.50);
-        expect(busRes.rail.single).toBe(18.00);
-        expect(railRes.baseFare).toBe(18.00);
+        expect(busRes.baseFare).toBe(14.50);
+        expect(busRes.rail.single).toBe(21.00);
+        expect(railRes.baseFare).toBe(21.00);
         expect(railRes.trainPremium).toBe(true);
     });
 
@@ -285,22 +284,22 @@ describe('Israel Railways (Train) Official Tariff', () => {
         expect(railRes.trainPremium).toBe(true);
     });
 
-    test('רכבת - מרחק מקסימלי (120.1+ ק"מ)', () => {
+    test('רכבת - מרחק מקסימלי (120.1+ ק"מ) - ללא מחיר נסיעה בודדת', () => {
         const busRes = computeTransportFare({ distance: 130, ticket_type: 'single' });
         const railRes = computeTransportFare({ distance: 130, ticket_type: 'single', includes_rail: true });
         
-        expect(busRes.baseFare).toBe(30.50);
-        expect(railRes.baseFare).toBe(52.50); // Rail has higher fare for 120.1+ km
-        expect(railRes.rail.single).toBe(52.50);
+        expect(busRes.baseFare).toBe(27.00);
+        expect(railRes.baseFare).toBeNull(); // No single ride defined for 120km+
+        expect(railRes.rail.single).toBeNull();
     });
 
     test('רכבת - חופשי יומי', () => {
         const busRes = computeTransportFare({ distance: 50, ticket_type: 'daily' });
         const railRes = computeTransportFare({ distance: 50, ticket_type: 'daily', includes_rail: true });
         
-        expect(busRes.baseFare).toBe(37.50);
-        expect(railRes.baseFare).toBe(46.00);
-        expect(railRes.rail.daily).toBe(46.00);
+        expect(busRes.baseFare).toBe(29.00);
+        expect(railRes.baseFare).toBe(32.50);
+        expect(railRes.rail.dailyExtended).toBe(32.50);
     });
 
     test('רכבת + פריפריה 50% - חישוב נכון על מנוי חודשי (up to 40km)', () => {
@@ -342,6 +341,18 @@ describe('Israel Railways (Train) Official Tariff', () => {
         expect(res.rail.getMonthlyPass(50)).toBe(464.00);
     });
 
+    test('מנוי חודשי עם רכבת עד 120 ק"מ', () => {
+        const res = computeTransportFare({
+            distance: 100,
+            ticket_type: 'monthly',
+            includes_rail: true
+        });
+        
+        expect(res.baseFare).toBe(684.00); // Combined Rail Monthly Pass up to 120km
+        expect(res.rail.monthlyUpTo120km).toBe(684.00);
+        expect(res.rail.getMonthlyPass(100)).toBe(684.00);
+    });
+
     test('מנוי חודשי עם רכבת ללא הגבלה (120+ ק"מ)', () => {
         const res = computeTransportFare({
             distance: 130,
@@ -349,17 +360,18 @@ describe('Israel Railways (Train) Official Tariff', () => {
             includes_rail: true
         });
         
-        expect(res.baseFare).toBe(684.00); // Combined Rail Monthly Pass Unlimited
-        expect(res.rail.monthlyUnlimited).toBe(684.00);
-        expect(res.rail.getMonthlyPass(130)).toBe(684.00);
+        expect(res.baseFare).toBe(1038.00); // Combined Rail Monthly Pass Unlimited (Derech Shaveh)
+        expect(res.rail.monthlyUnlimited).toBe(1038.00);
+        expect(res.rail.getMonthlyPass(130)).toBe(1038.00);
     });
 });
 
 // ============================================================
 // Jerusalem <-> Tel Aviv Specific Test Case (53.9 km)
+// Derech Shaveh Reform Verification
 // ============================================================
 
-describe('Jerusalem <-> Tel Aviv (53.9 km) - Official Tariff Verification', () => {
+describe('Jerusalem <-> Tel Aviv (53.9 km) - Derech Shaveh Tariff Verification', () => {
     test('Bus Single Ride MUST output ₪19.00', () => {
         const res = computeTransportFare({ distance: 53.9, ticket_type: 'single' });
         expect(res.baseFare).toBe(19.00);
@@ -374,18 +386,18 @@ describe('Jerusalem <-> Tel Aviv (53.9 km) - Official Tariff Verification', () =
         expect(res.finalFare).toBe(27.00);
     });
 
-    test('Bus Daily Pass MUST output ₪37.50', () => {
+    test('Bus Daily Extended (40-75km) MUST output ₪29.00', () => {
         const res = computeTransportFare({ distance: 53.9, ticket_type: 'daily' });
-        expect(res.baseFare).toBe(37.50);
-        expect(res.bus.daily).toBe(37.50);
-        expect(res.finalFare).toBe(37.50);
+        expect(res.baseFare).toBe(29.00);
+        expect(res.bus.dailyExtended).toBe(29.00);
+        expect(res.finalFare).toBe(29.00);
     });
 
-    test('Rail Daily Pass MUST output ₪46.00', () => {
+    test('Rail Daily Extended (40-75km) MUST output ₪32.50', () => {
         const res = computeTransportFare({ distance: 53.9, ticket_type: 'daily', includes_rail: true });
-        expect(res.baseFare).toBe(46.00);
-        expect(res.rail.daily).toBe(46.00);
-        expect(res.finalFare).toBe(46.00);
+        expect(res.baseFare).toBe(32.50);
+        expect(res.rail.dailyExtended).toBe(32.50);
+        expect(res.finalFare).toBe(32.50);
     });
 
     test('Monthly National Bus MUST output ₪315.00', () => {
@@ -411,6 +423,59 @@ describe('Jerusalem <-> Tel Aviv (53.9 km) - Official Tariff Verification', () =
         });
         expect(res.peripheryDiscount).toBe(0.50);
         expect(res.finalFare).toBe(157.50); // 315 * 0.50 = 157.50
+    });
+});
+
+// ============================================================
+// Eilat <-> Metula Long Route Test (417.7 km)
+// Critical test to ensure no fake prices like ₪74.00 or ₪79.50
+// ============================================================
+
+describe('Eilat <-> Metula (417.7 km) - Long Route Validation', () => {
+    test('Bus Single Ride MUST output ₪27.00 (NOT ₪74.00)', () => {
+        const res = computeTransportFare({ distance: 417.7, ticket_type: 'single' });
+        expect(res.baseFare).toBe(27.00);
+        expect(res.bus.single).toBe(27.00);
+        expect(res.finalFare).toBe(27.00);
+        expect(res.finalFare).not.toBe(74.00); // Old fake price
+    });
+
+    test('Rail Single Ride MUST output null (destination-based pricing)', () => {
+        const res = computeTransportFare({ distance: 417.7, ticket_type: 'single', includes_rail: true });
+        expect(res.rail.single).toBeNull(); // No single ride defined for 120km+
+        expect(res.baseFare).toBeNull();
+    });
+
+    test('Bus Monthly National MUST output ₪315.00', () => {
+        const res = computeTransportFare({ distance: 417.7, ticket_type: 'monthly' });
+        expect(res.baseFare).toBe(315.00);
+        expect(res.bus.monthlyNational).toBe(315.00);
+        expect(res.finalFare).toBe(315.00);
+    });
+
+    test('Rail Monthly Unlimited MUST output ₪1,038.00', () => {
+        const res = computeTransportFare({ distance: 417.7, ticket_type: 'monthly', includes_rail: true });
+        expect(res.baseFare).toBe(1038.00);
+        expect(res.rail.monthlyUnlimited).toBe(1038.00);
+        expect(res.finalFare).toBe(1038.00);
+    });
+
+    test('Rail Monthly Unlimited with Geographic Profile 50% MUST output ₪519.00', () => {
+        const res = computeTransportFare({ 
+            distance: 417.7, 
+            ticket_type: 'monthly',
+            includes_rail: true,
+            is_periphery: true
+        });
+        expect(res.peripheryDiscount).toBe(0.50);
+        expect(res.finalFare).toBe(519.00); // 1038 * 0.50 = 519.00
+    });
+
+    test('Bus Daily for 120km+ MUST be null (NOT ₪79.50)', () => {
+        const res = computeTransportFare({ distance: 417.7, ticket_type: 'daily' });
+        expect(res.bus.dailyNationwide).toBeNull();
+        expect(res.bus.dailyExtended).toBeNull();
+        expect(res.bus.dailyLocal).toBeNull();
     });
 });
 
@@ -462,29 +527,30 @@ describe('Regional Periphery Monthly Pass & Geographic Profile', () => {
 
 // ============================================================
 // getFareBreakdown Function Tests - Bus Only vs Train Combined
+// Derech Shaveh Reform - Updated Field Names
 // ============================================================
 
-describe('getFareBreakdown - Bus Only vs Train Combined', () => {
+describe('getFareBreakdown - Bus Only vs Train Combined (Derech Shaveh)', () => {
     const { getFareBreakdown } = require('./psc.js');
     
     test('Single ride - busOnly single price matches bus tier', () => {
         const breakdown = getFareBreakdown(25); // 15.1-40km zone
-        expect(breakdown.busOnly.single).toBe(12.50);
+        expect(breakdown.busOnly.single).toBe(14.50);
     });
     
     test('Single ride - trainCombined single price matches rail tier', () => {
         const breakdown = getFareBreakdown(25); // 15.1-40km zone
-        expect(breakdown.trainCombined.single).toBe(18.00);
+        expect(breakdown.trainCombined.single).toBe(21.00);
     });
     
-    test('Daily pass - busOnly daily price matches bus tier', () => {
+    test('Daily pass - busOnly dailyLocal price matches bus tier', () => {
         const breakdown = getFareBreakdown(25);
-        expect(breakdown.busOnly.daily).toBe(30.00);
+        expect(breakdown.busOnly.dailyLocal).toBe(17.50);
     });
     
-    test('Daily pass - trainCombined daily price matches rail tier', () => {
+    test('Daily pass - trainCombined dailyLocal price matches rail tier', () => {
         const breakdown = getFareBreakdown(25);
-        expect(breakdown.trainCombined.daily).toBe(32.00);
+        expect(breakdown.trainCombined.dailyLocal).toBe(23.00);
     });
     
     test('Monthly - busOnly national matches bus monthly national', () => {
@@ -509,22 +575,28 @@ describe('getFareBreakdown - Bus Only vs Train Combined', () => {
         expect(breakdown.trainCombined.monthly).toBe(464.00);
     });
     
-    test('Monthly - trainCombined monthly for 75km+ distance', () => {
+    test('Monthly - trainCombined monthly for 75.1-120km distance', () => {
         const breakdown = getFareBreakdown(100); // 100km - within 75.1-120km
-        expect(breakdown.trainCombined.monthlyUnlimited).toBe(684.00);
+        expect(breakdown.trainCombined.monthlyUpTo120km).toBe(684.00);
         expect(breakdown.trainCombined.monthly).toBe(684.00);
+    });
+    
+    test('Monthly - trainCombined monthly for 120km+ distance', () => {
+        const breakdown = getFareBreakdown(417.7); // 417.7km - unlimited
+        expect(breakdown.trainCombined.monthlyUnlimited).toBe(1038.00);
+        expect(breakdown.trainCombined.monthly).toBe(1038.00);
     });
     
     test('Youth profile discount applies to single ride', () => {
         const breakdown = getFareBreakdown(25, 'youth');
-        expect(breakdown.busOnly.singleWithDiscount).toBe(6.25); // 12.50 * 0.50
-        expect(breakdown.trainCombined.singleWithDiscount).toBe(9.00); // 18.00 * 0.50
+        expect(breakdown.busOnly.singleWithDiscount).toBe(7.25); // 14.50 * 0.50
+        expect(breakdown.trainCombined.singleWithDiscount).toBe(10.50); // 21.00 * 0.50
     });
     
     test('Youth profile discount applies to daily pass', () => {
         const breakdown = getFareBreakdown(25, 'youth');
-        expect(breakdown.busOnly.dailyWithDiscount).toBe(15.00); // 30.00 * 0.50
-        expect(breakdown.trainCombined.dailyWithDiscount).toBe(16.00); // 32.00 * 0.50
+        expect(breakdown.busOnly.dailyLocalWithDiscount).toBe(8.75); // 17.50 * 0.50
+        expect(breakdown.trainCombined.dailyLocalWithDiscount).toBe(11.50); // 23.00 * 0.50
     });
     
     test('Youth profile discount does NOT apply to monthly pass', () => {
@@ -550,12 +622,27 @@ describe('getFareBreakdown - Bus Only vs Train Combined', () => {
         
         // Bus
         expect(breakdown.busOnly.single).toBe(19.00);
-        expect(breakdown.busOnly.daily).toBe(37.50);
+        expect(breakdown.busOnly.dailyExtended).toBe(29.00);
         expect(breakdown.busOnly.monthlyNational).toBe(315.00);
         
         // Train Combined
         expect(breakdown.trainCombined.single).toBe(27.00);
-        expect(breakdown.trainCombined.daily).toBe(46.00);
+        expect(breakdown.trainCombined.dailyExtended).toBe(32.50);
         expect(breakdown.trainCombined.monthly).toBe(464.00); // Up to 75km
+    });
+    
+    test('Eilat-Metula (417.7km) long route validation', () => {
+        const breakdown = getFareBreakdown(417.7);
+        
+        // Bus - max tier for 120km+
+        expect(breakdown.busOnly.single).toBe(27.00);
+        expect(breakdown.busOnly.dailyNationwide).toBeNull();
+        expect(breakdown.busOnly.monthlyNational).toBe(315.00);
+        
+        // Train Combined - unlimited pass only
+        expect(breakdown.trainCombined.single).toBeNull();
+        expect(breakdown.trainCombined.dailyNationwide).toBeNull();
+        expect(breakdown.trainCombined.monthlyUnlimited).toBe(1038.00);
+        expect(breakdown.trainCombined.monthly).toBe(1038.00);
     });
 });
