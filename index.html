@@ -43,6 +43,11 @@
             --history-chip-text: #1565c0;
             --student-pass-bg: #fff8e1;
             --student-pass-border: #ffc107;
+            --eligibility-bg: #e8f5e9;
+            --eligibility-border: #4caf50;
+            --eligibility-text: #2e7d32;
+            --street-section-bg: #f3e5f5;
+            --street-section-border: #9c27b0;
         }
 
         /* Dark Mode Colors */
@@ -78,6 +83,11 @@
             --history-chip-text: #90caf9;
             --student-pass-bg: #3a3520;
             --student-pass-border: #ffc107;
+            --eligibility-bg: #1b3d1b;
+            --eligibility-border: #4caf50;
+            --eligibility-text: #81c784;
+            --street-section-bg: #2d1f3d;
+            --street-section-border: #9c27b0;
         }
 
         /* ============================================================ */
@@ -170,7 +180,28 @@
         /* Eilat Pass Row Styling */
         .eilat-pass-row{display:none}
         .eilat-pass-row.active{display:flex;flex-direction:column}
-        
+
+        /* Street Selection Section */
+        .street-section{background:var(--street-section-bg);border-radius:15px;padding:20px;margin-top:15px;border:2px solid var(--street-section-border);display:none;transition:all 0.3s ease}
+        .street-section.active{display:block}
+        .street-section h4{color:var(--text-primary);margin-bottom:12px;font-size:1em;display:flex;align-items:center;gap:8px}
+        .street-autocomplete-wrapper{position:relative}
+        .street-autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--autocomplete-bg);border:2px solid var(--street-section-border);border-top:none;border-radius:0 0 12px 12px;max-height:200px;overflow-y:auto;z-index:1000;display:none;box-shadow:0 4px 15px rgba(0,0,0,0.15)}
+        .street-autocomplete-list.active{display:block}
+        .street-autocomplete-item{padding:12px 15px;cursor:pointer;border-bottom:1px solid var(--border-color);font-size:0.95em;color:var(--text-primary)}
+        .street-autocomplete-item:last-child{border-bottom:none}
+        .street-autocomplete-item:hover{background:var(--highlight-bg)}
+        .house-number-section{margin-top:15px;display:none}
+        .house-number-section.active{display:block}
+        .house-number-input{width:100%;padding:12px;border:2px solid var(--street-section-border);border-radius:8px;font-size:1em;background:var(--bg-secondary);color:var(--text-primary)}
+
+        /* Eligibility Section */
+        .eligibility-section{background:var(--eligibility-bg);border-radius:12px;padding:15px;margin-top:15px;border:2px solid var(--eligibility-border);display:none;transition:all 0.3s ease}
+        .eligibility-section.active{display:block}
+        .eligibility-badge{display:inline-flex;align-items:center;padding:8px 16px;background:var(--eligibility-border);color:#fff;border-radius:20px;font-size:0.9em;font-weight:600}
+        .eligibility-not-eligible{background:#ffebee;border-color:#f44336;color:#c62828}
+        .eligibility-notice{margin-top:10px;font-size:0.85em;color:var(--eligibility-text)}
+
         /* WhatsApp Share Button */
         .whatsapp-share-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px 24px;background:linear-gradient(var(--whatsapp-green),var(--whatsapp-green-dark));color:#fff;border:none;border-radius:12px;font-size:1.1em;font-weight:bold;cursor:pointer;margin-top:20px;transition:all 0.3s ease;text-decoration:none}
         .whatsapp-share-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(37,211,102,0.4)}
@@ -319,6 +350,25 @@
                 <div id="location-error" class="location-error"></div>
                 <div id="gps-distance" class="gps-distance"></div>
             </div>
+            
+            <!-- Street Selection Section -->
+            <div id="origin-street-section" class="street-section">
+                <h4>🏠 בחירת רחוב (מוצא):</h4>
+                <div class="street-autocomplete-wrapper">
+                    <input type="text" id="origin-street" class="street-input" placeholder="הקלד שם רחוב..." autocomplete="off">
+                    <div id="origin-street-list" class="street-autocomplete-list"></div>
+                </div>
+                <div id="origin-house-section" class="house-number-section">
+                    <label style="display:block;margin-top:10px;font-weight:600;color:var(--text-primary);">מספר בית:</label>
+                    <input type="text" id="origin-house" class="house-number-input" placeholder="הזן מספר בית" autocomplete="off">
+                </div>
+            </div>
+            
+            <!-- Eligibility Check Section -->
+            <div id="eligibility-section" class="eligibility-section">
+                <div id="eligibility-content"></div>
+            </div>
+            
             <div class="input-group">
                 <label>🎯 יעד:</label>
                 <div class="autocomplete-wrapper">
@@ -474,6 +524,350 @@
         </div>
     </div>
     <script>
+        // ============================================================
+        // GOVERNMENT DATA - Cities and Streets from data.gov.il
+        // ============================================================
+        
+        var CITIES_DATA = null;
+        var STREETS_DATA = null;
+        var ELIGIBLE_CITIES = null;
+        
+        // Load data from JSON files with robust fallback
+        var dataLoadStatus = {
+            citiesLoaded: false,
+            streetsLoaded: false,
+            eligibleLoaded: false,
+            loadAttempts: 0
+        };
+        
+        async function loadGovernmentData() {
+            dataLoadStatus.loadAttempts++;
+            
+            // First, try to load from local JSON files (pre-loaded data)
+            try {
+                const citiesResponse = await fetch('data/cities_streets.json');
+                if (citiesResponse.ok) {
+                    const citiesData = await citiesResponse.json();
+                    CITIES_DATA = citiesData.cities;
+                    STREETS_DATA = citiesData.streets;
+                    dataLoadStatus.citiesLoaded = true;
+                    dataLoadStatus.streetsLoaded = true;
+                    console.log('Loaded cities/streets from local cache: ' + CITIES_DATA.length + ' cities');
+                }
+            } catch (e) {
+                console.warn('Could not load cities from local cache:', e);
+            }
+            
+            try {
+                const eligibleResponse = await fetch('data/periphery/eligible_cities.json');
+                if (eligibleResponse.ok) {
+                    const eligibleData = await eligibleResponse.json();
+                    ELIGIBLE_CITIES = eligibleData.cities;
+                    dataLoadStatus.eligibleLoaded = true;
+                    console.log('Loaded eligible cities from local cache: ' + ELIGIBLE_CITIES.length + ' cities');
+                }
+            } catch (e) {
+                console.warn('Could not load eligible cities from local cache:', e);
+            }
+            
+            // If local data is available, initialize with it
+            if (CITIES_DATA && CITIES_DATA.length > 0) {
+                initGovernmentAutocomplete();
+                console.log('Government data initialized from local cache');
+                return true;
+            }
+            
+            // If local data is not available, try to fetch from API
+            if (navigator.onLine) {
+                try {
+                    // Try to fetch cities from API
+                    const citiesApiUrl = 'https://data.gov.il/api/3/action/datastore_search?resource_id=b7cf8f14-64a2-4b33-8d4b-edb286fdbd37&limit=1500';
+                    const response = await fetch(citiesApiUrl);
+                    if (response.ok) {
+                        const data = await response.json();
+                        CITIES_DATA = data.result.records.map(r => r['שם_ישוב'].trim());
+                        CITIES_DATA = [...new Set(CITIES_DATA)].sort();
+                        dataLoadStatus.citiesLoaded = true;
+                        console.log('Loaded ' + CITIES_DATA.length + ' cities from API');
+                    }
+                } catch (e) {
+                    console.warn('Could not fetch from API:', e);
+                }
+            }
+            
+            // If we still don't have cities, use fallback data
+            if (!CITIES_DATA || CITIES_DATA.length === 0) {
+                console.log('Using fallback city data');
+                CITIES_DATA = getFallbackCities();
+                STREETS_DATA = getFallbackStreets();
+                ELIGIBLE_CITIES = getFallbackEligibleCities();
+                initGovernmentAutocomplete();
+                return false;
+            }
+            
+            initGovernmentAutocomplete();
+            return true;
+        }
+        
+        // Fallback cities when API fails (comprehensive list)
+        function getFallbackCities() {
+            return [
+                // Northern periphery cities
+                "קרית שמונה", "מגדל העמק", "עפולה", "נצרת", "כרמיאל", "טבריה",
+                "צפת", "נהריה", "עכו", "ראש הנקרה", "שפרעם", "טמרה", "מגאר",
+                "באקה אל גרביה", "עראבה", "מעלה עירון", "קצרין", "מעלות תרשיחא",
+                "שלומי", "מטולה", "ראש פינה", "געתון", "בית הלל", "שאר ישוב",
+                // Southern periphery cities
+                "אופקים", "שדרות", "בית שאן", "נתיבות", "אשקלון", "קרית גת",
+                "קרית מלאכי", "ירוחון", "דימונה", "ערד", "מצפה רמון", "רהט",
+                "לקיה", "שגב שלום", "כסיפה", "עיסופיה", "חורה", "להבים",
+                // Central cities
+                "תל אביב - יפו", "ירושלים", "חיפה", "באר שבע", "נתניה",
+                "אשדוד", "רמת גן", "פתח תקווה", "ראשון לציון", "חולון",
+                "בת ים", "רחובות", "בני ברק", "הוד השרון", "רמלה", "לוד",
+                "מודיעין", "הרצליה", "כפר סבא", "גבעתיים", "קרית אונו",
+                "גני תקווה", "שוהם", "יבנה", "גדרה", "מזכרת בתיה", "ראש העין",
+                // Additional cities
+                "אום אל-פחם", "טירת כרמל", "נוף הגליל", "קרית ביאליק",
+                "קרית מוצקין", "קרית אתא", "קרית ים", "קרית טבעון",
+                "יהוד", "סביון", "מיתר", "שדה בוקר", "ניר עציון",
+                // Arab localities
+                "רהט", "כסיפה", "ערערה", "סאג'ור", "ג'דיידה מכר",
+                "ג'יסר א זרקא", "פקיעין", "בועיינה א נג'יד"
+            ];
+        }
+        
+        // Fallback streets
+        function getFallbackStreets() {
+            return {
+                "תל אביב - יפו": ["דיזנגוף", "בן גוריון", "אלנבי", "שדרות רוטשילד", "לוינסקי", "הרצל", "בזל", "פרישמן", "אבן גבירול", "לנדאו", "זרנושה", "הירקון", "שאול המלך"],
+                "ירושלים": ["יפו", "בן יהודה", "קינג גורג", "שמואל הנביא", "המלך ג׳ורג׳", "לינקולן", "אגריפס", "הנביאים", "שבטי ישראל", "ירמיהו", "ישעיהו"],
+                "חיפה": ["הנביאים", "פרץ", "העמים", "דרך חיפה", "שדרות ההסתדרות", "גולדה", "ביאליק", "חשמונאים", "מוריה", "כיאט"],
+                "באר שבע": ["רחוב השבט", "דוד בן גוריון", "סמטת החרושת", "שדרות יצחק רבין", "אליהו", "שמש", "הרצפה"],
+                "נתניה": ["בן צבי", "סמילנסקי", "הרצל", "הגעתון", "ז'בוטינסקי", "קפלן"],
+                "אשדוד": ["מלאכי", "בר לב", "הרב נריה", "סירקין", "שדרות הים"],
+                "ירושלים": ["יפו", "בן יהודה", "קינג גורג", "שמואל הנביא", "המלך ג׳ורג׳"]
+            };
+        }
+        
+        // Fallback eligible cities (periphery clusters 1-5)
+        function getFallbackEligibleCities() {
+            return [
+                // Northern periphery
+                "קרית שמונה", "מגדל העמק", "עפולה", "נצרת", "כרמיאל", "טבריה",
+                "צפת", "נהריה", "עכו", "ראש הנקרה", "שפרעם", "טמרה",
+                "באקה אל גרביה", "עראבה", "מעלה עירון", "קצרין", "מעלות תרשיחא",
+                "שלומי", "מטולה", "ראש פינה",
+                // Southern periphery
+                "אופקים", "שדרות", "בית שאן", "נתיבות", "אשקלון", "קרית גת",
+                "קרית מלאכי", "ירוחון", "דימונה", "ערד", "מצפה רמון", "רהט",
+                // Central (eligible per reform)
+                "תל אביב - יפו", "ירושלים", "חיפה", "באר שבע", "נתניה"
+            ];
+        }
+        
+        // Online/offline event handlers
+        window.addEventListener('online', function() {
+            console.log('Connection restored - data will be refreshed');
+            loadGovernmentData();
+        });
+        
+        window.addEventListener('offline', function() {
+            console.log('Connection lost - using local fallback data');
+        });
+        
+        // Check if a city is eligible for the 50% reform discount
+        function checkEligibility(cityName) {
+            if (!cityName || !ELIGIBLE_CITIES) return null;
+            
+            // Normalize the city name
+            const normalizedCity = cityName.trim().toLowerCase();
+            
+            // Check if city is in the eligible list
+            for (let eligibleCity of ELIGIBLE_CITIES) {
+                if (eligibleCity.toLowerCase() === normalizedCity) {
+                    return { eligible: true, city: eligibleCity };
+                }
+            }
+            
+            // Check for partial match
+            for (let eligibleCity of ELIGIBLE_CITIES) {
+                if (eligibleCity.includes(normalizedCity) || normalizedCity.includes(eligibleCity)) {
+                    return { eligible: true, city: eligibleCity };
+                }
+            }
+            
+            return { eligible: false, city: cityName };
+        }
+        
+        // Update eligibility display
+        function updateEligibilityDisplay(cityName) {
+            const section = document.getElementById('eligibility-section');
+            const content = document.getElementById('eligibility-content');
+            
+            if (!cityName || cityName.trim().length === 0) {
+                section.classList.remove('active');
+                return;
+            }
+            
+            const result = checkEligibility(cityName);
+            section.classList.add('active');
+            
+            if (result.eligible) {
+                content.innerHTML = `
+                    <span class="eligibility-badge">✓ זכאי ל-50% הנחה ברפורמה</span>
+                    <div class="eligibility-notice">
+                        ${result.city} נמצא/ת ברשימת היישובים הזכאים להנחה של 50% בפרופיל הגיאוגרפי 
+                        (יישובים באשכולות פריפריאליות 1-5 לפי הלמ"ס)
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <span class="eligibility-badge eligibility-not-eligible">✗ לא זכאי להנחת הפריפריה</span>
+                    <div class="eligibility-notice">
+                        ${result.city} לא נמצא/ת ברשימת היישובים הזכאים. ההנחה חלה על יישובים באשכולות פריפריאליות 1-5 בלבד.
+                    </div>
+                `;
+            }
+        }
+        
+        // Show street selection for a city
+        function showStreetSection(cityName, inputId, listId, houseSectionId) {
+            const section = document.getElementById('origin-street-section');
+            const streetInput = document.getElementById('origin-street');
+            const streetList = document.getElementById('origin-street-list');
+            const houseSection = document.getElementById('origin-house-section');
+            const houseInput = document.getElementById('origin-house');
+            
+            // Find the city key in STREETS_DATA
+            let cityKey = null;
+            const normalizedCity = cityName.trim();
+            for (let key in STREETS_DATA) {
+                if (key === normalizedCity || key.includes(normalizedCity) || normalizedCity.includes(key)) {
+                    cityKey = key;
+                    break;
+                }
+            }
+            
+            if (cityKey && STREETS_DATA[cityKey] && STREETS_DATA[cityKey].length > 0) {
+                section.classList.add('active');
+                streetInput.value = '';
+                streetList.innerHTML = '';
+                houseSection.classList.remove('active');
+                houseInput.value = '';
+                
+                // Set up street autocomplete
+                setupStreetAutocomplete(streetInput, streetList, STREETS_DATA[cityKey], houseSection, houseInput);
+            } else {
+                section.classList.remove('active');
+            }
+        }
+        
+        // Set up street autocomplete
+        function setupStreetAutocomplete(input, list, streets, houseSection, houseInput) {
+            input.addEventListener('input', function() {
+                const value = this.value.trim().toLowerCase();
+                
+                if (value.length < 1) {
+                    list.classList.remove('active');
+                    return;
+                }
+                
+                const matches = streets.filter(street => 
+                    street.toLowerCase().includes(value)
+                ).slice(0, 20);
+                
+                if (matches.length === 0) {
+                    list.classList.remove('active');
+                    return;
+                }
+                
+                list.innerHTML = '';
+                matches.forEach(street => {
+                    const item = document.createElement('div');
+                    item.className = 'street-autocomplete-item';
+                    item.textContent = street;
+                    item.addEventListener('click', function() {
+                        input.value = street;
+                        list.classList.remove('active');
+                        houseSection.classList.add('active');
+                    });
+                    list.appendChild(item);
+                });
+                
+                list.classList.add('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !list.contains(e.target)) {
+                    list.classList.remove('active');
+                }
+            });
+        }
+        
+        // Initialize autocomplete with government data
+        function initGovernmentAutocomplete() {
+            const originInput = document.getElementById('origin');
+            const originList = document.getElementById('origin-autocomplete');
+            
+            originInput.addEventListener('input', function() {
+                const value = this.value.trim().toLowerCase();
+                
+                if (value.length < 1) {
+                    originList.classList.remove('active');
+                    return;
+                }
+                
+                const matches = CITIES_DATA.filter(city => 
+                    city.toLowerCase().includes(value)
+                ).slice(0, 15);
+                
+                if (matches.length === 0) {
+                    originList.classList.remove('active');
+                    return;
+                }
+                
+                originList.innerHTML = '';
+                matches.forEach(city => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.textContent = city;
+                    item.addEventListener('click', function() {
+                        originInput.value = city;
+                        originList.classList.remove('active');
+                        // Show street section and check eligibility
+                        showStreetSection(city, 'origin-street', 'origin-street-list', 'origin-house-section');
+                        updateEligibilityDisplay(city);
+                    });
+                    originList.appendChild(item);
+                });
+                
+                originList.classList.add('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!originInput.contains(e.target) && !originList.contains(e.target)) {
+                    originList.classList.remove('active');
+                }
+            });
+        }
+        
+        // Fallback to original autocomplete
+        function initOriginalAutocomplete() {
+            // Keep the original setupAutocomplete function working
+            setupAutocomplete('origin', 'origin-autocomplete');
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGovernmentData();
+        });
+        
+        // ============================================================
+        // ISRAELI MINISTRY OF TRANSPORT FARE RULE ENGINE
+        // Structured Client-Side Rule Engine based on official fare clusters
         // ============================================================
         // ISRAELI MINISTRY OF TRANSPORT FARE RULE ENGINE
         // Structured Client-Side Rule Engine based on official fare clusters
