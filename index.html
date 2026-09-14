@@ -426,6 +426,10 @@
                                 <span style="color:var(--text-secondary);">עד 75 ק"מ:</span>
                                 <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-rail-75">0.00</span> ₪</span>
                             </div>
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                <span style="color:var(--text-secondary);">עד 120 ק"מ:</span>
+                                <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-rail-120">0.00</span> ₪</span>
+                            </div>
                             <div style="display:flex;justify-content:space-between;">
                                 <span style="color:var(--text-secondary);">ללא הגבלה:</span>
                                 <span style="font-weight:bold;white-space:nowrap;"><span id="price-monthly-rail-unlimited">0.00</span> ₪</span>
@@ -954,39 +958,62 @@
         // Source: Ministry of Transport - Official Frozen Fares
         // ============================================================
         
-        // Default fallback values (used if JSON fails to load)
+        // Default fallback values (used if tariffs.json cannot be loaded).
+        // Mirrors data/tariffs.json schema 3.x: five bus/rail zones and up to three
+        // daily-pass products per zone (local / extended / nationwide).
         var DEFAULT_FARE_RULES = {
-            yellow: { minDistance: 0, maxDistance: 15, single: 8.00, daily: 17.50, label: 'אזור 1 (0-15 ק"מ)' },
-            green: { minDistance: 15.1, maxDistance: 40, single: 14.50, daily: 29.00, label: 'אזור 2 (15.1-40 ק"מ)' },
-            lightblue: { minDistance: 40.1, maxDistance: 75, single: 19.00, daily: 37.50, label: 'אזור 3 (40.1-75 ק"מ)' },
-            blue: { minDistance: 75.1, maxDistance: 120, single: 19.00, daily: 37.50, label: 'אזור 4 (75.1-120 ק"מ)' },
-            purple: { minDistance: 120.1, maxDistance: 225, single: 30.50, daily: 60.50, label: 'אזור 5 (120.1-225 ק"מ)' },
-            gray: { minDistance: 225.1, maxDistance: Infinity, single: 74.00, daily: 79.50, label: 'אזור 6 (225.1+ ק"מ)' }
+            yellow: { minDistance: 0, maxDistance: 15, single: 8.00, dailyLocal: 17.50, dailyExtended: null, dailyNationwide: null, label: 'אזור 1 (0-15 ק"מ)' },
+            green: { minDistance: 15.1, maxDistance: 40, single: 14.50, dailyLocal: 17.50, dailyExtended: null, dailyNationwide: null, label: 'אזור 2 (15.1-40 ק"מ)' },
+            lightblue: { minDistance: 40.1, maxDistance: 75, single: 19.00, dailyLocal: null, dailyExtended: 29.00, dailyNationwide: null, label: 'אזור 3 (40.1-75 ק"מ)' },
+            blue: { minDistance: 75.1, maxDistance: 120, single: 19.00, dailyLocal: null, dailyExtended: null, dailyNationwide: 37.50, label: 'אזור 4 (75.1-120 ק"מ)' },
+            purple: { minDistance: 120.1, maxDistance: Infinity, single: 27.00, dailyLocal: null, dailyExtended: null, dailyNationwide: null, label: 'אזור 5 (120.1+ ק"מ)' }
         };
         
         var DEFAULT_RAIL_FARE_RULES = {
-            yellow: { minDistance: 0, maxDistance: 15, single: 11.50, daily: 23.00, label: 'אזור 1 + רכבת (0-15 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
-            green: { minDistance: 15.1, maxDistance: 40, single: 21.00, daily: 32.50, label: 'אזור 2 + רכבת (15.1-40 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
-            lightblue: { minDistance: 40.1, maxDistance: 75, single: 27.00, daily: 42.00, label: 'אזור 3 + רכבת (40.1-75 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
-            blue: { minDistance: 75.1, maxDistance: 120, single: 30.50, daily: 47.00, label: 'אזור 4 + רכבת (75.1-120 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
-            purple: { minDistance: 120.1, maxDistance: 225, single: 52.50, daily: 80.50, label: 'אזור 5 + רכבת (120.1-225 ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 },
-            gray: { minDistance: 225.1, maxDistance: Infinity, single: 52.50, daily: 80.50, label: 'אזור 6 + רכבת (225.1+ ק"מ)', monthlyUpTo40km: 323.00, monthlyUpTo75km: 464.00, monthlyUnlimited: 684.00 }
+            yellow: { minDistance: 0, maxDistance: 15, single: 11.50, dailyLocal: 23.00, dailyExtended: null, dailyNationwide: null, monthlyUpTo40km: 323.00, monthlyUpTo75km: null, monthlyUpTo120km: null, monthlyUnlimited: null, label: 'אזור 1 + רכבת (0-15 ק"מ)' },
+            green: { minDistance: 15.1, maxDistance: 40, single: 21.00, dailyLocal: 23.00, dailyExtended: null, dailyNationwide: null, monthlyUpTo40km: 323.00, monthlyUpTo75km: null, monthlyUpTo120km: null, monthlyUnlimited: null, label: 'אזור 2 + רכבת (15.1-40 ק"מ)' },
+            lightblue: { minDistance: 40.1, maxDistance: 75, single: 27.00, dailyLocal: null, dailyExtended: 32.50, dailyNationwide: null, monthlyUpTo40km: null, monthlyUpTo75km: 464.00, monthlyUpTo120km: null, monthlyUnlimited: null, label: 'אזור 3 + רכבת (40.1-75 ק"מ)' },
+            blue: { minDistance: 75.1, maxDistance: 120, single: 30.50, dailyLocal: null, dailyExtended: null, dailyNationwide: 47.00, monthlyUpTo40km: null, monthlyUpTo75km: null, monthlyUpTo120km: 684.00, monthlyUnlimited: null, label: 'אזור 4 + רכבת (75.1-120 ק"מ)' },
+            // No rail single ride is sold above 120 km (null) - the bus fare is used instead.
+            purple: { minDistance: 120.1, maxDistance: Infinity, single: null, dailyLocal: null, dailyExtended: null, dailyNationwide: null, monthlyUpTo40km: null, monthlyUpTo75km: null, monthlyUpTo120km: null, monthlyUnlimited: 1038.00, label: 'אזור 5 + רכבת (120.1+ ק"מ)' }
         };
         
         var DEFAULT_MONTHLY_CONTRACTS = {
-            national: { id: 'national', name: 'חופשי חודשי ארצי', base: 13.09, label: 'בינעירוני ארצי' },
+            national: { id: 'national', name: 'חופשי חודשי ארצי', base: 315.00, label: 'בינעירוני ארצי' },
             nationalTrain: { id: 'nationalTrain', name: 'חופשי ארצי משולב רכבת', base: 0, label: 'משולב רכבת', isTrainContract: true },
             nationalTrain40: { id: 'nationalTrain40', name: 'חופשי ארצי משולב רכבת עד 40 ק"מ', base: 323.00, label: 'משולב רכבת עד 40 ק"מ' },
             nationalTrain75: { id: 'nationalTrain75', name: 'חופשי ארצי משולב רכבת עד 75 ק"מ', base: 464.00, label: 'משולב רכבת עד 75 ק"מ' },
-            nationalTrainUnlimited: { id: 'nationalTrainUnlimited', name: 'חופשי ארצי משולב רכבת ללא הגבלה', base: 684.00, label: 'משולב רכבת ללא הגבלה' },
+            nationalTrain120: { id: 'nationalTrain120', name: 'חופשי ארצי משולב רכבת עד 120 ק"מ', base: 684.00, label: 'משולב רכבת עד 120 ק"מ' },
+            nationalTrainUnlimited: { id: 'nationalTrainUnlimited', name: 'חופשי ארצי משולב רכבת ללא הגבלה', base: 1038.00, label: 'משולב רכבת ללא הגבלה' },
             peripheryRegional: { id: 'peripheryRegional', name: 'חופשי אזורי פריפריה עד 40 ק"מ', base: 139.00, label: 'פריפריה אזורית עד 40 ק"מ' },
             periphery: { id: 'periphery', name: 'חופשי חודשי פריפריה', base: 315.00, label: 'פריפריה' },
             eilat: { id: 'eilat', name: 'חופשי חודשי אילת', base: 114.50, label: 'אילת', requiredCity: 'אילת' }
         };
-        
+
+        // Each zone lists up to three daily products (local / extended / nationwide).
+        // The calculator needs the single applicable one, so collapse them into `daily`.
+        function applicableDaily(zone) {
+            if (!zone) return null;
+            if (zone.dailyLocal !== undefined && zone.dailyLocal !== null) return zone.dailyLocal;
+            if (zone.dailyExtended !== undefined && zone.dailyExtended !== null) return zone.dailyExtended;
+            if (zone.dailyNationwide !== undefined && zone.dailyNationwide !== null) return zone.dailyNationwide;
+            return null;
+        }
+
+        // Shallow copy on purpose: JSON.parse(JSON.stringify(...)) would serialise the
+        // last zone's `maxDistance: Infinity` as null.
+        function normalizeFareRules(rules) {
+            var normalized = {};
+            Object.keys(rules).forEach(function(key) {
+                normalized[key] = Object.assign({}, rules[key]);
+                normalized[key].daily = applicableDaily(rules[key]);
+            });
+            return normalized;
+        }
+
         // Initialize with defaults
-        var FARE_RULES = JSON.parse(JSON.stringify(DEFAULT_FARE_RULES));
-        var RAIL_FARE_RULES = JSON.parse(JSON.stringify(DEFAULT_RAIL_FARE_RULES));
+        var FARE_RULES = normalizeFareRules(DEFAULT_FARE_RULES);
+        var RAIL_FARE_RULES = normalizeFareRules(DEFAULT_RAIL_FARE_RULES);
         var MONTHLY_CONTRACTS = JSON.parse(JSON.stringify(DEFAULT_MONTHLY_CONTRACTS));
         
         // Monthly train prices by zone (used for nationalTrain contract)
@@ -995,8 +1022,7 @@
             green: 323.00,
             lightblue: 464.00,
             blue: 684.00,
-            purple: 684.00,
-            gray: 684.00
+            purple: 1038.00
         };
         
         // Load tariff data from JSON on page load
@@ -1007,18 +1033,21 @@
                     return response.json();
                 })
                 .then(data => {
-                    // Build FARE_RULES from bus zones
+                    // Build FARE_RULES from bus zones (schema 3.x: dailyLocal/dailyExtended/dailyNationwide)
                     FARE_RULES = {};
                     data.bus.zones.forEach(zone => {
                         FARE_RULES[zone.id] = {
                             minDistance: zone.minDistance,
                             maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
                             single: zone.single,
-                            daily: zone.daily,
+                            dailyLocal: zone.dailyLocal,
+                            dailyExtended: zone.dailyExtended,
+                            dailyNationwide: zone.dailyNationwide,
                             label: zone.name + ' (' + zone.label + ')'
                         };
                     });
-                    
+                    FARE_RULES = normalizeFareRules(FARE_RULES);
+
                     // Build RAIL_FARE_RULES from rail zones (including monthly pass prices)
                     RAIL_FARE_RULES = {};
                     data.rail.zones.forEach(zone => {
@@ -1026,13 +1055,17 @@
                             minDistance: zone.minDistance,
                             maxDistance: zone.maxDistance === null ? Infinity : zone.maxDistance,
                             single: zone.single,
-                            daily: zone.daily,
+                            dailyLocal: zone.dailyLocal,
+                            dailyExtended: zone.dailyExtended,
+                            dailyNationwide: zone.dailyNationwide,
                             label: zone.label,
                             monthlyUpTo40km: zone.monthlyUpTo40km,
                             monthlyUpTo75km: zone.monthlyUpTo75km,
+                            monthlyUpTo120km: zone.monthlyUpTo120km,
                             monthlyUnlimited: zone.monthlyUnlimited
                         };
                     });
+                    RAIL_FARE_RULES = normalizeFareRules(RAIL_FARE_RULES);
                     
                     // Build MONTHLY_CONTRACTS from contracts
                     MONTHLY_CONTRACTS = {
@@ -1040,16 +1073,20 @@
                         nationalTrain: { id: 'nationalTrain', name: 'חופשי ארצי משולב רכבת', base: 0, label: 'משולב רכבת', isTrainContract: true },
                         nationalTrain40: { ...data.monthlyContracts.nationalTrain40 },
                         nationalTrain75: { ...data.monthlyContracts.nationalTrain75 },
+                        nationalTrain120: { ...data.monthlyContracts.nationalTrain120 },
                         nationalTrainUnlimited: { ...data.monthlyContracts.nationalTrainUnlimited },
                         peripheryRegional: { ...data.monthlyContracts.peripheryRegional },
                         periphery: { ...data.monthlyContracts.periphery, invalidCities: GUSH_DAN_CITIES.concat(['חיפה', 'ירושלים']), invalidMessage: 'לא תקף במסלול זה' },
                         eilat: { ...data.monthlyContracts.eilat, requiredCity: 'אילת' }
                     };
                     
-                    // Build MONTHLY_TRAIN_PRICES from rail zones
+                    // Build MONTHLY_TRAIN_PRICES from rail zones. Every distance tier must
+                    // be part of the chain, otherwise blue (75-120 km, 684.00) silently
+                    // falls back to 323.00.
                     MONTHLY_TRAIN_PRICES = {};
                     data.rail.zones.forEach(zone => {
-                        MONTHLY_TRAIN_PRICES[zone.id] = zone.monthlyUpTo40km ?? zone.monthlyUpTo75km ?? zone.monthlyUnlimited ?? 323.00;
+                        MONTHLY_TRAIN_PRICES[zone.id] =
+                            zone.monthlyUpTo40km ?? zone.monthlyUpTo75km ?? zone.monthlyUpTo120km ?? zone.monthlyUnlimited ?? 323.00;
                     });
                     
                     // Dispatch event so other parts of app can react
@@ -1415,6 +1452,7 @@
             // Monthly - Rail Combined
             document.getElementById('price-monthly-rail-40').textContent = '0.00';
             document.getElementById('price-monthly-rail-75').textContent = '0.00';
+            document.getElementById('price-monthly-rail-120').textContent = '0.00';
             document.getElementById('price-monthly-rail-unlimited').textContent = '0.00';
             
             // Reset student pass prices
@@ -1435,11 +1473,6 @@
             document.getElementById('gps-distance').classList.remove('active');
             document.getElementById('gps-distance').innerHTML = '';
             
-            // Hide train pass visibility (legacy - now shown in grid) with null checks
-            var trainPassRow = document.getElementById('train-pass-label');
-            var trainPassPrice = document.getElementById('train-pass-price');
-            if (trainPassRow) trainPassRow.classList.remove('active');
-            if (trainPassPrice) trainPassPrice.classList.remove('active');
             
             // Hide Eilat pass visibility (now in monthly bus section) with null check
             var eilatPassRow = document.getElementById('eilat-pass-row');
@@ -1698,10 +1731,10 @@
                 return { zone: 'lightblue', data: FARE_RULES.lightblue, railData: RAIL_FARE_RULES.lightblue, distance: distance };
             } else if (distance <= FARE_RULES.blue.maxDistance) {
                 return { zone: 'blue', data: FARE_RULES.blue, railData: RAIL_FARE_RULES.blue, distance: distance };
-            } else if (distance <= FARE_RULES.purple.maxDistance) {
-                return { zone: 'purple', data: FARE_RULES.purple, railData: RAIL_FARE_RULES.purple, distance: distance };
             } else {
-                return { zone: 'gray', data: FARE_RULES.gray, railData: RAIL_FARE_RULES.gray, distance: distance };
+                // The tariff has five zones; purple is the last one and covers every
+                // distance above 120 km.
+                return { zone: 'purple', data: FARE_RULES.purple, railData: RAIL_FARE_RULES.purple, distance: distance };
             }
         };
 
@@ -1772,6 +1805,8 @@
                     tier = 'upTo40km';
                 } else if (fareZone.zone === 'lightblue') {
                     tier = 'upTo75km';
+                } else if (fareZone.zone === 'blue') {
+                    tier = 'upTo120km';
                 } else {
                     tier = 'unlimited';
                 }
@@ -1825,12 +1860,14 @@
             var baseSingle = fareZone.data.single;
             var baseDaily = fareZone.data.daily;
             
-            // Apply train premium for single rides if route has train connectivity
-            if (hasTrainRoute) {
-                // Train single ride is approximately 42% higher than bus
-                var trainPremium = 1.42;
-                baseSingle = Math.round(fareZone.data.single * trainPremium * 100) / 100;
-                baseDaily = Math.round(fareZone.data.daily * trainPremium * 100) / 100;
+            // If the route has train connectivity, use the official rail tiers from
+            // RAIL_FARE_RULES instead of a flat heuristic multiplier.
+            if (hasTrainRoute && fareZone.railData) {
+                var railSingleTier = fareZone.railData.single;
+                var railDailyTier = fareZone.railData.daily;
+                // No rail single ride is sold above 120 km (null) - use the bus fare.
+                baseSingle = (railSingleTier === null || railSingleTier === undefined) ? fareZone.data.single : railSingleTier;
+                baseDaily = (railDailyTier === null || railDailyTier === undefined) ? fareZone.data.daily : railDailyTier;
             }
             
             var singlePrice = freeProfile ? 0.00 : baseSingle;
@@ -1879,8 +1916,10 @@
                         dailyFare: fareZone.data.daily
                     },
                     rail: {
-                        singleFare: hasTrainRoute ? fareZone.railData.single : fareZone.data.single,
-                        dailyFare: hasTrainRoute ? fareZone.railData.daily : fareZone.data.daily
+                        singleFare: (hasTrainRoute && fareZone.railData && fareZone.railData.single !== null && fareZone.railData.single !== undefined)
+                            ? fareZone.railData.single : fareZone.data.single,
+                        dailyFare: (hasTrainRoute && fareZone.railData && fareZone.railData.daily !== null && fareZone.railData.daily !== undefined)
+                            ? fareZone.railData.daily : fareZone.data.daily
                     }
                 },
                 
@@ -1915,6 +1954,19 @@
             // Handle invalid, null, NaN, or 0 values
             if (!valid || value === null || value === undefined || isNaN(value) || value === 0) {
                 el.textContent = 'לא קיים תעריף';
+                el.style.color = '#999';
+            } else {
+                el.textContent = value.toFixed(2);
+                el.style.color = '';
+            }
+        }
+
+        // Like renderPrice, but for fares that may legitimately be 0.00 (free
+        // profiles). Shows a dash when the tariff does not exist for the route.
+        function renderAmount(elementId, value) {
+            var el = document.getElementById(elementId);
+            if (value === null || value === undefined || isNaN(value)) {
+                el.textContent = '—';
                 el.style.color = '#999';
             } else {
                 el.textContent = value.toFixed(2);
@@ -1958,25 +2010,20 @@
                     // Update Single & Daily prices using allFares structure
                     var fares = result.allFares;
                     
-                    // Update Single Ride - Bus
-                    document.getElementById('price-single-bus').textContent = fares.bus.singleFare.toFixed(2);
-                    
-                    // Update Single Ride - Rail (combined)
-                    document.getElementById('price-single-rail').textContent = fares.rail.singleFare.toFixed(2);
-                    
-                    // Update Daily Pass - Bus
-                    document.getElementById('price-daily-bus').textContent = fares.bus.dailyFare.toFixed(2);
-                    
-                    // Update Daily Pass - Rail (combined)
-                    document.getElementById('price-daily-rail').textContent = fares.rail.dailyFare.toFixed(2);
+                    // Single and daily fares can legitimately be missing (no daily pass
+                    // above 120 km, no rail single above 120 km), so render them safely.
+                    renderAmount('price-single-bus', fares.bus.singleFare);
+                    renderAmount('price-single-rail', fares.rail.singleFare);
+                    renderAmount('price-daily-bus', fares.bus.dailyFare);
+                    renderAmount('price-daily-rail', fares.rail.dailyFare);
 
                     // Update Monthly - Bus National
                     renderPrice('price-monthly-national',
                         result.monthlyNational.price,
                         result.monthlyNational.valid);
                     
-                    // Update Monthly - Rail Combined (all distance tiers - always show all options)
-                    // Use calculated values from result.monthlyTrain instead of hardcoded lookups
+                    // Update Monthly - Rail Combined: show every distance tier and mark the
+                    // one that applies to this route. Prices come from the loaded tariffs.
                     var railMonthly = result.monthlyTrain;
                     // upTo40km: yellow/green zones (323.00)
                     renderPrice('price-monthly-rail-40',
@@ -1986,9 +2033,13 @@
                     renderPrice('price-monthly-rail-75',
                         MONTHLY_TRAIN_PRICES.lightblue || 464.00,
                         railMonthly && railMonthly.tier === 'upTo75km');
-                    // unlimited: blue/purple/gray zones (684.00)
-                    renderPrice('price-monthly-rail-unlimited',
+                    // upTo120km: blue zone (684.00)
+                    renderPrice('price-monthly-rail-120',
                         MONTHLY_TRAIN_PRICES.blue || 684.00,
+                        railMonthly && railMonthly.tier === 'upTo120km');
+                    // unlimited: purple zone (1038.00)
+                    renderPrice('price-monthly-rail-unlimited',
+                        MONTHLY_TRAIN_PRICES.purple || 1038.00,
                         railMonthly && railMonthly.tier === 'unlimited');
                     
                     // PERIPHERY PRICING - Cluster-based discount (50% for clusters 1-5, 33% for others)
@@ -2048,17 +2099,6 @@
                         }
                     } else {
                         gpsDistanceEl.classList.remove('active');
-                    }
-
-                    // Train Pass Visibility (legacy - now always visible in grid) with null checks
-                    var trainPassRow = document.getElementById('train-pass-label');
-                    var trainPassPrice = document.getElementById('train-pass-price');
-                    if (hasTrainConnectivity(origin, dest)) {
-                        if (trainPassRow) trainPassRow.classList.add('active');
-                        if (trainPassPrice) trainPassPrice.classList.add('active');
-                    } else {
-                        if (trainPassRow) trainPassRow.classList.remove('active');
-                        if (trainPassPrice) trainPassPrice.classList.remove('active');
                     }
 
                     // Eilat Pass Visibility (now in monthly bus section) with null check

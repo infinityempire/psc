@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "Public Transportation Fare Calculator",
   "scripts": {
-    "sync-fares": "node sync-fares.js",
-    "test": "jest"
+    "build": "node --check psc.js && node --check calculator-loader.js && node --check sync-fares.js && node --check fare_test.js && node --check index.ui.test.js && node --check test_e2e_psc.js && node --check test_periphery.js",
+    "test": "jest",
+    "test:ui": "node fare_test.js",
+    "test:periphery": "node test_periphery.js",
+    "test:e2e": "node test_e2e_psc.js",
+    "sync-fares": "node sync-fares.js"
   },
   "dependencies": {
     "puppeteer": "^21.0.0"

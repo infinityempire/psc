@@ -18,6 +18,17 @@
 
 (function() {
     'use strict';
+
+    // In a browser, calculateFare()/FARE_RULES come from index.html's inline script.
+    // Node has no such globals, so load the real calculator out of index.html
+    // instead of crashing with a ReferenceError.
+    if (typeof window === 'undefined' && typeof global !== 'undefined' &&
+        typeof global.calculateFare !== 'function') {
+        var api = require('./calculator-loader.js').loadCalculatorSync();
+        global.calculateFare = api.calculateFare;
+        global.FARE_RULES = api.FARE_RULES;
+        global.RAIL_FARE_RULES = api.RAIL_FARE_RULES;
+    }
     
     const results = {
         passed: 0,
@@ -127,9 +138,15 @@
         }
         
         // Lightblue zone (40-75 km)
-        const lightblueResult = calculateFare('תל אביב', 'באר שבע', 'regular');
+        const lightblueResult = calculateFare('ירושלים', 'תל אביב', 'regular');
         if (lightblueResult) {
             assertEqual(lightblueResult.zone, 'lightblue', 'Long route is in lightblue zone');
+        }
+
+        // Blue zone (75-120 km)
+        const blueResult = calculateFare('תל אביב', 'באר שבע', 'regular');
+        if (blueResult) {
+            assertEqual(blueResult.zone, 'blue', 'Very long route is in blue zone');
         }
         
         // Test Group 4: Fare Rates by Zone
@@ -144,7 +161,7 @@
             assertEqual(FARE_RULES.yellow.single, 8.00, 'Yellow zone single fare is 8.00');
             assertEqual(FARE_RULES.yellow.daily, 17.50, 'Yellow zone daily fare is 17.50');
             assertEqual(FARE_RULES.lightblue.single, 19.00, 'Lightblue zone single fare is 19.00');
-            assertEqual(FARE_RULES.lightblue.daily, 37.50, 'Lightblue zone daily fare is 37.50');
+            assertEqual(FARE_RULES.lightblue.daily, 29.00, 'Lightblue zone daily fare is 29.00');
         }
         
         // Test Group 5: Passenger Type Discounts

@@ -52,7 +52,7 @@ def load_tariffs():
 def save_tariffs(data):
     """Save tariffs to JSON file."""
     with open(TARIFFS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(data, f, f, indent=4, ensure_ascii=False)
+        json.dump(data, f, indent=4, ensure_ascii=False)
     print(f"✓ Tariffs saved to {TARIFFS_FILE}")
 
 
@@ -73,32 +73,53 @@ def create_backup():
 
 
 def validate_tariffs(data):
-    """Validate the structure of tariff data."""
-    required_keys = ['metadata', 'fareRules', 'currency']
-    
+    """Validate the structure of tariff data (schema 3.x)."""
+    required_keys = ['metadata', 'currency', 'bus', 'rail', 'monthlyContracts']
+
     for key in required_keys:
         if key not in data:
             print(f"Error: Missing required key '{key}'")
             return False
-    
-    # Validate fare rules
-    required_zones = ['yellow', 'green', 'lightblue', 'blue', 'purple', 'gray']
-    for zone in required_zones:
-        if zone not in data['fareRules']:
-            print(f"Error: Missing zone '{zone}'")
+
+    required_zones = ['yellow', 'green', 'lightblue', 'blue', 'purple']
+    daily_fields = ['dailyLocal', 'dailyExtended', 'dailyNationwide']
+
+    for service in ['bus', 'rail']:
+        zones = data[service].get('zones')
+        if not zones:
+            print(f"Error: Missing zones for '{service}'")
             return False
-        
-        zone_data = data['fareRules'][zone]
-        for rate_type in ['single', 'daily']:
-            if rate_type not in zone_data:
-                print(f"Error: Missing '{rate_type}' rate for '{zone}'")
+
+        found_zones = [zone.get('id') for zone in zones]
+        for zone_id in required_zones:
+            if zone_id not in found_zones:
+                print(f"Error: Missing zone '{zone_id}' in '{service}'")
                 return False
-            
-            rate = zone_data[rate_type]
-            if not isinstance(rate, (int, float)) or rate < 0:
-                print(f"Error: Invalid rate for {zone}/{rate_type}: {rate}")
+
+        for zone in zones:
+            for field in ['minDistance', 'maxDistance'] + daily_fields:
+                if field not in zone:
+                    print(f"Error: Missing '{field}' for {service}/{zone.get('id')}")
+                    return False
+
+            for field in daily_fields:
+                rate = zone[field]
+                if rate is not None and (not isinstance(rate, (int, float)) or rate < 0):
+                    print(f"Error: Invalid {field} for {service}/{zone['id']}: {rate}")
+                    return False
+
+            # `single` may be null: no rail single ride is sold above 120 km.
+            single = zone.get('single')
+            if single is not None and (not isinstance(single, (int, float)) or single < 0):
+                print(f"Error: Invalid single rate for {service}/{zone['id']}: {single}")
                 return False
-    
+
+    for contract_id, contract in data['monthlyContracts'].items():
+        base = contract.get('base')
+        if not isinstance(base, (int, float)) or base < 0:
+            print(f"Error: Invalid base for monthly contract '{contract_id}': {base}")
+            return False
+
     print("✓ Tariff data validation passed")
     return True
 
@@ -143,12 +164,25 @@ def update_index_html_fare_rules(data):
     """
     Generate JavaScript code to update FARE_RULES in index.html
     """
+    # index.html's FARE_RULES mirrors the bus zones.
+    bus_rules = {
+        zone['id']: {
+            'minDistance': zone['minDistance'],
+            'maxDistance': zone['maxDistance'],
+            'single': zone['single'],
+            'dailyLocal': zone.get('dailyLocal'),
+            'dailyExtended': zone.get('dailyExtended'),
+            'dailyNationwide': zone.get('dailyNationwide')
+        }
+        for zone in data['bus']['zones']
+    }
+
     js_code = f"""
     // Dynamic Fare Rules Loader - Generated {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
     // This code can be used to replace hardcoded FARE_RULES in index.html
-    
-    var DYNAMIC_FARE_RULES = {json.dumps(data['fareRules'], indent=8, ensure_ascii=False)};
-    
+
+    var DYNAMIC_FARE_RULES = {json.dumps(bus_rules, indent=8, ensure_ascii=False)};
+
     // Usage: Replace the hardcoded FARE_RULES object with DYNAMIC_FARE_RULES
     // Make sure to load tariffs.json before the main script
     """
@@ -168,14 +202,19 @@ def show_current_tariffs():
     print(f"Last Updated: {data['metadata']['lastUpdated']}")
     print(f"Source: {data['metadata']['source']}")
     
-    print("\n─── Fare Rates by Zone ───")
-    print(f"{'Zone':<12} {'Distance':>15} {'Single':>10} {'Daily':>10}")
-    print("-" * 50)
-    
-    for zone, rules in data['fareRules'].items():
-        max_dist = f"{rules['maxDistance']} km" if rules['maxDistance'] else "∞"
-        distance = f"{rules['minDistance']}-{max_dist}"
-        print(f"{zone:<12} {distance:>15} {rules['single']:>9.2f}₪ {rules['daily']:>9.2f}₪")
+    for service in ['bus', 'rail']:
+        print(f"\n─── {service} fare rates by zone ───")
+        print(f"{'Zone':<12} {'Distance':>18} {'Single':>10} {'Daily':>10}")
+        print("-" * 54)
+
+        for zone in data[service]['zones']:
+            max_dist = f"{zone['maxDistance']} km" if zone['maxDistance'] else "∞"
+            distance = f"{zone['minDistance']}-{max_dist}"
+            single = zone.get('single')
+            single_text = f"{single:.2f}₪" if single is not None else "—"
+            daily = zone.get('dailyLocal') or zone.get('dailyExtended') or zone.get('dailyNationwide')
+            daily_text = f"{daily:.2f}₪" if daily is not None else "—"
+            print(f"{zone['id']:<12} {distance:>18} {single_text:>10} {daily_text:>10}")
     
     print("\n─── Currency ───")
     print(f"  Code: {data['currency']['code']}")
@@ -233,13 +272,13 @@ Examples:
         if new_data:
             print("\n─── Validating New Data ───")
             if validate_tariffs(new_data):
-                print("\n─── Creating Backup ───")
-                create_backup()
-                
                 if args.dry_run:
                     print("\n[DRY RUN] Would update tariffs with:")
                     print(json.dumps(new_data, indent=2, ensure_ascii=False))
                 else:
+                    print("\n─── Creating Backup ───")
+                    create_backup()
+
                     print("\n─── Saving New Tariffs ───")
                     save_tariffs(new_data)
                     

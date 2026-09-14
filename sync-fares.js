@@ -136,6 +136,16 @@ function parseCurrentFares() {
     return fares;
 }
 
+/**
+ * A scraped number must look like a plausible public-transport fare before it is
+ * written into index.html. The scraper occasionally picks up unrelated numbers
+ * (a date fragment produced a ₪13.09 national monthly pass), which silently
+ * corrupted the calculator's embedded defaults.
+ */
+function isPlausibleFare(value, max = 5000) {
+    return typeof value === 'number' && Number.isFinite(value) && value > 0 && value <= max;
+}
+
 function updateFares(motFares, currentFares) {
     const indexPath = path.join(__dirname, 'index.html');
     let content = fs.readFileSync(indexPath, 'utf8');
@@ -147,7 +157,9 @@ function updateFares(motFares, currentFares) {
     // and monthly national/train fares
     
     // Update intercity single fare
-    if (motFares.single && motFares.single !== currentFares.intercity.single) {
+    if (isPlausibleFare(motFares.single, 500) &&
+        isPlausibleFare(currentFares.intercity.single, 500) &&
+        motFares.single !== currentFares.intercity.single) {
         const oldValue = currentFares.intercity.single.toFixed(2);
         const newValue = motFares.single.toFixed(2);
         content = content.replace(
@@ -160,7 +172,9 @@ function updateFares(motFares, currentFares) {
     }
     
     // Update intercity daily fare
-    if (motFares.daily && motFares.daily !== currentFares.intercity.daily) {
+    if (isPlausibleFare(motFares.daily, 500) &&
+        isPlausibleFare(currentFares.intercity.daily, 500) &&
+        motFares.daily !== currentFares.intercity.daily) {
         const oldValue = currentFares.intercity.daily.toFixed(2);
         const newValue = motFares.daily.toFixed(2);
         content = content.replace(
@@ -182,7 +196,9 @@ function updateFares(motFares, currentFares) {
     }
     
     // Update monthly national fare
-    if (motFares.monthly && motFares.monthly !== currentFares.monthlyNational) {
+    if (isPlausibleFare(motFares.monthly) &&
+        isPlausibleFare(currentFares.monthlyNational) &&
+        motFares.monthly !== currentFares.monthlyNational) {
         const oldValue = currentFares.monthlyNational.toFixed(2);
         const newValue = motFares.monthly.toFixed(2);
         content = content.replace(
@@ -203,7 +219,9 @@ function updateFares(motFares, currentFares) {
     }
     
     // Update monthly train fare
-    if (motFares.monthlyTrain && motFares.monthlyTrain !== currentFares.monthlyTrain) {
+    if (isPlausibleFare(motFares.monthlyTrain) &&
+        isPlausibleFare(currentFares.monthlyTrain) &&
+        motFares.monthlyTrain !== currentFares.monthlyTrain) {
         const oldValue = currentFares.monthlyTrain.toFixed(2);
         const newValue = motFares.monthlyTrain.toFixed(2);
         content = content.replace(

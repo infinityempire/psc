@@ -1,318 +1,203 @@
 /**
- * test_e2e_psc.js - End-to-End Playwright Test Suite for PSC Calculator
- * 
- * This test suite validates the UI state management and ensures no state leaks
- * occur between back-to-back calculations, particularly for periphery routes.
- * 
- * Usage:
- * ======
- * node test_e2e_psc.js
- * 
- * Prerequisites:
- * ===============
- * npm install playwright
- * npx playwright install chromium
+ * test_e2e_psc.js - End-to-End UI test for the PSC calculator (headless Chromium).
+ *
+ * Drives the real page: fills the inputs, clicks "חשב תעריף" and reads the prices
+ * that the UI renders. This covers what the Jest suites cannot - the DOM wiring,
+ * the click handler and the async render path.
+ *
+ * Playwright is an optional test dependency:
+ *   npm install --no-save playwright && npx playwright install chromium
+ * Without it the suite skips cleanly (exit 0).
+ *
+ * Usage: node test_e2e_psc.js
  */
 
-const { chromium } = require('playwright');
-const path = require('path');
+const http = require('http');
 const fs = require('fs');
+const path = require('path');
 
-const HTML_PATH = path.join(__dirname, 'index.html');
-const TEST_URL = `file://${HTML_PATH}`;
+let chromium;
+try {
+    ({ chromium } = require('playwright'));
+} catch (e) {
+    console.log('SKIP: test_e2e_psc.js requires Playwright, which is not installed.');
+    console.log('      Install with: npm install --no-save playwright && npx playwright install chromium');
+    process.exit(0);
+}
 
-let testsPassed = 0;
-let testsFailed = 0;
-const testResults = [];
+const PROJECT_DIR = __dirname;
+const HTML_PATH = path.join(PROJECT_DIR, 'index.html');
 
-function log(message, type = 'info') {
-    const colors = {
-        info: '\x1b[36m',    // cyan
-        pass: '\x1b[32m',    // green
-        fail: '\x1b[31m',    // red
-        warn: '\x1b[33m',    // yellow
-        header: '\x1b[35m',  // magenta
-        reset: '\x1b[0m'
+// Serve over HTTP: fetch('data/tariffs.json') is blocked on the file:// scheme,
+// which would make the page log a console error and fall back to stale defaults.
+function startStaticServer() {
+    const MIME = {
+        '.html': 'text/html; charset=utf-8',
+        '.json': 'application/json; charset=utf-8',
+        '.js': 'text/javascript; charset=utf-8',
+        '.css': 'text/css; charset=utf-8',
     };
-    console.log(`${colors[type] || ''}${message}${colors.reset}`);
+    const server = http.createServer((req, res) => {
+        const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
+        const filePath = path.join(PROJECT_DIR, urlPath === '/' ? 'index.html' : urlPath);
+        if (!filePath.startsWith(PROJECT_DIR)) {
+            res.writeHead(403);
+            return res.end('forbidden');
+        }
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                return res.end('not found');
+            }
+            res.writeHead(200, { 'Content-Type': MIME[path.extname(filePath)] || 'application/octet-stream' });
+            res.end(data);
+        });
+    });
+    return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve(server)));
 }
 
-function assert(condition, testName, message = '') {
-    if (condition) {
-        testsPassed++;
-        testResults.push({ name: testName, status: 'PASS', message: '' });
-        log(`  ✓ ${testName}`, 'pass');
-        return true;
+let passed = 0;
+let failed = 0;
+
+function check(name, actual, expected) {
+    if (actual === expected) {
+        console.log(`  \u2713 ${name}`);
+        passed++;
     } else {
-        testsFailed++;
-        testResults.push({ name: testName, status: 'FAIL', message: message || 'Assertion failed' });
-        log(`  ✗ ${testName}: ${message || 'Assertion failed'}`, 'fail');
-        return false;
+        console.log(`  \u2717 ${name}: expected "${expected}", got "${actual}"`);
+        failed++;
     }
 }
 
-function assertContains(actual, expected, testName) {
-    const passed = actual && actual.includes(expected);
-    if (!passed) {
-        assert(false, testName, `Expected "${expected}" to be contained in "${actual}"`);
-    } else {
-        assert(true, testName);
-    }
-    return passed;
-}
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-function assertNotContains(actual, notExpected, testName) {
-    const passed = !actual || !actual.includes(notExpected);
-    if (!passed) {
-        assert(false, testName, `Expected "${notExpected}" NOT to be contained in "${actual}"`);
-    } else {
-        assert(true, testName);
-    }
-    return passed;
-}
-
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function selectPassengerProfile(page, profileValue) {
-    // The radio inputs are hidden via CSS display:none
-    // We need to click the associated label instead
-    // Map profile values to label 'for' attributes
-    const profileToLabel = {
-        'adult': 'p-adult',
-        'youth': 'p-youth',
-        'youth_18_26': 'p-youth26',
-        'senior': 'p-senior',
-        'student': 'p-student',
-        'disabled': 'p-disabled',
-        'soldier': 'p-soldier',
-        'periphery_resident': 'p-periphery'
-    };
-    const labelId = profileToLabel[profileValue] || `p-${profileValue}`;
+async function selectProfile(page, labelId) {
     await page.click(`label[for="${labelId}"]`);
-    await sleep(100);
+    await sleep(120);
 }
 
-async function calculateFare(page, origin, dest) {
-    // Clear and set origin
+async function calculate(page, origin, dest) {
     await page.fill('#origin', '');
     await page.fill('#origin', origin);
-    await sleep(50);
-    
-    // Clear and set destination
     await page.fill('#dest', '');
     await page.fill('#dest', dest);
-    await sleep(50);
-    
-    // Click calculate button
     await page.click('#calculate-btn');
-    
-    // Wait for results to appear
-    await page.waitForSelector('#results.active', { timeout: 5000 });
-    await sleep(300);
+    await page.waitForSelector('#results.active', { timeout: 10000 });
+    await sleep(250);
 }
 
-async function getPeripheryPrice(page) {
-    return await page.textContent('#price-monthly-periphery');
+async function readPrices(page) {
+    return page.evaluate(() => {
+        const text = id => {
+            const el = document.getElementById(id);
+            return el ? el.textContent.trim() : '<missing>';
+        };
+        const btn = document.getElementById('calculate-btn');
+        return {
+            singleBus: text('price-single-bus'),
+            singleRail: text('price-single-rail'),
+            dailyBus: text('price-daily-bus'),
+            dailyRail: text('price-daily-rail'),
+            monthlyNational: text('price-monthly-national'),
+            rail40: text('price-monthly-rail-40'),
+            rail75: text('price-monthly-rail-75'),
+            rail120: text('price-monthly-rail-120'),
+            railUnlimited: text('price-monthly-rail-unlimited'),
+            final: text('r-final'),
+            distance: text('r-distance'),
+            type: text('r-type'),
+            fallbackVisible: document.getElementById('fallback').style.display,
+            buttonDisabled: btn.disabled,
+            buttonText: btn.textContent.trim(),
+        };
+    });
 }
 
-async function getFinalPrice(page) {
-    return await page.textContent('#r-final');
-}
+async function run() {
+    console.log('=== PSC calculator - end-to-end UI test ===');
 
-async function getResultsActive(page) {
-    const isActive = await page.$eval('#results', el => el.classList.contains('active'));
-    return isActive;
-}
-
-async function getPassengerType(page) {
-    return await page.$eval('input[name="passenger"]:checked', el => el.value);
-}
-
-async function runTests() {
-    log('═══════════════════════════════════════════════════════════════', 'header');
-    log('PSC Calculator - End-to-End UI State Management Test Suite', 'header');
-    log('═══════════════════════════════════════════════════════════════\n', 'header');
-
-    let browser;
-    try {
-        // Verify HTML file exists
-        if (!fs.existsSync(HTML_PATH)) {
-            log(`ERROR: index.html not found at ${HTML_PATH}`, 'fail');
-            process.exit(1);
-        }
-
-        browser = await chromium.launch({ headless: true });
-        const context = await browser.newContext();
-        const page = await context.newPage();
-
-        // Track console errors
-        const consoleErrors = [];
-        page.on('console', msg => {
-            if (msg.type() === 'error') {
-                consoleErrors.push(msg.text());
-            }
-        });
-
-        // Navigate to the page
-        log('Loading PSC Calculator...', 'info');
-        await page.goto(TEST_URL);
-        await page.waitForLoadState('domcontentloaded');
-        await sleep(500);
-
-        // Verify page loaded
-        const title = await page.title();
-        assert(title.includes('תחבורה') || title.includes('PSC'), 'Page loads correctly', `Title: ${title}`);
-
-        // Test 1: Initial State - Results should not be visible
-        log('\n--- Test Group 1: Initial State ---', 'header');
-        const initialResultsActive = await getResultsActive(page);
-        assert(!initialResultsActive, 'Initial state: Results container is hidden');
-
-        // Test 2: Basic Calculation - Jerusalem to Tel Aviv (Regular Profile)
-        log('\n--- Test Group 2: Basic Calculation ---', 'header');
-        
-        await calculateFare(page, 'ירושלים', 'תל אביב');
-        
-        const jlmTaPrice = await getFinalPrice(page);
-        assert(jlmTaPrice.includes('₪'), 'Jerusalem -> Tel Aviv: Final price displayed', `Price: ${jlmTaPrice}`);
-        assert(jlmTaPrice !== '0.00 ₪', 'Jerusalem -> Tel Aviv: Price is not zero', `Price: ${jlmTaPrice}`);
-        
-        const jlmTaPeriphery = await getPeripheryPrice(page);
-        assert(jlmTaPeriphery !== '157.50', 'Jerusalem -> Tel Aviv: Regular profile does NOT show periphery discounted rate (157.50)', `Periphery: ${jlmTaPeriphery}`);
-
-        // Test 3: Switch to Periphery Profile - State should reset
-        log('\n--- Test Group 3: Periphery Profile State ---', 'header');
-        
-        await selectPassengerProfile(page, 'periphery_resident');
-        await sleep(200);
-        
-        // Results should still be from previous calculation (JLM->TA regular)
-        const peripheryAfterSwitch = await getPeripheryPrice(page);
-        assert(peripheryAfterSwitch === '-', 'After switching to periphery profile: Results reset (periphery shows "-")', `Periphery: ${peripheryAfterSwitch}`);
-
-        // Test 4: Calculate with Periphery Profile - Jerusalem to Tel Aviv
-        log('\n--- Test Group 4: Periphery Route Calculation ---', 'header');
-        
-        await page.click('#calculate-btn');
-        await page.waitForSelector('#results.active', { timeout: 5000 });
-        await sleep(300);
-        
-        const peripheryJlmTa = await getPeripheryPrice(page);
-        const peripheryJlmTaFinal = await getFinalPrice(page);
-        
-        assert(peripheryJlmTa === '157.50', 'Jerusalem -> Tel Aviv (Periphery): Shows 157.50 periphery price', `Periphery: ${peripheryJlmTa}`);
-        
-        // Test 5: Switch BACK to Regular Profile - State Must Reset Completely
-        log('\n--- Test Group 5: State Reset After Profile Change ---', 'header');
-        
-        await selectPassengerProfile(page, 'adult');
-        await sleep(200);
-        
-        // Results should be reset
-        const afterRegularSwitch = await getPeripheryPrice(page);
-        const resultsActiveAfterSwitch = await getResultsActive(page);
-        
-        assert(afterRegularSwitch === '-', 'After switching back to regular: Periphery price reset to "-"', `Periphery: ${afterRegularSwitch}`);
-        assert(!resultsActiveAfterSwitch, 'After switching back to regular: Results container still visible but reset');
-
-        // Test 6: Back-to-Back Calculations - No State Leak
-        log('\n--- Test Group 6: Back-to-Back Calculations ---', 'header');
-        
-        // Calculate Tel Aviv to Haifa (Regular)
-        await calculateFare(page, 'תל אביב', 'חיפה');
-        
-        const taHaifaPrice = await getFinalPrice(page);
-        const taHaifaPeriphery = await getPeripheryPrice(page);
-        
-        assert(taHaifaPeriphery !== '157.50', 'Tel Aviv -> Haifa: Regular profile does NOT show periphery rate', `Periphery: ${taHaifaPeriphery}`);
-        log(`  ℹ Tel Aviv -> Haifa: ${taHaifaPrice}, Periphery: ${taHaifaPeriphery}`, 'info');
-        
-        // Now switch to periphery and calculate
-        await selectPassengerProfile(page, 'periphery_resident');
-        await page.click('#calculate-btn');
-        await page.waitForSelector('#results.active', { timeout: 5000 });
-        await sleep(300);
-        
-        const taHaifaPeripheryResult = await getPeripheryPrice(page);
-        assert(taHaifaPeripheryResult === '157.50', 'Tel Aviv -> Haifa (Periphery): Shows 157.50', `Periphery: ${taHaifaPeripheryResult}`);
-        
-        // Switch back and calculate a NEW route (Jerusalem to Tel Aviv)
-        await selectPassengerProfile(page, 'adult');
-        await calculateFare(page, 'ירושלים', 'תל אביב');
-        
-        const newJlmTaPeriphery = await getPeripheryPrice(page);
-        const newJlmTaFinal = await getFinalPrice(page);
-        
-        assert(newJlmTaPeriphery !== '157.50', 'New Jerusalem -> Tel Aviv (Regular): Does NOT retain periphery rate from previous calculation', `Periphery: ${newJlmTaPeriphery}`);
-        log(`  ℹ New Jerusalem -> Tel Aviv: ${newJlmTaFinal}, Periphery: ${newJlmTaPeriphery}`, 'info');
-
-        // Test 7: Verify Fare Matches Expected Rate
-        log('\n--- Test Group 7: Fare Verification ---', 'header');
-        
-        // Calculate Tel Aviv to Beer Sheva (known route)
-        await calculateFare(page, 'תל אביב', 'באר שבע');
-        
-        const taBeershebaSingle = await page.textContent('#price-single');
-        const taBeershebaDistance = await page.textContent('#r-distance');
-        
-        assert(taBeershebaSingle !== '0.00', 'Tel Aviv -> Beer Sheva: Single fare is calculated', `Single: ${taBeershebaSingle}`);
-        assert(taBeershebaDistance !== '-', 'Tel Aviv -> Beer Sheva: Distance is displayed', `Distance: ${taBeershebaDistance}`);
-        log(`  ℹ Tel Aviv -> Beer Sheva: Single=${taBeershebaSingle}, Distance=${taBeershebaDistance}`, 'info');
-
-        // Test 8: Input Change Triggers Reset
-        log('\n--- Test Group 8: Input Change Reset ---', 'header');
-        
-        // First calculate something with periphery
-        await selectPassengerProfile(page, 'periphery_resident');
-        await calculateFare(page, 'באר שבע', 'חיפה');
-        
-        const beershebaHaifaPeriphery = await getPeripheryPrice(page);
-        assert(beershebaHaifaPeriphery === '157.50', 'Beer Sheva -> Haifa (Periphery): Shows 157.50', `Periphery: ${beershebaHaifaPeriphery}`);
-        
-        // Now change the origin input
-        await page.fill('#origin', 'נתניה');
-        await sleep(200);
-        
-        // Results should be reset
-        const afterInputChange = await getPeripheryPrice(page);
-        const afterInputChangeResults = await getResultsActive(page);
-        
-        assert(afterInputChange === '-', 'After changing origin input: Periphery price resets to "-"', `Periphery: ${afterInputChange}`);
-        assert(!afterInputChangeResults, 'After changing origin input: Results container is hidden/reset');
-
-        // Test 9: No Console Errors
-        log('\n--- Test Group 9: Console Error Check ---', 'header');
-        
-        if (consoleErrors.length === 0) {
-            assert(true, 'No JavaScript console errors detected');
-        } else {
-            assert(false, 'No JavaScript console errors detected', `Found ${consoleErrors.length} error(s): ${consoleErrors.join(', ')}`);
-        }
-
-        // Summary
-        log('\n═══════════════════════════════════════════════════════════════', 'header');
-        log(`TEST RESULTS: ${testsPassed} passed, ${testsFailed} failed`, testsFailed > 0 ? 'fail' : 'pass');
-        log('═══════════════════════════════════════════════════════════════\n', 'header');
-
-        if (testsFailed > 0) {
-            log('Failed tests:', 'fail');
-            testResults.filter(t => t.status === 'FAIL').forEach(t => {
-                log(`  - ${t.name}: ${t.message}`, 'fail');
-            });
-            console.log('\n');
-        }
-
-        await browser.close();
-        process.exit(testsFailed > 0 ? 1 : 0);
-
-    } catch (error) {
-        log(`\nFATAL ERROR: ${error.message}`, 'fail');
-        if (browser) await browser.close();
+    if (!fs.existsSync(HTML_PATH)) {
+        console.error(`index.html not found at ${HTML_PATH}`);
         process.exit(1);
     }
+
+    const server = await startStaticServer();
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const browser = await chromium.launch({ headless: true });
+    const page = await browser.newPage();
+
+    const consoleErrors = [];
+    page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+    page.on('pageerror', err => consoleErrors.push('pageerror: ' + err.message));
+
+    await page.goto(`${baseUrl}/index.html`);
+    await page.waitForLoadState('domcontentloaded');
+    await sleep(800);
+
+    check('page title loads', (await page.title()).includes('תחבורה'), true);
+
+    // --- 1. Jerusalem <-> Tel Aviv (53.9 km, lightblue) ---
+    console.log('\n-- Jerusalem -> Tel Aviv (53.9 km) --');
+    await calculate(page, 'ירושלים', 'תל אביב');
+    let out = await readPrices(page);
+    check('distance shown', out.distance, '53.9 ק"מ');
+    check('bus single', out.singleBus, '19.00');
+    check('rail single', out.singleRail, '27.00');
+    check('bus daily (extended)', out.dailyBus, '29.00');
+    check('rail daily (extended)', out.dailyRail, '32.50');
+    check('monthly bus national', out.monthlyNational, '315.00');
+    check('monthly rail up to 75 km', out.rail75, '464.00');
+    check('final price', out.final, '27.00 ₪');
+    check('fallback notice hidden', out.fallbackVisible, 'none');
+    check('calculate button re-enabled', out.buttonDisabled, false);
+
+    // --- 2. Eilat <-> Metula (417.7 km, purple) ---
+    console.log('\n-- Eilat -> Metula (417.7 km) --');
+    await calculate(page, 'אילת', 'מטולה');
+    out = await readPrices(page);
+    check('distance shown', out.distance, '417.7 ק"מ');
+    check('bus single above 120 km', out.singleBus, '27.00');
+    check('no daily pass above 120 km', out.dailyBus, '\u2014');
+    check('monthly rail unlimited', out.railUnlimited, '1038.00');
+    check('final price', out.final, '27.00 ₪');
+    check('calculate button re-enabled', out.buttonDisabled, false);
+
+    // --- 3. Tel Aviv -> Haifa (81.2 km, blue) ---
+    console.log('\n-- Tel Aviv -> Haifa (81.2 km) --');
+    await calculate(page, 'תל אביב', 'חיפה');
+    out = await readPrices(page);
+    check('rail single', out.singleRail, '30.50');
+    check('rail daily (nationwide)', out.dailyRail, '47.00');
+    check('monthly rail up to 120 km', out.rail120, '684.00');
+    check('final price', out.final, '30.50 ₪');
+    check('calculate button re-enabled', out.buttonDisabled, false);
+
+    // --- 4. State reset when an input changes ---
+    console.log('\n-- State reset on input change --');
+    await page.fill('#origin', 'נתניה');
+    await sleep(200);
+    const resultsActive = await page.$eval('#results', el => el.classList.contains('active'));
+    check('results hidden after input change', resultsActive, false);
+
+    // --- 5. Periphery profile still calculates ---
+    console.log('\n-- Geographic periphery profile --');
+    await selectProfile(page, 'p-periphery');
+    await calculate(page, 'שדרות', 'תל אביב');
+    const periphery = await page.textContent('#price-monthly-periphery');
+    check('periphery monthly price', periphery.trim(), '157.50');
+
+    console.log('\n-- Console errors --');
+    check('no console/page errors', consoleErrors.length, 0);
+    if (consoleErrors.length) consoleErrors.slice(0, 5).forEach(e => console.log('    - ' + e));
+
+    await browser.close();
+    server.close();
+
+    console.log(`\nTEST RESULTS: ${passed} passed, ${failed} failed`);
+    process.exit(failed > 0 ? 1 : 0);
 }
 
-// Run the tests
-runTests();
+run().catch(err => {
+    console.error('FATAL ERROR: ' + err.message);
+    process.exit(1);
+});
